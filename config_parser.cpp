@@ -25,7 +25,6 @@ void	server_block_parser(std::ifstream &config_file, webserver &w, int server)
 	}
 	if (directive == "listen")
 		listen_directive(line, i, w, server);
-	// std::cout << directive << "*" << std::endl;
 }
 
 void	config_parser(webserver &w, const char *name)
