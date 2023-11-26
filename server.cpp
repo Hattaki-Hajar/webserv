@@ -1,6 +1,6 @@
 #include "server.hpp"
 
-server::server(std::string const& ip, int port):_ip(ip)
+server::server(int port):_ip("127.0.0.1")
 {
 	_port = port;
 	_addr.sin_family = AF_INET;
@@ -8,6 +8,19 @@ server::server(std::string const& ip, int port):_ip(ip)
 	_addr.sin_addr.s_addr = inet_addr(_ip.c_str());
 	_socketaddr_len = sizeof(_addr);
 }
+
+server::server(const std::string &host)
+{
+	_port = 80;
+	_addr.sin_family = AF_INET;
+	_addr.sin_port = htons(_port);
+	_addr.sin_addr.s_addr = inet_addr(host.c_str());
+	_socketaddr_len = sizeof(_addr);
+}
+
+server::server()
+{}
+
 server::~server()
 {
 	close(_socket);
@@ -55,4 +68,14 @@ void	server::acceptconnection(int &new_socket)
         << ntohs(_addr.sin_port);
         throw std::runtime_error("failed to connect!");
     }
+}
+
+void	server::set_port(int port)
+{
+	_port = port;
+}
+
+void	server::set_host(const std::string &host)
+{
+	_ip = host;
 }

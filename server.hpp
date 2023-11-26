@@ -7,6 +7,7 @@
 #include <iostream>
 #include <sstream>
 #include <exception>
+#include <cstdlib>
 
 #define BUFFER_SIZE 30720
 
@@ -14,15 +15,16 @@ class server
 {
 	int					_socket;
 	int					_newSocket;
+	std::string			_ip;
 	int					_port;
-	const std::string	&_ip;
 	std::string			_message;
 	sockaddr_in			_addr;
 	unsigned int		_socketaddr_len;
-	server();
 public:
 	/* constructors / destructors */
-	server(std::string const&, int);
+	server();
+	server(int);
+	server(const std::string &);
 	~server();
 	/* additional functions */
 	void	bind_server();
@@ -30,6 +32,8 @@ public:
 	void	acceptconnection(int &);
 	/* setters */
 	void	set_socket(int);
+	void	set_port(int port);
+	void	set_host(const std::string &);
 
 	// void	send_response(int, std::string const&);
 };
