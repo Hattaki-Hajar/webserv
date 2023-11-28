@@ -15,10 +15,13 @@ public:
 	~webserver();
 	/* setters */
 	void	set_socket(int);
-	/* additional func */
-	void	start();
 	void	set_port(const std::string &, int);
 	void	set_host(const std::string &, int);
+	void	set_name(const std::string &, int);
+	/* getters */
+	std::string	&get_name(int);
+	/* additional func */
+	void	start();
 
 	// void	listen_directive(std::string &, int, int);
 };

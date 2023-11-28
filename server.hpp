@@ -10,6 +10,8 @@
 #include <cstdlib>
 
 #define BUFFER_SIZE 30720
+#define	NO_NAME "no name"
+#define	DEFAULT_SERVER "default"
 
 class server
 {
@@ -20,6 +22,7 @@ class server
 	std::string			_message;
 	sockaddr_in			_addr;
 	unsigned int		_socketaddr_len;
+	std::string 		_name;
 public:
 	/* constructors / destructors */
 	server();
@@ -34,6 +37,9 @@ public:
 	void	set_socket(int);
 	void	set_port(int port);
 	void	set_host(const std::string &);
+	void	set_name(const std::string &);
+	/* getters */
+	std::string	&get_name();
 
 	// void	send_response(int, std::string const&);
 };

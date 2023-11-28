@@ -38,6 +38,11 @@ void	webserver::set_host(const std::string &h, int s)
 	if (h.empty())
 		throw std::runtime_error("Error: host is empty!");
 	std::string host = h;
+	if (h == "localhost")
+	{
+		_servers[s].set_host("127.0.0.1");
+		return ;
+	}
 	char *str = strtok((char *)host.c_str(), ".");
 	int i, nb, j = 0;
 	while (j < 4)
@@ -55,10 +60,20 @@ void	webserver::set_host(const std::string &h, int s)
 	}
 	if (j == 4 && str)
 		throw std::runtime_error("Error: host is not valid 3!");
-	if (_servers.size() < (size_t)s + 1)
-		_servers.push_back(server(host));
+	_servers[s].set_host(h);
+}
+
+void	webserver::set_name(const std::string &name, int server)
+{
+	if ((size_t)server > _servers.size())
+		_servers.push_back(server);
 	else
-		_servers[s].set_host(h);
+		_servers[server].set_name(name);
+}
+
+std::string	&webserver::get_name(int server)
+{
+	return (_servers[server].get_name());
 }
 
 webserver::~webserver()
