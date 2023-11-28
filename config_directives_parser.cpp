@@ -13,7 +13,6 @@ void	listen_directive(std::string &line, int i, webserver &w, int server)
 		throw std::runtime_error("Error: config file is not valid 4!");
 	host = host_port.substr(0, pos);
 	port = host_port.substr(pos + 1, host_port.size() - pos - 1);
-	// std::cout << host << "*" << port << std::endl;
 	w.set_port(port, server);
 	w.set_host(host, server);
 }
