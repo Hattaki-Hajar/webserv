@@ -16,18 +16,19 @@ void	get_block(std::ifstream &config_file, std::string &server)
 		pos = line.find('}');
 		if (pos != std::string::npos)
 		{
-			open_b--;
 			close_b++;
+			if (open_b == close_b)
+				break ;
 		}
-		if (open_b == 0)
-			break ;
 	}
+	if (open_b != close_b)
+		throw std::runtime_error("Error: config file is not valid 5!");
 }
 
 void	server_block_parser(std::ifstream &config_file, webserver &w, int server)
 {
 	std::string line, directive, block;
-	int i;
+	size_t i;
 	get_block(config_file, block);
 	std::istringstream ss(block);
 	while (std::getline(ss, line))
@@ -45,19 +46,16 @@ void	server_block_parser(std::ifstream &config_file, webserver &w, int server)
 				i++;
 			}
 		}
-		if (directive.empty())
-		{
-			i = 0;
-			std::getline(config_file, line);
-			while (line[i] && isspace(line[i]))
-				i++;
-			while (line[i] && !isspace(line[i]))
-				directive += line[i++];
-		}
 		if (directive == "listen")
 			listen_directive(line, i, w, server);
 		if (directive == "server_name")
 			server_name_directive(line, i, w, server);
+		if (directive == "error_page")
+			error_page_directive(line, i, w, server);
+		if (directive == "client_max_body_size")
+			client_max_body_size_directive(line, i, w, server);
+		if (directive == "location")
+			location_directive(line, i, w, server);
 		directive.clear();
 	}
 }
@@ -70,9 +68,10 @@ void	config_parser(webserver &w, const char *name)
 	if (!config_file.good())
 		throw std::runtime_error("Error: failed to open config file!");
 	std::string	line, block;
-	int i = 0, server_nb = 0;
+	int i, server_nb = 0;
 	while (std::getline(config_file, line))
 	{
+		i = 0;
 		while (line[i] && isspace(line[i]))
 			i++;
 		while (line[i] && !isspace(line[i]))
@@ -89,6 +88,6 @@ void	config_parser(webserver &w, const char *name)
 		if (line[i] && line[i++] != '\n')
 			throw std::runtime_error("Error: config file is not valid 3!");
 		server_block_parser(config_file, w, server_nb - 1);
-		// std::cout << "hnaya" << std::endl;
+		block.clear();
 	}
 }

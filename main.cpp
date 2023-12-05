@@ -1,21 +1,22 @@
 #include "webserver.hpp"
+// #include "config_file_utils.hpp"
 
 int main(int ac, char *av[])
 {
+	(void)av;
 	if (ac != 2)
 	{
-		std::cout << "Error: wrong number of arguments!" << std::endl;
+		std::cerr << "Error: wrong number of arguments!" << std::endl;
 		return (-1);
 	}
 	try 
 	{
 		webserver	w;
-		config_parser(w, av[1]);
-		// server	s("127.0.0.1", 1234);
-		// s.start();
+		// config_parser(w, av[1]);
+		w.start(1234, "127.0.0.1");
 	}
 	catch (std::exception& e)
 	{
-		std::cout << e.what() << std::endl;
+		std::cerr << e.what() << std::endl;
 	}
 }
