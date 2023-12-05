@@ -1,4 +1,5 @@
 #include "http_server.hpp"
+# include "HTTPRequest.hpp"
 
 server::server(std::string const& ip, int port):_ip(ip)
 {
@@ -29,7 +30,9 @@ void	server::start()
 	ssize_t	bytesReceived = read(_newSocket, buffer, BUFFER_SIZE);
 	if (bytesReceived < 0)
 		throw std::runtime_error("read failed!");
-	std::cout << buffer << std::endl;
+	//					The HTTP_Request_Part						//
+	HTTPRequest	Request( buffer, *this);
+	Request.parse();
 	long unsigned int bytesSent;
 	bytesSent = write(_newSocket, _message.c_str(), _message.size());
 	if (bytesSent != _message.size())
