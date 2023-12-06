@@ -1,4 +1,4 @@
-#include "webserver.hpp"
+#include "../webserver.hpp"
 
 void	listen_directive(std::string &line, int i, webserver &w, int server)
 {
@@ -17,22 +17,6 @@ void	listen_directive(std::string &line, int i, webserver &w, int server)
 	w.set_host(host, server);
 }
 
-// void	no_name_server(webserver &w, int server)
-// {
-// 	int s = 0;
-
-// 	w.set_name(DEFAULT_SERVER, server);
-// 	while (s <= server)
-// 	{
-// 		if (w.get_name(s) == DEFAULT_SERVER)
-// 		{
-// 			w.set_name(NO_NAME, server);
-// 			return ;
-// 		}
-// 		s++;
-// 	}
-// }
-
 void	server_name_directive(const std::string &line, int i, webserver &w, int server)
 {
 	std::string name;
@@ -40,8 +24,12 @@ void	server_name_directive(const std::string &line, int i, webserver &w, int ser
 
 	while (line[i] && isspace(line[i]))
 		i++;
-	while (line[i] && !isspace(line[i]))
+	while (line[i] && !isspace(line[i]) && line[i] != ';')
 		name += line[i++];
+	while (line[i] && isspace(line[i]))
+		i++;
+	if (line[i] != ';')
+		throw std::runtime_error("Error: config file is not valid server_name!");
 	if (name.empty() || name == """")
 	{
 		w.set_name(DEFAULT_SERVER, server);
@@ -68,6 +56,8 @@ void	error_page_directive(std::string &line, size_t i, webserver &w, int server)
 	pos = line.find('/');
 	if (pos == std::string::npos)
 		throw std::runtime_error("Error: config file is not valid!");
+	while (pos > 0 && !isspace(line[pos - 1]))
+		pos--;
 	j = pos;
 	while (line[j] && !isspace(line[j]) && line[j] != ';')
 		j++;
@@ -86,7 +76,7 @@ void	error_page_directive(std::string &line, size_t i, webserver &w, int server)
 		while (error[j] && isdigit(error[j]))
 			j++;
 		if (error[j] && !isspace(error[j]))
-			throw std::runtime_error("Error: config file is not valid 1!");
+			throw std::runtime_error("Error: config file is not valid 1-!");
 		error_code = atoi(error.c_str());
 		w.set_error_page(error_code, path, server);
 		error.clear();
@@ -101,10 +91,10 @@ void	client_max_body_size_directive(std::string &line, size_t i, webserver &w, i
 
 	while (line[i] && isspace(line[i]))
 		i++;
-	while (line[i] && isdigit(line[i]))
+	while (line[i] && isdigit(line[i]) && line[i] != ';')
 		size += line[i++];
 	if ((line[i] != 'k' && line[i] != 'K' && line[i] != 'm' && line[i]!= 'M'
-		&& line[i] != 'g' && line[i] != 'G') || size.empty())
+		&& line[i] != 'g' && line[i] != 'G' && line[i] != ';') || size.empty())
 		throw std::runtime_error("Error: config file is not valid size1!");
 	while (size[j] && isdigit(size[j]))
 		j++;
@@ -119,7 +109,6 @@ void	client_max_body_size_directive(std::string &line, size_t i, webserver &w, i
 		r_size *= 1024 * 1024 * 1024;
 	else
 		r_size *= 1;
-	i++;
 	w.set_body_size(r_size, server);
 	while (line[i] && isspace(line[i]))
 		i++;
@@ -127,27 +116,17 @@ void	client_max_body_size_directive(std::string &line, size_t i, webserver &w, i
 		throw std::runtime_error("Error: config file is not valid size3!");
 }
 
-void	location_directive(std::string &line, size_t i, webserver &w, int server)
+void	root_directive(std::string &line, size_t i, webserver &w, int server)
 {
-	(void)w;
-	(void)server;
 	std::string path;
 
 	while (line[i] && isspace(line[i]))
 		i++;
-	if (line[i] == '=')
-	{
-		i++;
-		while (line[i] && isspace(line[i]))
-			i++;
-	}
-	if (line[i] != '/')
-		throw std::runtime_error("Error: config file is not valid location1!");
-	while (line[i] && !isspace(line[i]))
+	while (line[i] && !isspace(line[i]) && line[i] != ';')
 		path += line[i++];
 	while (line[i] && isspace(line[i]))
 		i++;
-	if (line[i] != '{')
-		throw std::runtime_error("Error: config file is not valid location2!");
-	
+	if (line[i] != ';')
+		throw std::runtime_error("Error: config file is not valid root2!");
+	w.set_root(path, server);
 }

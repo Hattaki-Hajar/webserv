@@ -1,4 +1,4 @@
-#include "webserver.hpp"
+#include "../webserver.hpp"
 
 void	get_block(std::ifstream &config_file, std::string &server)
 {
@@ -55,9 +55,12 @@ void	server_block_parser(std::ifstream &config_file, webserver &w, int server)
 		if (directive == "client_max_body_size")
 			client_max_body_size_directive(line, i, w, server);
 		if (directive == "location")
-			location_directive(line, i, w, server);
+			location_directive(ss, line, i, w, server);
+		if (directive == "root")
+			root_directive(line, i, w, server);
 		directive.clear();
 	}
+	std::cout << w;
 }
 
 
@@ -76,6 +79,8 @@ void	config_parser(webserver &w, const char *name)
 			i++;
 		while (line[i] && !isspace(line[i]))
 			block += line[i++];
+		if (block.empty())
+			continue ;
 		if (block != "server")
 			throw std::runtime_error("Error: config file is not valid 1!");
 		server_nb++;

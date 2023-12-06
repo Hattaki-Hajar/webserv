@@ -28,7 +28,7 @@ void	webserver::start(int port, std::string const &ip)
 		throw std::runtime_error("read failed!");
 	std::cout << buffer << std::endl;
 }
-
+	/*  setters  */
 void	webserver::set_port(const std::string &port, int s)
 {
 	int p;
@@ -93,18 +93,11 @@ void	webserver::set_name(const std::string &name, int server)
 		_servers[server].set_name(name);
 }
 
-std::string	&webserver::get_name(int server)
-{
-	return (_servers[server].get_name());
-}
-
-void	webserver::set_error_page(int error, std::string const& path, int server)
-{
+void	webserver::set_error_page(int error, std::string const& path, int server) {
 	_servers[server].set_error_page(error, path);
 }
 
-void	webserver::set_body_size(size_t size, int server)
-{
+void	webserver::set_body_size(size_t size, int server) {
 	_servers[server].set_body_size(size);
 }
 
@@ -113,6 +106,37 @@ void	webserver::set_server(int socket, int port, std::string const &ip)
 	_servers[0].set_socket(socket);
 	_servers[0].set_addr(port, ip);
 	_servers[0].set_len();
+}
+
+void	webserver::set_root(std::string const &path, int server) {
+	_servers[server].set_root(path);
+}
+void	webserver::set_location(std::string const &path, location &loc, int server) {
+	_servers[server].set_location(path, loc);
+}
+	/*  getters */
+const std::string	&webserver::get_name(int server) {
+	return (_servers[server].get_name());
+}
+
+const server	&webserver::get_server(int server) const {
+	return (_servers[server]);
+}
+
+size_t	webserver::get_size() const {
+	return (_servers.size());
+}
+/*  << overload for webserver  */
+std::ostream& operator<<(std::ostream &os, const webserver& s)
+{
+	size_t i = 0;
+	while (i < s.get_size())
+	{
+		os << "server index: " << i << std::endl;
+		os << s.get_server(i);
+		i++;
+	}
+	return os;
 }
 
 webserver::~webserver()
