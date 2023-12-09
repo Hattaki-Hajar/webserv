@@ -1,10 +1,10 @@
-SRCS = $(wildcard *.cpp)
+SRCS = $(wildcard *.cpp) $(wildcard config_file_parsing/*.cpp)
 
-HEADERS = $(wildcard *.hpp)
+HEADERS = $(wildcard *.hpp) $(wildcard config_file_parsing/*.hpp)
 
 CPP = c++
 
-CFLAGS = -Wall -Wextra -Werror -std=c++98
+CFLAGS = -Wall -Wextra -Werror -std=c++98 -fsanitize=address -g3
 
 OBJS = $(SRCS:.cpp=.o)
 
