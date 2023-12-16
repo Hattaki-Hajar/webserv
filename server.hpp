@@ -10,7 +10,7 @@
 #include <cstdlib>
 #include <map>
 
-#define BUFFER_SIZE 30720
+#define BUFFER_SIZE 3
 #define	NO_NAME "no name"
 #define	DEFAULT_SERVER "default"
 

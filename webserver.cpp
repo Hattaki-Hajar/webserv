@@ -1,4 +1,5 @@
 #include "webserver.hpp"
+#include "request_parsing/includes/http_request.hpp"
 #include <cstring>
 #include <algorithm>
 
@@ -23,10 +24,12 @@ void	webserver::start(int port, std::string const &ip)
 	char	buffer[BUFFER_SIZE] = {0};
 	// run this reda in a loop while parsing to continouisly reading
 	// note that a body size is set in the header, so make sure to count what you read
-	ssize_t	bytesReceived = read(_servers[0].get_new_socket(), buffer, BUFFER_SIZE);
+	ssize_t bytesReceived = read(_servers[0].get_new_socket(), buffer, BUFFER_SIZE);
 	if (bytesReceived < 0)
 		throw std::runtime_error("read failed!");
-	std::cout << buffer << std::endl;
+	// std::string	sbuffer(buffer);
+	// HTTPRequest	request( sbuffer );
+	// request.parse();
 }
 
 void	webserver::set_port(const std::string &port, int s)
