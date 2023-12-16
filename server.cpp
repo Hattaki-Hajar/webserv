@@ -6,17 +6,17 @@ server::server(int port)
 	_name = "no_name";
 	_addr.sin_family = AF_INET;
 	_socketaddr_len = sizeof(_addr);
-}
-
-server::server(const std::string &name)
-{
-	_name = name;
-	_addr.sin_family = AF_INET;
-	_socketaddr_len = sizeof(_addr);
+	// _root = 
 }
 
 server::server()
-{}
+{
+	_port = 80;
+	_ip = "127.0.0.1";
+	_max_body_size = -1;
+	_addr.sin_family = AF_INET;
+	_socketaddr_len = sizeof(_addr);
+}
 
 server::~server() {
 	close(_socket);
@@ -55,6 +55,7 @@ void	server::acceptconnection(int &new_socket)
 {
 	new_socket = accept(_socket, (sockaddr *)&_addr, 
                         &_socketaddr_len);
+	// write(new_socket, res.c_str(), res.length());
     if (new_socket < 0)
     {
         std::ostringstream ss;

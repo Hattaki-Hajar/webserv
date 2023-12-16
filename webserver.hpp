@@ -15,6 +15,7 @@ public:
 	~webserver();
 	/* setters */
 	void	set_socket(int);
+	void	set_new_server(size_t);
 	void	set_port(const std::string &, int);
 	void	set_host(const std::string &, int);
 	void	set_name(const std::string &, int);

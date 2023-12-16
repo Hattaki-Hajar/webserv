@@ -6,13 +6,28 @@ void	listen_directive(std::string &line, int i, webserver &w, int server)
 	size_t pos;
 	while (line[i] && isspace(line[i]))
 		i++;
-	while (line[i] && !isspace(line[i]))
+	if (line[i] && !isdigit(line[i]))
+		throw std::runtime_error("Error: config file is not valid! listen");
+	while (line[i] && !isspace(line[i]) && line[i] != ';')
 		host_port += line[i++];
 	pos = host_port.find(':');
 	if (pos == std::string::npos)
-		throw std::runtime_error("Error: config file is not valid 4!");
-	host = host_port.substr(0, pos);
-	port = host_port.substr(pos + 1, host_port.size() - pos - 1);
+{
+		host = "";
+		port = "";
+		pos = host_port.find('.');
+		if (pos == std::string::npos)
+			while (line[i] && line[i] != ';')
+				port += line[i++];
+		else
+			while (line[i] && line[i] != ';')
+				host += line[i++];
+	}
+	else
+	{
+		host = host_port.substr(0, pos);
+		port = host_port.substr(pos + 1, host_port.size() - pos - 1);
+	}
 	w.set_port(port, server);
 	w.set_host(host, server);
 }

@@ -50,7 +50,6 @@ public:
 	/* constructors / destructors */
 	server();
 	server(int);
-	server(const std::string &);
 	~server();
 	/* additional functions */
 	void	bind_server();

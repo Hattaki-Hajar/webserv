@@ -47,8 +47,6 @@ void	root_dir(std::string &line, size_t i, location &loc)
 
 	while (line[i] && isspace(line[i]))
 		i++;
-	// if (line[i] != '/')
-	// 	throw std::runtime_error("Error: config file is not valid loc_root1!");
 	while (line[i] && !isspace(line[i]) && line[i] != ';')
 		path += line[i++];
 	while (line[i] && isspace(line[i]))
@@ -128,7 +126,6 @@ void	loc_body_size_directive(std::string &line, size_t i, location &loc)
 		i++;
 	while (line[i] && isdigit(line[i]))
 		size += line[i++];
-	// std::cout << "line[i] = " << line[i] << std::endl;
 	if ((line[i] != 'k' && line[i] != 'K' && line[i] != 'm' && line[i]!= 'M'
 		&& line[i] != 'g' && line[i] != 'G' && line[i] != ';') || size.empty())
 		throw std::runtime_error("Error: config file is not valid size1!");

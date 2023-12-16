@@ -29,6 +29,12 @@ void	webserver::start(int port, std::string const &ip)
 	std::cout << buffer << std::endl;
 }
 	/*  setters  */
+
+void	webserver::set_new_server(size_t s)
+{
+	if (_servers.size() < s + 1)
+		_servers.push_back(server());
+}
 void	webserver::set_port(const std::string &port, int s)
 {
 	int p;
@@ -36,7 +42,7 @@ void	webserver::set_port(const std::string &port, int s)
 	std::string nb;
 
 	if (port.empty())
-		throw std::runtime_error("Error: port is empty!");
+		return ;
 	while (port[i] && isdigit(port[i]))
 		nb += port[i++];
 	while (port[i] && isspace(port[i]))
@@ -46,17 +52,14 @@ void	webserver::set_port(const std::string &port, int s)
 	p = atoi(nb.c_str());
 	if (p < 0 || p > 65535)
 		throw std::runtime_error("Error: port is not valid!");
-	if (_servers.size() < (size_t)s + 1)
-		_servers.push_back(server(p));
-	else
-		_servers[s].set_port(p);
+	_servers[s].set_port(p);
 }
 
 void	webserver::set_host(const std::string &h, int s)
 {
 	int i, nb, j = 0;
 	if (h.empty())
-		throw std::runtime_error("Error: host is empty!");
+		return ;
 	std::string host = h;
 	i = std::count(host.begin(), host.end(), '.');
 	if (i != 3)
@@ -87,10 +90,7 @@ void	webserver::set_host(const std::string &h, int s)
 
 void	webserver::set_name(const std::string &name, int server)
 {
-	if ((size_t)server > _servers.size())
-		_servers.push_back(server);
-	else
-		_servers[server].set_name(name);
+	_servers[server].set_name(name);
 }
 
 void	webserver::set_error_page(int error, std::string const& path, int server) {

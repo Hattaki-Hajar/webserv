@@ -31,11 +31,14 @@ void	server_block_parser(std::ifstream &config_file, webserver &w, int server)
 	size_t i;
 	get_block(config_file, block);
 	std::istringstream ss(block);
+	w.set_new_server(server);
 	while (std::getline(ss, line))
 	{
 		i = 0;
 		while (line[i] && isspace(line[i]))
 			i++;
+		if (line[i] == '#')
+			continue ;
 		if (line[i])
 		{
 			while (line[i] && isspace(line[i]))
