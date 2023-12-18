@@ -24,19 +24,22 @@ server::~server() {
 	/* additional functions  */
 void	server::bind_server()
 {
+	_socket = socket(AF_INET, SOCK_STREAM, 0);
+	if (_socket < 0)
+		throw std::runtime_error("socket failed!");
 	if (bind(_socket,(sockaddr *)&_addr, _socketaddr_len) < 0)
 		throw std::runtime_error("bind failed!");
-	start_listen();
-	acceptconnection(_newSocket);
-	char	buffer[BUFFER_SIZE] = {0};
-	ssize_t	bytesReceived = read(_newSocket, buffer, BUFFER_SIZE);
-	if (bytesReceived < 0)
-		throw std::runtime_error("read failed!");
-	std::cout << buffer << std::endl;
-	long unsigned int bytesSent;
-	bytesSent = write(_newSocket, _message.c_str(), _message.size());
-	if (bytesSent != _message.size())
-		throw std::runtime_error("write failed!");
+	// start_listen();
+	// acceptconnection(_newSocket);
+	// char	buffer[BUFFER_SIZE] = {0};
+	// ssize_t	bytesReceived = read(_newSocket, buffer, BUFFER_SIZE);
+	// if (bytesReceived < 0)
+	// 	throw std::runtime_error("read failed!");
+	// std::cout << buffer << std::endl;
+	// long unsigned int bytesSent;
+	// bytesSent = write(_newSocket, _message.c_str(), _message.size());
+	// if (bytesSent != _message.size())
+	// 	throw std::runtime_error("write failed!");
 }
 
 void	server::start_listen()
@@ -51,7 +54,7 @@ void	server::start_listen()
     std::cout << ss.str();
 }
 
-void	server::acceptconnection(int &new_socket)
+void	server::acceptconnection(int new_socket)
 {
 	new_socket = accept(_socket, (sockaddr *)&_addr, 
                         &_socketaddr_len);
@@ -79,8 +82,16 @@ const sockaddr_in	&server::get_addr() const {
 	return (_addr);
 }
 
-int	&server::get_new_socket() {
+int	server::get_new_socket() {
 	return (_newSocket);
+}
+
+int	server::get_socket() {
+	return (_socket);
+}
+
+int	server::get_body_size() const {
+	return (_max_body_size);
 }
 
 const std::string	&server::get_root() const {
@@ -164,6 +175,7 @@ std::ostream& operator<<(std::ostream &os, const server& s)
 	os << "server port: " << s.get_port() << std::endl;
 	os << "server ip: " << s.get_ip() << std::endl;
 	os << "server root: " << s.get_root() << std::endl;
+	os << "body_size: " << s.get_body_size() << std::endl;
 	std::map<std::string, location>::const_iterator it = s.get_location_begin_iter();
 	std::map<std::string, location>::const_iterator it_end = s.get_location_end_iter();
 	while (it != it_end)

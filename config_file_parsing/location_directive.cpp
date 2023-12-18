@@ -150,11 +150,11 @@ void	loc_body_size_directive(std::string &line, size_t i, location &loc)
 		throw std::runtime_error("Error: config file is not valid size3!");
 }
 
-void	location_directive(std::istringstream &ss, std::string &line, size_t i, webserver &w, int server)
+void	location_directive(std::istringstream &ss, std::string &line, webserver &w, int server)
 {
 	std::string path, directive;
 	location loc;
-	int open_bracket = 0, close_bracket = 0;
+	int open_bracket = 0, close_bracket = 0, i = 0;
 
 	check_line(line, i, path);
 	loc.max_body_size = -1;

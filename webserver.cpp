@@ -4,32 +4,82 @@
 
 webserver::webserver()
 {}
-// i server number
-void	webserver::start(int port, std::string const &ip)
+
+void	webserver::start()
 {
+	struct epoll_event	*event;
 	_socket = socket(AF_INET, SOCK_STREAM, 0);
-	_servers.push_back(server(port));
 	if (_socket < 0)
 		throw std::runtime_error("socket failed!");
-	std::cout << "socket: " << _socket << std::endl;
-	int on = 1;
+	int on = 1, event_nb, fd;
     setsockopt(_socket, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on));
     setsockopt(_socket, SOL_SOCKET, SO_REUSEPORT, &on, sizeof(on));
-	set_server(_socket, port, ip);
-	if (bind(_socket,(sockaddr *)&_servers[0].get_addr(), _servers[0].get_socketaddr_len()) < 0)
-		throw std::runtime_error("bind failed!");
-	_servers[0].start_listen();
-	_servers[0].acceptconnection(_servers[0].get_new_socket());
-	char	buffer[BUFFER_SIZE] = {0};
-	// run this reda in a loop while parsing to continouisly reading
-	// note that a body size is set in the header, so make sure to count what you read
-	ssize_t	bytesReceived = read(_servers[0].get_new_socket(), buffer, BUFFER_SIZE);
-	if (bytesReceived < 0)
-		throw std::runtime_error("read failed!");
-	std::cout << buffer << std::endl;
+	_epfd = epoll_create1(0);
+	if (_epfd < 0)
+		throw std::runtime_error("epoll_create1 failed!");
+	event->events = EPOLLIN | EPOLLOUT;
+	while (1)
+	{
+		event_nb = 0;
+		if (epoll_ctl(_epfd, EPOLL_CTL_ADD, _socket, event) < 0)
+			throw std::runtime_error("epoll_ctl failed!");
+		event_nb = epoll_wait(_epfd, event, 1, 0);
+		if (event_nb < 0)
+			throw std::runtime_error("epoll_wait failed!");
+		else if (event_nb == 0)
+			continue ;
+		else
+		{
+			for (int i = 0; i < event_nb; i++)
+			{
+				fd = event[i].data.fd;
+				if (event[i].events & EPOLLIN)
+				{
+					// slay
+				}
+				if (event[i].events & EPOLLOUT)
+				{
+					// slay
+				}
+			}
+		}
+		// char	buffer[BUFFER_SIZE] = {0};
+		// ssize_t	bytesReceived = read(_servers[0].get_new_socket(), buffer, BUFFER_SIZE);
+		// epoll_create1(0);
+		// if (bytesReceived < 0)
+		// 	throw std::runtime_error("read failed!");
+		// std::cout << buffer << std::endl;
+	}
+}
+
+void	webserver::bind_servers()
+{
+	size_t i = 0, j, found;
+	int port;
+	std::string host;
+
+	while (i < _servers.size())
+	{
+		j = 0;
+		found = 0;
+		port = _servers[i].get_port();
+		host = _servers[i].get_ip();
+		while (j < i)
+		{
+			if (_servers[j].get_port() == port && _servers[j].get_ip() == host)
+			{
+				found = 1;
+				break ;
+			}
+			j++;
+		}
+		if (found)
+			continue ;
+		_servers[i].bind_server();
+		i++;
+	}
 }
 	/*  setters  */
-
 void	webserver::set_new_server(size_t s)
 {
 	if (_servers.size() < s + 1)
@@ -47,8 +97,6 @@ void	webserver::set_port(const std::string &port, int s)
 		nb += port[i++];
 	while (port[i] && isspace(port[i]))
 		i++;
-	if (port[i] != ';')
-		throw std::runtime_error("Error: port is not valid!");
 	p = atoi(nb.c_str());
 	if (p < 0 || p > 65535)
 		throw std::runtime_error("Error: port is not valid!");
@@ -101,11 +149,13 @@ void	webserver::set_body_size(size_t size, int server) {
 	_servers[server].set_body_size(size);
 }
 
-void	webserver::set_server(int socket, int port, std::string const &ip)
-{
-	_servers[0].set_socket(socket);
-	_servers[0].set_addr(port, ip);
-	_servers[0].set_len();
+void	webserver::set_server(int server) {
+	_servers[server].set_addr(_servers[server].get_port(), _servers[server].get_ip());
+	_servers[server].set_len();
+}
+
+void	webserver::set_server_socket(int socket, int server) {
+	_servers[server].set_socket(socket);
 }
 
 void	webserver::set_root(std::string const &path, int server) {

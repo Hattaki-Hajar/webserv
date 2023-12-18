@@ -12,7 +12,8 @@ int main(int ac, char *av[])
 	{
 		webserver	w;
 		config_parser(w, av[1]);
-		// w.start(1234, "127.0.0.1");
+		w.bind_servers();
+		w.start();
 	}
 	catch (std::exception& e)
 	{

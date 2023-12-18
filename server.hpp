@@ -11,7 +11,7 @@
 #include <map>
 #include <vector>
 
-#define BUFFER_SIZE 30720
+#define BUFFER_SIZE 1024
 #define	NO_NAME "no name"
 #define	DEFAULT_SERVER "default"
 
@@ -54,7 +54,7 @@ public:
 	/* additional functions */
 	void	bind_server();
 	void	start_listen();
-	void	acceptconnection(int &);
+	void	acceptconnection(int );
 	/* setters */
 	void	set_socket(int);
 	void	set_body_size(size_t);
@@ -71,7 +71,9 @@ public:
 	const std::string		&get_name() const;
 	unsigned int			get_socketaddr_len() const;
 	const sockaddr_in		&get_addr() const;
-	int						&get_new_socket();
+	int						get_new_socket();
+	int						get_socket();
+	int						get_body_size() const;
 	const std::string		&get_root() const;
 	const std::string		&get_ip() const;
 	int						get_port() const;

@@ -27,7 +27,7 @@ void	get_block(std::ifstream &config_file, std::string &server)
 
 void	server_block_parser(std::ifstream &config_file, webserver &w, int server)
 {
-	std::string line, directive, block;
+	std::string line, directive, block, options;
 	size_t i;
 	get_block(config_file, block);
 	std::istringstream ss(block);
@@ -48,22 +48,33 @@ void	server_block_parser(std::ifstream &config_file, webserver &w, int server)
 				directive += line[i];
 				i++;
 			}
+			while (line[i] && isspace(line[i]))
+				i++;
+			while (line[i] && line[i] != ';')
+				options += line[i++];
+			if (line[i] && line[i++] != ';')
+				throw std::runtime_error("Error: config file is not valid 4!");
+			while (line[i] && isspace(line[i]))
+				i++;
+			if (line[i])
+				throw std::runtime_error("Error: config file is not valid 3!");
 		}
 		if (directive == "listen")
-			listen_directive(line, i, w, server);
+			listen_directive(options, w, server);
 		if (directive == "server_name")
-			server_name_directive(line, i, w, server);
+			server_name_directive(options, w, server);
 		if (directive == "error_page")
-			error_page_directive(line, i, w, server);
+			error_page_directive(options, w, server);
 		if (directive == "client_max_body_size")
-			client_max_body_size_directive(line, i, w, server);
+			client_max_body_size_directive(options, w, server);
 		if (directive == "location")
-			location_directive(ss, line, i, w, server);
+			location_directive(ss, options, w, server);
 		if (directive == "root")
-			root_directive(line, i, w, server);
+			root_directive(options, w, server);
 		directive.clear();
+		options.clear();
 	}
-	std::cout << w;
+	w.set_server(server);
 }
 
 
@@ -95,6 +106,7 @@ void	config_parser(webserver &w, const char *name)
 			i++;
 		if (line[i] && line[i++] != '\n')
 			throw std::runtime_error("Error: config file is not valid 3!");
+		// std::cout << "here" << std::endl;
 		server_block_parser(config_file, w, server_nb - 1);
 		block.clear();
 	}
