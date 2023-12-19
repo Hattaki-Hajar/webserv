@@ -1,4 +1,4 @@
-#include "webserver.hpp"
+#include "Webserv.hpp"
 
 int main(int ac, char *av[])
 {
@@ -10,10 +10,12 @@ int main(int ac, char *av[])
 	}
 	try 
 	{
-		webserver	w;
+		Webserv	w;
 		config_parser(w, av[1]);
-		w.bind_servers();
+		std::cerr << "here" << std::endl;
+		w.bind_Servers();
 		w.start();
+		std::cerr << "here" << std::endl;
 	}
 	catch (std::exception& e)
 	{

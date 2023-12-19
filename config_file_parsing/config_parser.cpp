@@ -1,6 +1,6 @@
-#include "../webserver.hpp"
+#include "../Webserv.hpp"
 
-void	get_block(std::ifstream &config_file, std::string &server)
+void	get_block(std::ifstream &config_file, std::string &Server)
 {
 	int open_b = 1, close_b = 0;
 	size_t pos;
@@ -8,8 +8,8 @@ void	get_block(std::ifstream &config_file, std::string &server)
 
 	while (std::getline(config_file, line))
 	{
-		server += line;
-		server += '\n';
+		Server += line;
+		Server += '\n';
 		pos = line.find('{');
 		if (pos != std::string::npos)
 			open_b++;
@@ -25,13 +25,13 @@ void	get_block(std::ifstream &config_file, std::string &server)
 		throw std::runtime_error("Error: config file is not valid 5!");
 }
 
-void	server_block_parser(std::ifstream &config_file, webserver &w, int server)
+void	Server_block_parser(std::ifstream &config_file, Webserv &w, int Server)
 {
 	std::string line, directive, block, options;
 	size_t i;
 	get_block(config_file, block);
 	std::istringstream ss(block);
-	w.set_new_server(server);
+	w.set_new_Server(Server);
 	while (std::getline(ss, line))
 	{
 		i = 0;
@@ -60,32 +60,32 @@ void	server_block_parser(std::ifstream &config_file, webserver &w, int server)
 				throw std::runtime_error("Error: config file is not valid 3!");
 		}
 		if (directive == "listen")
-			listen_directive(options, w, server);
-		if (directive == "server_name")
-			server_name_directive(options, w, server);
+			listen_directive(options, w, Server);
+		if (directive == "Server_name")
+			Server_name_directive(options, w, Server);
 		if (directive == "error_page")
-			error_page_directive(options, w, server);
-		if (directive == "client_max_body_size")
-			client_max_body_size_directive(options, w, server);
+			error_page_directive(options, w, Server);
+		if (directive == "Client_max_body_size")
+			Client_max_body_size_directive(options, w, Server);
 		if (directive == "location")
-			location_directive(ss, options, w, server);
+			location_directive(ss, options, w, Server);
 		if (directive == "root")
-			root_directive(options, w, server);
+			root_directive(options, w, Server);
 		directive.clear();
 		options.clear();
 	}
-	w.set_server(server);
+	w.set_Server(Server);
 }
 
 
-void	config_parser(webserver &w, const char *name)
+void	config_parser(Webserv &w, const char *name)
 {
 	std::ifstream	config_file;
 	config_file.open(name);
 	if (!config_file.good())
 		throw std::runtime_error("Error: failed to open config file!");
 	std::string	line, block;
-	int i, server_nb = 0;
+	int i, Server_nb = 0;
 	while (std::getline(config_file, line))
 	{
 		i = 0;
@@ -97,7 +97,7 @@ void	config_parser(webserver &w, const char *name)
 			continue ;
 		if (block != "server")
 			throw std::runtime_error("Error: config file is not valid 1!");
-		server_nb++;
+		Server_nb++;
 		while (line[i] && isspace(line[i]))
 			i++;
 		if (line[i] && line[i++] != '{')
@@ -107,7 +107,7 @@ void	config_parser(webserver &w, const char *name)
 		if (line[i] && line[i++] != '\n')
 			throw std::runtime_error("Error: config file is not valid 3!");
 		// std::cout << "here" << std::endl;
-		server_block_parser(config_file, w, server_nb - 1);
+		Server_block_parser(config_file, w, Server_nb - 1);
 		block.clear();
 	}
 }

@@ -1,4 +1,4 @@
-#include "../webserver.hpp"
+#include "../Webserv.hpp"
 
 void	check_line(std::string &line, size_t i, std::string &path)
 {
@@ -150,7 +150,7 @@ void	loc_body_size_directive(std::string &line, size_t i, location &loc)
 		throw std::runtime_error("Error: config file is not valid size3!");
 }
 
-void	location_directive(std::istringstream &ss, std::string &line, webserver &w, int server)
+void	location_directive(std::istringstream &ss, std::string &line, Webserv &w, int Server)
 {
 	std::string path, directive;
 	location loc;
@@ -192,9 +192,9 @@ void	location_directive(std::istringstream &ss, std::string &line, webserver &w,
 			index_directive(line, i, loc);
 		if (directive == "return")
 			return_directive(line, i, loc);
-		if (directive == "client_max_body_size")
+		if (directive == "Client_max_body_size")
 			loc_body_size_directive(line, i, loc);
 		directive.clear();
 	}
-	w.set_location(path, loc, server);
+	w.set_location(path, loc, Server);
 }
