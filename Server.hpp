@@ -12,6 +12,9 @@
 #include <vector>
 #include <fcntl.h>
 #include "Client.hpp"
+#include <errno.h>
+#include <cstring>
+#include <stdio.h>
 
 #define BUFFER_SIZE 1024
 #define	NO_NAME "no name"

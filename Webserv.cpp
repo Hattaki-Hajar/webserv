@@ -8,10 +8,11 @@ Webserv::Webserv()
 void	Webserv::start()
 {
 	size_t i = 0;
+	int epfd = epoll_create1(0);
 
 	while (i < _Servers.size())
 	{
-		set_up_Server(*_Servers[i]);
+		set_up_Server(*_Servers[i], epfd);
 		i++;
 	}
 	while (1)
@@ -19,7 +20,6 @@ void	Webserv::start()
 		i = 0;
 		while (i < _Servers.size())
 		{
-			// std::cout << "Server " << i << " is starting" << std::endl;
 			_Servers[i]->start();
 			i++;
 		}
@@ -165,7 +165,7 @@ std::ostream& operator<<(std::ostream &os, const Webserv& s)
 
 Webserv::~Webserv()
 {
-	std::cout << "Webserv destructor called" << std::endl;
+	// std::cout << "Webserv destructor called" << std::endl;
 	for (size_t i = 0; i < _Servers.size(); i++)
 		delete _Servers[i];
 }

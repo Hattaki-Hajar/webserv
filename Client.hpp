@@ -22,7 +22,8 @@ public:
 	void	set_message(std::string const&);
 	void	set_event_fd(int);
 	/*  getters  */
-	int		get_socket() const;
+	int			get_socket() const;
+	epoll_event	*get_event() const;
 	const std::string	&get_message() const;
 	/*  additional funcs  */
 	// void	acceptconnection(Server &w);

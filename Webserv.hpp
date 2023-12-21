@@ -39,5 +39,5 @@ public:
 
 	// void	listen_directive(std::string &, int, int);
 };
-epoll_event	*set_up_Server(Server &s);
+epoll_event	*set_up_Server(Server &, int);
 std::ostream& operator<<(std::ostream &os, const Webserv& s);

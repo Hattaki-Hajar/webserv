@@ -4,24 +4,26 @@ Server::Server(int port)
 {
 	_port = port;
 	_name = "no_name";
+	memset(&_addr, 0, sizeof(_addr));
 	_addr.sin_family = AF_INET;
 	_socketaddr_len = sizeof(_addr);
 	_event = new epoll_event;
-	// _root = 
 }
 
 Server::Server()
 {
 	_port = 80;
 	_ip = "127.0.0.1";
+	_name = "no_name";
 	_max_body_size = -1;
+	memset(&_addr, 0, sizeof(_addr));
 	_addr.sin_family = AF_INET;
 	_socketaddr_len = sizeof(_addr);
 	_event = new epoll_event;
 }
 
 Server::~Server() {
-	std::cout << "Server destructor" << std::endl;
+	// std::cout << "Server destructor" << std::endl;
 	delete _event;
 	for (size_t i = 0; i < _Clients.size(); i++)
 		delete _Clients[i];
@@ -41,21 +43,21 @@ int set_nonblocking(int sockfd) {
 void	Server::bind_Server()
 {
 	int on = 1;
+	_addr.sin_port = htons(_port);
+	_addr.sin_addr.s_addr = inet_addr(_ip.c_str());
 	_socket = socket(AF_INET, SOCK_STREAM, 0);
 	if (_socket < 0)
 		throw std::runtime_error("socket failed!");
 	setsockopt(_socket, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on));
-    setsockopt(_socket, SOL_SOCKET, SO_REUSEPORT, &on, sizeof(on));
+    // setsockopt(_socket, SOL_SOCKET, SO_REUSEPORT, &on, sizeof(on));
 	if (bind(_socket,(sockaddr *)&_addr, _socketaddr_len) < 0)
 		throw std::runtime_error("bind failed!");
 	if (set_nonblocking(_socket) < 0)
 		throw std::runtime_error("set_nonblocking failed!");
 }
 
-void	set_up_Server(Server &s)
+void	set_up_Server(Server &s, int epfd)
 {
-	int 				epfd;
-	epfd = epoll_create1(0);
 	if (epfd < 0)
 		throw std::runtime_error("epoll_create1 failed!");
 	s.set_epoll_fd(epfd);
@@ -70,16 +72,29 @@ void	set_up_Server(Server &s)
 void	new_connection(int fd, Server &s, int epfd)
 {
 	Client *c = new Client();
-	int	socket = accept(fd, (sockaddr *)&c->_addr, (socklen_t *)&c->_addr_size);
+	std::cout << "socket: " << fd << std::endl;
+	int	socket = accept(fd, (sockaddr *)&s.get_addr(), (socklen_t *)&c->_addr_size);
+	std::cout << "client socket: " << socket << std::endl;
 	if (socket < 0)
+	{
+		perror("accept");
+		// std::cout << "errno: " << errno << std::endl;
+		delete c;
 		throw std::runtime_error("failed to connect1!");
+	}
 	if (epoll_ctl(epfd, EPOLL_CTL_ADD, socket, s.get_event()) < 0)
+	{
+		delete c;
 		throw std::runtime_error("epoll_ctl failed! 2");
+	}
 	c->set_event_fd(socket);
 	s.set_Client(c);
 	if (set_nonblocking(socket) < 0)
 		throw std::runtime_error("set_nonblocking failed!");
 	std::cout << "new connection 2" << std::endl;
+	char buffer[BUFFER_SIZE];
+	read(socket, buffer, BUFFER_SIZE);
+	std::cout << "buffer: " << buffer << std::endl;
 }
 
 void	Server::start()
@@ -87,24 +102,25 @@ void	Server::start()
 	struct epoll_event	events[MAX_EVENTS];
 	int	event_nb;
 	event_nb = epoll_wait(_epfd, events, 1, 0);
+	std::cout << "event_nb: " << event_nb << std::endl;
 	if (event_nb < 0)
 		throw std::runtime_error("epoll_wait failed!");
 	else
 	{
-		// std::cerr << "event_nb: " << event_nb << std::endl;
 		for (int i = 0; i < event_nb; i++)
 		{
 			if (events[i].events & EPOLLIN)
 			{
 				if (events[i].data.fd == _socket)
 				{
-					// std::cerr << "new connection" << std::endl;
-					if (set_nonblocking(events[i].data.fd) < 0)
-						throw std::runtime_error("set_nonblocking failed!");
-					new_connection(events[i].data.fd, *this, _epfd);
+					std::cout << "here +++++++ " << _socket << std::endl;
+					new_connection(_socket, *this, _epfd);
 					if (fcntl(_Clients[_Clients.size() - 1]->get_socket(), 
 							F_SETFL, O_NONBLOCK) < 0)
 						throw std::runtime_error("fcntl failed! 3");
+					epoll_ctl(_epfd, EPOLL_CTL_ADD, 
+							_Clients[_Clients.size() - 1]->get_socket(), 
+							_Clients[_Clients.size() - 1]->get_event());
 				}
 			}
 		}

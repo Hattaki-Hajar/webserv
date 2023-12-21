@@ -2,7 +2,7 @@
 #include "Webserv.hpp"
 
 Client::Client() {
-	std::cout << "Client constructor" << std::endl;
+	// std::cout << "Client constructor" << std::endl;
 	_socket = -1;
 	_addr.sin_family = AF_INET;
 	_addr_size = sizeof(_addr);
@@ -10,7 +10,7 @@ Client::Client() {
 	_event->events = EPOLLIN | EPOLLOUT;
 }
 Client::Client(int socket) {
-	std::cout << "Client constructor 2" << std::endl;
+	// std::cout << "Client constructor 2" << std::endl;
 	_socket = socket;
 	_addr.sin_family = AF_INET;
 	_addr_size = sizeof(_addr);
@@ -33,13 +33,15 @@ void	Client::set_event_fd(int fd) {
 int		Client::get_socket() const {
 	return (_socket);
 }
-
 const std::string	&Client::get_message() const {
 	return (_message);
 }
-
+epoll_event	*Client::get_event() const {
+	return (_event);
+}
+	/*  Additional funcs  */
 Client::~Client() {
-	std::cout << "Client destructor" << std::endl;
+	// std::cout << "Client destructor" << std::endl;
 	close(_socket);
 	delete _event;
 }
