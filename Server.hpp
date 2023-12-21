@@ -11,10 +11,10 @@
 #include <map>
 #include <vector>
 #include <fcntl.h>
-#include "Client.hpp"
+// #include "Client.hpp"
 #include <errno.h>
 #include <cstring>
-#include <stdio.h>
+// #include <stdio.h>
 
 #define BUFFER_SIZE 1024
 #define	NO_NAME "no name"
@@ -45,7 +45,7 @@ class Server
 	int								_epfd;
 	std::string						_ip;
 	int								_port;
-	std::string						_message;
+	// std::string						_message;
 	sockaddr_in						_addr;
 	unsigned int					_socketaddr_len;
 	std::string 					_name;
@@ -53,11 +53,12 @@ class Server
 	std::string						_root_path;
 	std::map<int, std::string>		_error_pages;
 	std::map<std::string, location>	_locations;
-	std::vector<Client *>			_Clients;
+	// std::vector<Client *>			_Clients;
 	struct epoll_event				*_event;
 public:
 	/* constructors / destructors */
 	Server();
+	Server(Server const &);
 	Server(int);
 	~Server();
 	/* additional functions */
@@ -74,18 +75,15 @@ public:
 	void	set_name(const std::string &);
 	void	set_error_page(int, std::string const&);
 	void	set_root(std::string const&);
-	// epoll_event	*set_event();
-	// void	set_new_socket(int socket);
 	void	set_len();
 	void	set_addr(int, std::string const&);
 	void	set_location(std::string const &, location &);
-	void	set_Client(Client *);
 	/* getters */
 	const std::string		&get_name() const;
 	unsigned int			&get_socketaddr_len();
 	const sockaddr_in		&get_addr() const;
-	// int						get_new_socket();
 	int						get_socket();
+	int						get_epfd() const;
 	int						get_body_size() const;
 	const std::string		&get_root() const;
 	const std::string		&get_ip() const;

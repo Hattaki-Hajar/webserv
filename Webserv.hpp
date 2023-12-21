@@ -9,10 +9,11 @@
 
 class Webserv
 {
-	int					_socket;
-	int					_epfd;
-	std::vector<Server *> _Servers;
-	// std::vector<Client> _Clients;
+	int						_socket;
+	int						_epfd;
+	epoll_event				*_event;
+	std::vector<Server *>	_Servers;
+	std::vector<Client *>		_Clients;
 public:
 	/* constructors / destructors */
 	Webserv();
@@ -36,6 +37,7 @@ public:
 	/* additional func */
 	void	start();
 	void	bind_Servers();
+	void	new_connection(Server &);
 
 	// void	listen_directive(std::string &, int, int);
 };

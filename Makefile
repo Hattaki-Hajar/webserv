@@ -19,6 +19,9 @@ $(NAME): $(OBJS) $(HEADERS)
 %.o: %.cpp
 	@$(CPP) $(CFLAGS) -c $< -o $@
 
+run: $(NAME)
+	@./$(NAME) config
+
 clean:
 	@rm -f $(OBJS)
 	@echo "\033[35mDeleting object files!\033[0m"

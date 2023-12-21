@@ -22,20 +22,38 @@ Server::Server()
 	_event = new epoll_event;
 }
 
+Server::Server(Server const &s)
+{
+	_socket = s._socket;
+	_epfd = s._epfd;
+	_ip = s._ip;
+	_port = s._port;
+	_name = s._name;
+	_max_body_size = s._max_body_size;
+	_root_path = s._root_path;
+	_error_pages = s._error_pages;
+	_locations = s._locations;
+	_event = new epoll_event;
+	_event->events = s._event->events;
+	_event->data.fd = s._event->data.fd;
+	_addr = s._addr;
+	_socketaddr_len = s._socketaddr_len;
+}
+
 Server::~Server() {
 	// std::cout << "Server destructor" << std::endl;
 	delete _event;
-	for (size_t i = 0; i < _Clients.size(); i++)
-		delete _Clients[i];
+	// _event = NULL;
 	close(_socket);
 }
 	/* additional functions  */
-
 int set_nonblocking(int sockfd) {
     int flags = fcntl(sockfd, F_GETFL, 0);
-    if (flags == -1)
+    if (flags == -1) {
         throw std::runtime_error("fcntl failed 1!");
-    if (fcntl(sockfd, F_SETFL, flags | O_NONBLOCK) == -1)
+	}
+	flags |= O_NONBLOCK;
+    if (fcntl(sockfd, F_SETFL, flags) == -1)
         throw std::runtime_error("fcntl failed 2!");
     return 0;
 }
@@ -49,7 +67,7 @@ void	Server::bind_Server()
 	if (_socket < 0)
 		throw std::runtime_error("socket failed!");
 	setsockopt(_socket, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on));
-    // setsockopt(_socket, SOL_SOCKET, SO_REUSEPORT, &on, sizeof(on));
+    setsockopt(_socket, SOL_SOCKET, SO_REUSEPORT, &on, sizeof(on));
 	if (bind(_socket,(sockaddr *)&_addr, _socketaddr_len) < 0)
 		throw std::runtime_error("bind failed!");
 	if (set_nonblocking(_socket) < 0)
@@ -61,7 +79,7 @@ void	set_up_Server(Server &s, int epfd)
 	if (epfd < 0)
 		throw std::runtime_error("epoll_create1 failed!");
 	s.set_epoll_fd(epfd);
-	s.get_event()->events = EPOLLIN | EPOLLOUT;
+	s.get_event()->events = EPOLLIN;
 	s.get_event()->data.fd = s.get_socket();
 	if (epoll_ctl(epfd, EPOLL_CTL_ADD, s.get_socket(), s.get_event()) < 0)
 		throw std::runtime_error("epoll_ctl failed! 1");
@@ -69,63 +87,63 @@ void	set_up_Server(Server &s, int epfd)
 		throw std::runtime_error("listen failed!");
 }
 
-void	new_connection(int fd, Server &s, int epfd)
-{
-	Client *c = new Client();
-	std::cout << "socket: " << fd << std::endl;
-	int	socket = accept(fd, (sockaddr *)&s.get_addr(), (socklen_t *)&c->_addr_size);
-	std::cout << "client socket: " << socket << std::endl;
-	if (socket < 0)
-	{
-		perror("accept");
-		// std::cout << "errno: " << errno << std::endl;
-		delete c;
-		throw std::runtime_error("failed to connect1!");
-	}
-	if (epoll_ctl(epfd, EPOLL_CTL_ADD, socket, s.get_event()) < 0)
-	{
-		delete c;
-		throw std::runtime_error("epoll_ctl failed! 2");
-	}
-	c->set_event_fd(socket);
-	s.set_Client(c);
-	if (set_nonblocking(socket) < 0)
-		throw std::runtime_error("set_nonblocking failed!");
-	std::cout << "new connection 2" << std::endl;
-	char buffer[BUFFER_SIZE];
-	read(socket, buffer, BUFFER_SIZE);
-	std::cout << "buffer: " << buffer << std::endl;
-}
+// void	new_connection(int fd, Server &s, int epfd)
+// {
+	// Client *c = new Client();
+	// std::cout << "socket: " << fd << std::endl;
+	// int	socket = accept(fd, (sockaddr *)&s.get_addr(), (socklen_t *)&c->_addr_size);
+	// std::cout << "client socket: " << socket << std::endl;
+	// if (socket < 0)
+	// {
+	// 	perror("accept");
+	// 	// std::cout << "errno: " << errno << std::endl;
+	// 	delete c;
+	// 	throw std::runtime_error("failed to connect1!");
+	// }
+	// if (epoll_ctl(epfd, EPOLL_CTL_ADD, socket, s.get_event()) < 0)
+	// {
+	// 	delete c;
+	// 	throw std::runtime_error("epoll_ctl failed! 2");
+	// }
+	// c->set_event_fd(socket);
+	// s.set_Client(c);
+	// if (set_nonblocking(socket) < 0)
+	// 	throw std::runtime_error("set_nonblocking failed!");
+	// std::cout << "new connection 2" << std::endl;
+	// char buffer[BUFFER_SIZE];_clients
+	// read(socket, buffer, BUFFER_SIZE);
+	// std::cout << "buffer: " << buffer << std::endl;
+// }
 
-void	Server::start()
-{
-	struct epoll_event	events[MAX_EVENTS];
-	int	event_nb;
-	event_nb = epoll_wait(_epfd, events, 1, 0);
-	std::cout << "event_nb: " << event_nb << std::endl;
-	if (event_nb < 0)
-		throw std::runtime_error("epoll_wait failed!");
-	else
-	{
-		for (int i = 0; i < event_nb; i++)
-		{
-			if (events[i].events & EPOLLIN)
-			{
-				if (events[i].data.fd == _socket)
-				{
-					std::cout << "here +++++++ " << _socket << std::endl;
-					new_connection(_socket, *this, _epfd);
-					if (fcntl(_Clients[_Clients.size() - 1]->get_socket(), 
-							F_SETFL, O_NONBLOCK) < 0)
-						throw std::runtime_error("fcntl failed! 3");
-					epoll_ctl(_epfd, EPOLL_CTL_ADD, 
-							_Clients[_Clients.size() - 1]->get_socket(), 
-							_Clients[_Clients.size() - 1]->get_event());
-				}
-			}
-		}
-	}
-}
+// void	Server::start()
+// {
+	// struct epoll_event	events[MAX_EVENTS];
+	// int	event_nb;
+	// event_nb = epoll_wait(_epfd, events, 1, 0);
+	// std::cout << "event_nb: " << event_nb << std::endl;
+	// if (event_nb < 0)
+	// 	throw std::runtime_error("epoll_wait failed!");
+	// else
+	// {
+	// 	for (int i = 0; i < event_nb; i++)
+	// 	{
+	// 		if (events[i].events & EPOLLIN)
+	// 		{
+	// 			if (events[i].data.fd == _socket)
+	// 			{
+	// 				std::cout << "here +++++++ " << _socket << std::endl;
+	// 				new_connection(_socket, *this, _epfd);
+	// 				if (fcntl(_Clients[_Clients.size() - 1]->get_socket(), 
+	// 						F_SETFL, O_NONBLOCK) < 0)
+	// 					throw std::runtime_error("fcntl failed! 3");
+	// 				epoll_ctl(_epfd, EPOLL_CTL_ADD, 
+	// 						_Clients[_Clients.size() - 1]->get_socket(), 
+	// 						_Clients[_Clients.size() - 1]->get_event());
+	// 			}
+	// 		}
+	// 	}
+	// }
+// }
 
 void	Server::start_listen()
 {
@@ -168,6 +186,11 @@ const sockaddr_in	&Server::get_addr() const {
 
 int	Server::get_socket() {
 	return (_socket);
+}
+
+int	Server::get_epfd() const
+{
+	return (_epfd);
 }
 
 int	Server::get_body_size() const {
@@ -252,10 +275,10 @@ void	Server::set_location(std::string const &path, location &loc)
 	_locations[path].return_path = loc.return_path;
 	_locations[path].methods = loc.methods;
 }
-void	Server::set_Client(Client *c)
-{
-	_Clients.push_back(c);
-}
+// void	Server::set_Client(Client *c)
+// {
+// 	_Clients.push_back(c);
+// }
 
 	/*  << overload for Server  */
 std::ostream& operator<<(std::ostream &os, const Server& s)

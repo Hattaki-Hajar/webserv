@@ -3,12 +3,52 @@
 #include <algorithm>
 
 Webserv::Webserv()
-{}
+{
+	_event = new epoll_event;
+}
+
+void	Webserv::new_connection(Server &s)
+{
+	int i;
+	_Clients.push_back(new Client(s));
+	// std::cout << "here " << _Clients.size() << std::endl;
+	i = _Clients.size() - 1;
+	int new_socket = accept(s.get_socket(), (struct sockaddr *)&_Clients[i]->_addr, &_Clients[i]->_addr_size);
+	if (new_socket < 0)
+	{
+		perror("accept");
+		throw std::runtime_error("failed to connect1!");
+	}
+	// std::cout << "after accept" << std::endl;
+	_Clients[i]->set_socket(new_socket);
+	if (set_nonblocking(new_socket) < 0)
+		throw std::runtime_error("set_nonblocking failed!");
+	// std::cout << "after set_nonblocking" << std::endl;
+	if (epoll_ctl(s.get_epfd(), EPOLL_CTL_ADD, _Clients[i]->get_socket(), _Clients[i]->get_event()) < 0)
+	{
+		perror("epoll_ctl");
+		throw std::runtime_error("epoll_ctl failed! 2");
+	}
+	// std::cout << "after epoll_ctl" << std::endl;
+	char buffer[BUFFER_SIZE + 1];
+	bzero(buffer, BUFFER_SIZE + 1);
+	int r = read(new_socket, buffer, BUFFER_SIZE);
+	if (r < 0)
+	{
+		return ;
+	}
+	// std::cout << "after read " << r << " bytes:" << std::endl;
+	std::cout << "buffer: " << buffer << std::endl;
+	// std::cout << "socket: " << new_socket << std::endl;
+}
 
 void	Webserv::start()
 {
 	size_t i = 0;
-	int epfd = epoll_create1(0);
+	char buffer[BUFFER_SIZE + 1];
+	bzero(buffer, BUFFER_SIZE + 1);
+	int epfd = epoll_create1(0), event_nb = 0, fd;
+	epoll_event	events[MAX_EVENTS];
 
 	while (i < _Servers.size())
 	{
@@ -17,12 +57,34 @@ void	Webserv::start()
 	}
 	while (1)
 	{
-		i = 0;
-		while (i < _Servers.size())
+		event_nb = epoll_wait(epfd, events, 1, 0);
+		if (event_nb < 0)
+			throw std::runtime_error("epoll_wait failed!");
+		for (int j = 0; j < event_nb; j++)
 		{
-			_Servers[i]->start();
-			i++;
+			fd = events[j].data.fd;
+			i = 0;
+			while (i < _Servers.size())
+			{
+				if (fd == _Servers[i]->get_socket())
+				{
+					new_connection(*_Servers[i]);
+					break ;
+				}
+				i++;
+			}
+			if (events[j].events & EPOLLIN)
+			{
+				std::cout << "here3" << std::endl;
+				bzero(buffer, BUFFER_SIZE + 1);
+				if (read(fd, buffer, BUFFER_SIZE) < 0){
+					std::cout << "debug: read failed" << std::endl;
+					continue ;
+					}
+				std::cout << "buffer: " << buffer << std::endl;
+			}
 		}
+		event_nb = 0;
 	}
 }
 
@@ -168,4 +230,7 @@ Webserv::~Webserv()
 	// std::cout << "Webserv destructor called" << std::endl;
 	for (size_t i = 0; i < _Servers.size(); i++)
 		delete _Servers[i];
+	for (size_t i = 0; i < _Clients.size(); i++)
+		delete _Clients[i];
+	delete _event;
 }

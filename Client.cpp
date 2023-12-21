@@ -1,17 +1,16 @@
 #include "Client.hpp"
 #include "Webserv.hpp"
 
-Client::Client() {
-	// std::cout << "Client constructor" << std::endl;
-	_socket = -1;
-	_addr.sin_family = AF_INET;
-	_addr_size = sizeof(_addr);
-	_event = new epoll_event();
-	_event->events = EPOLLIN | EPOLLOUT;
-}
-Client::Client(int socket) {
-	// std::cout << "Client constructor 2" << std::endl;
-	_socket = socket;
+// Client::Client() {
+// 	// std::cout << "Client constructor" << std::endl;
+// 	_socket = -1;
+// 	_addr.sin_family = AF_INET;
+// 	_addr_size = sizeof(_addr);
+// 	_event = new epoll_event();
+// 	_event->events = EPOLLIN | EPOLLOUT;
+// }
+Client::Client(Server &s):_server(s) {
+	std::cout << "Client constructor" << std::endl;
 	_addr.sin_family = AF_INET;
 	_addr_size = sizeof(_addr);
 	_event = new epoll_event();
@@ -19,16 +18,17 @@ Client::Client(int socket) {
 }
 	/*  Setters  */
 void	Client::set_socket(int socket) {
+	_event->data.fd = socket;
+	_event->events = EPOLLIN | EPOLLOUT;
 	_socket = socket;
 }
-
 void	Client::set_message(std::string const& message) {
 	_message = message;
 }
-void	Client::set_event_fd(int fd) {
-	_socket = fd;
-	_event->data.fd = fd;
-}
+// void	Client::set_event_fd(int fd) {
+// 	_socket = fd;
+// 	_event->data.fd = fd;
+// }
 	/*  Getters  */
 int		Client::get_socket() const {
 	return (_socket);
@@ -41,7 +41,7 @@ epoll_event	*Client::get_event() const {
 }
 	/*  Additional funcs  */
 Client::~Client() {
-	// std::cout << "Client destructor" << std::endl;
+	std::cout << "Client destructor" << std::endl;
 	close(_socket);
 	delete _event;
 }
