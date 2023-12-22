@@ -1,6 +1,6 @@
-SRCS = $(wildcard *.cpp) $(wildcard config_file_parsing/*.cpp)
+SRCS = $(wildcard *.cpp) $(wildcard config_file_parsing/*.cpp) $(wildcard response/*.cpp)
 
-HEADERS = $(wildcard *.hpp) $(wildcard config_file_parsing/*.hpp)
+HEADERS = $(wildcard *.hpp) $(wildcard config_file_parsing/*.hpp) $(wildcard response/*.hpp)
 
 CPP = c++
 

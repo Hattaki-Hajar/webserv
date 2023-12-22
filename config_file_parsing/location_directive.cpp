@@ -97,7 +97,6 @@ void	return_directive(std::string &line, size_t i, location &loc)
 {
 	std::string return_code;
 	int j = 0;
-
 	while (line[i] && isspace(line[i]))
 		i++;
 	while (line[i] && !isspace(line[i]))

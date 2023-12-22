@@ -76,6 +76,7 @@ public:
 	const std::string		&get_root() const;
 	const std::string		&get_ip() const;
 	int						get_port() const;
+	const std::map<std::string, location>						&get_location() const;
 	const std::map<std::string, location>::const_iterator		get_location_begin_iter() const;
 	const std::map<std::string, location>::const_iterator		get_location_end_iter() const;
 

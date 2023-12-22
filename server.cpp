@@ -93,6 +93,10 @@ int	server::get_port() const {
 	return (_port);
 }
 
+const std::map<std::string, location>					&server::get_location() const {
+	return (_locations);
+}
+
 const std::map<std::string, location>::const_iterator	server::get_location_begin_iter() const {
 	return (_locations.begin());
 }

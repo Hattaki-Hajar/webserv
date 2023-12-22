@@ -1,4 +1,5 @@
 #include "../webserver.hpp"
+#include "../response/response.hpp"
 
 void	get_block(std::ifstream &config_file, std::string &server)
 {
@@ -60,7 +61,10 @@ void	server_block_parser(std::ifstream &config_file, webserver &w, int server)
 			root_directive(line, i, w, server);
 		directive.clear();
 	}
+
 	std::cout << w;
+	Response res(200, "/var/www/html", w.get_server(0));
+	res.match_uri();
 }
 
 

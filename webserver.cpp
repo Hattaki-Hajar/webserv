@@ -20,13 +20,30 @@ void	webserver::start(int port, std::string const &ip)
 		throw std::runtime_error("bind failed!");
 	_servers[0].start_listen();
 	_servers[0].acceptconnection(_servers[0].get_new_socket());
-	char	buffer[BUFFER_SIZE] = {0};
+	std::vector<char> buffer(BUFFER_SIZE);
+	std::vector<char> *data = new std::vector<char>();
 	// run this reda in a loop while parsing to continouisly reading
 	// note that a body size is set in the header, so make sure to count what you read
-	ssize_t	bytesReceived = read(_servers[0].get_new_socket(), buffer, BUFFER_SIZE);
-	if (bytesReceived < 0)
-		throw std::runtime_error("read failed!");
-	std::cout << buffer << std::endl;
+	// request(_servers[0]);
+	// respo
+	while (1){
+		ssize_t	bytesReceived = read(_servers[0].get_new_socket(), buffer.data(), BUFFER_SIZE);
+		data->insert(data->end(), buffer.begin(), buffer.end());
+		std::cout << "read: "<< bytesReceived << std::endl;
+		std::cout << "buff: ";
+		for (std::vector<char>::iterator it = buffer.begin(); it != buffer.end(); it++)
+		{
+				std::cout << *it;
+		}
+		std::cout << std::endl;
+		if (bytesReceived <= 0)
+			break;
+			// throw std::runtime_error("read failed!");
+			}
+	for (std::vector<char>::iterator it = data->begin(); it != data->end(); it++)	{
+		std::cout << *it << std::endl;
+		// _servers[1].send();
+	}
 }
 	/*  setters  */
 void	webserver::set_port(const std::string &port, int s)
