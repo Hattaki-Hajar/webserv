@@ -87,64 +87,6 @@ void	set_up_Server(Server &s, int epfd)
 		throw std::runtime_error("listen failed!");
 }
 
-// void	new_connection(int fd, Server &s, int epfd)
-// {
-	// Client *c = new Client();
-	// std::cout << "socket: " << fd << std::endl;
-	// int	socket = accept(fd, (sockaddr *)&s.get_addr(), (socklen_t *)&c->_addr_size);
-	// std::cout << "client socket: " << socket << std::endl;
-	// if (socket < 0)
-	// {
-	// 	perror("accept");
-	// 	// std::cout << "errno: " << errno << std::endl;
-	// 	delete c;
-	// 	throw std::runtime_error("failed to connect1!");
-	// }
-	// if (epoll_ctl(epfd, EPOLL_CTL_ADD, socket, s.get_event()) < 0)
-	// {
-	// 	delete c;
-	// 	throw std::runtime_error("epoll_ctl failed! 2");
-	// }
-	// c->set_event_fd(socket);
-	// s.set_Client(c);
-	// if (set_nonblocking(socket) < 0)
-	// 	throw std::runtime_error("set_nonblocking failed!");
-	// std::cout << "new connection 2" << std::endl;
-	// char buffer[BUFFER_SIZE];_clients
-	// read(socket, buffer, BUFFER_SIZE);
-	// std::cout << "buffer: " << buffer << std::endl;
-// }
-
-// void	Server::start()
-// {
-	// struct epoll_event	events[MAX_EVENTS];
-	// int	event_nb;
-	// event_nb = epoll_wait(_epfd, events, 1, 0);
-	// std::cout << "event_nb: " << event_nb << std::endl;
-	// if (event_nb < 0)
-	// 	throw std::runtime_error("epoll_wait failed!");
-	// else
-	// {
-	// 	for (int i = 0; i < event_nb; i++)
-	// 	{
-	// 		if (events[i].events & EPOLLIN)
-	// 		{
-	// 			if (events[i].data.fd == _socket)
-	// 			{
-	// 				std::cout << "here +++++++ " << _socket << std::endl;
-	// 				new_connection(_socket, *this, _epfd);
-	// 				if (fcntl(_Clients[_Clients.size() - 1]->get_socket(), 
-	// 						F_SETFL, O_NONBLOCK) < 0)
-	// 					throw std::runtime_error("fcntl failed! 3");
-	// 				epoll_ctl(_epfd, EPOLL_CTL_ADD, 
-	// 						_Clients[_Clients.size() - 1]->get_socket(), 
-	// 						_Clients[_Clients.size() - 1]->get_event());
-	// 			}
-	// 		}
-	// 	}
-	// }
-// }
-
 void	Server::start_listen()
 {
 	if (listen(_socket, SOMAXCONN) < 0)
@@ -275,11 +217,6 @@ void	Server::set_location(std::string const &path, location &loc)
 	_locations[path].return_path = loc.return_path;
 	_locations[path].methods = loc.methods;
 }
-// void	Server::set_Client(Client *c)
-// {
-// 	_Clients.push_back(c);
-// }
-
 	/*  << overload for Server  */
 std::ostream& operator<<(std::ostream &os, const Server& s)
 {

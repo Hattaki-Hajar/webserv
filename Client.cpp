@@ -15,6 +15,8 @@ Client::Client(Server &s):_server(s) {
 	_addr_size = sizeof(_addr);
 	_event = new epoll_event();
 	_event->events = EPOLLIN | EPOLLOUT;
+	_bytesread = -2;
+	bzero(_buffer, BUFFER_SIZE + 1);
 }
 	/*  Setters  */
 void	Client::set_socket(int socket) {
@@ -25,13 +27,15 @@ void	Client::set_socket(int socket) {
 void	Client::set_message(std::string const& message) {
 	_message = message;
 }
-// void	Client::set_event_fd(int fd) {
-// 	_socket = fd;
-// 	_event->data.fd = fd;
-// }
+void	Client::set_bytesread(int bytesread) {
+	_bytesread = bytesread;
+}
 	/*  Getters  */
 int		Client::get_socket() const {
 	return (_socket);
+}
+int		Client::get_bytesread() const {
+	return (_bytesread);
 }
 const std::string	&Client::get_message() const {
 	return (_message);
@@ -39,7 +43,14 @@ const std::string	&Client::get_message() const {
 epoll_event	*Client::get_event() const {
 	return (_event);
 }
+char	*Client::get_buffer(void) const {
+	return ((char *)_buffer);
+}
 	/*  Additional funcs  */
+void	Client::clear_buffer() {
+	bzero(_buffer, BUFFER_SIZE + 1);
+}
+	/*  Destructor  */
 Client::~Client() {
 	std::cout << "Client destructor" << std::endl;
 	close(_socket);

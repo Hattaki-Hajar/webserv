@@ -11,50 +11,70 @@ void	Webserv::new_connection(Server &s)
 {
 	int i;
 	_Clients.push_back(new Client(s));
-	// std::cout << "here " << _Clients.size() << std::endl;
 	i = _Clients.size() - 1;
 	int new_socket = accept(s.get_socket(), (struct sockaddr *)&_Clients[i]->_addr, &_Clients[i]->_addr_size);
+	std::cout << "new socket: ******* " << new_socket << std::endl;
 	if (new_socket < 0)
 	{
 		perror("accept");
 		throw std::runtime_error("failed to connect1!");
 	}
-	// std::cout << "after accept" << std::endl;
 	_Clients[i]->set_socket(new_socket);
 	if (set_nonblocking(new_socket) < 0)
 		throw std::runtime_error("set_nonblocking failed!");
-	// std::cout << "after set_nonblocking" << std::endl;
 	if (epoll_ctl(s.get_epfd(), EPOLL_CTL_ADD, _Clients[i]->get_socket(), _Clients[i]->get_event()) < 0)
 	{
 		perror("epoll_ctl");
 		throw std::runtime_error("epoll_ctl failed! 2");
 	}
-	// std::cout << "after epoll_ctl" << std::endl;
-	char buffer[BUFFER_SIZE + 1];
-	bzero(buffer, BUFFER_SIZE + 1);
-	int r = read(new_socket, buffer, BUFFER_SIZE);
-	if (r < 0)
+	// bytesread = read(new_socket, _Clients[i]->get_buffer(), BUFFER_SIZE);
+	// _Clients[i]->set_bytesread(bytesread);
+	// if (bytesread >= 0)
+	// 	std::cout << "from new connection, buffer: \n" << _Clients[i]->get_buffer() << std::endl;
+	// _Clients[i]->clear_buffer();
+	// read here the buffer, i setted how much bytes i read in the Client class
+}
+
+int	is_server_socket(std::vector<Server *> &Servers, int socket)
+{
+	size_t i = 0;
+	while (i < Servers.size())
 	{
-		return ;
+		if (Servers[i]->get_socket() == socket)
+			return (i);
+		i++;
 	}
-	// std::cout << "after read " << r << " bytes:" << std::endl;
-	std::cout << "buffer: " << buffer << std::endl;
-	// std::cout << "socket: " << new_socket << std::endl;
+	return (-1);
+}
+
+void	set_up_webserv(std::vector<Server *> &Servers, int epfd)
+{
+	if (epfd < 0)
+		throw std::runtime_error("epoll_create1 failed!");
+	for (size_t i = 0; i < Servers.size(); i++)
+		set_up_Server(*Servers[i], epfd);
+}
+
+int	find_client(std::vector<Client *> &Clients, int socket)
+{
+	size_t i = 0;
+	while (i < Clients.size())
+	{
+		if (Clients[i]->get_socket() == socket)
+			return (i);
+		i++;
+	}
+	return (-1);
 }
 
 void	Webserv::start()
 {
-	size_t i = 0;
+	int i = 0, bytesread = 0, client_nb = 0;
 	char buffer[BUFFER_SIZE + 1];
 	bzero(buffer, BUFFER_SIZE + 1);
 	int epfd = epoll_create1(0), event_nb = 0, fd;
 	epoll_event	events[MAX_EVENTS];
-
-	while (i < _Servers.size())
-	{
-		set_up_Server(*_Servers[i], epfd);
-		i++;
-	}
+	set_up_webserv(_Servers, epfd);
 	while (1)
 	{
 		event_nb = epoll_wait(epfd, events, 1, 0);
@@ -63,28 +83,39 @@ void	Webserv::start()
 		for (int j = 0; j < event_nb; j++)
 		{
 			fd = events[j].data.fd;
-			i = 0;
-			while (i < _Servers.size())
+			i = is_server_socket(_Servers, fd);
+			if (i >= 0)
 			{
-				if (fd == _Servers[i]->get_socket())
-				{
-					new_connection(*_Servers[i]);
-					break ;
-				}
-				i++;
+				new_connection(*_Servers[i]);
+				continue ;
 			}
-			if (events[j].events & EPOLLIN)
+			client_nb = find_client(_Clients, fd);
+			if (events[j].events & EPOLLIN && i == -1)
 			{
-				std::cout << "here3" << std::endl;
 				bzero(buffer, BUFFER_SIZE + 1);
-				if (read(fd, buffer, BUFFER_SIZE) < 0){
+				bytesread = read(fd, _Clients[client_nb]->get_buffer(), BUFFER_SIZE);
+				_Clients[client_nb]->set_bytesread(bytesread);
+				if (bytesread < 0) {
 					std::cout << "debug: read failed" << std::endl;
 					continue ;
-					}
-				std::cout << "buffer: " << buffer << std::endl;
+				}
+				else if (!bytesread){
+					continue ;
+				}
+				std::cout << "buffer: \n" << _Clients[client_nb]->get_buffer() << std::endl;
+				_Clients[client_nb]->clear_buffer();
+			}
+			if (events[j].events & EPOLLOUT && _Clients[client_nb]->get_bytesread() >= 0)
+			{
+				if (!_Clients[client_nb]->get_bytesread())
+				{
+					std::cout << "debug: closing socket" << std::endl;
+					write(fd, "HTTP/1.1 404 OK\r\n\r\n", 20);
+					epoll_ctl(epfd, EPOLL_CTL_DEL, fd, NULL);
+					close(fd);
+				}
 			}
 		}
-		event_nb = 0;
 	}
 }
 

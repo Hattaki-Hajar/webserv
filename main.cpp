@@ -1,8 +1,10 @@
 #include "Webserv.hpp"
+#include <signal.h>
 
 int main(int ac, char *av[])
 {
 	(void)av;
+	signal(SIGPIPE, SIG_IGN);
 	if (ac != 2)
 	{
 		std::cerr << "Error: wrong number of arguments!" << std::endl;
