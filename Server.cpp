@@ -161,6 +161,9 @@ const std::map<std::string, location>::const_iterator	Server::get_location_begin
 const std::map<std::string, location>::const_iterator	Server::get_location_end_iter() const {
 	return (_locations.end());
 }
+const std::map<std::string, location>	&Server::get_locations() const {
+	return (_locations);
+}
 	/*  setters  */
 void	Server::set_port(int port) {
 	_port = port;

@@ -45,7 +45,6 @@ class Server
 	int								_epfd;
 	std::string						_ip;
 	int								_port;
-	// std::string						_message;
 	sockaddr_in						_addr;
 	unsigned int					_socketaddr_len;
 	std::string 					_name;
@@ -91,7 +90,7 @@ public:
 	epoll_event				*get_event();
 	const std::map<std::string, location>::const_iterator		get_location_begin_iter() const;
 	const std::map<std::string, location>::const_iterator		get_location_end_iter() const;
-
+	const std::map<std::string, location>						&get_locations() const;
 	// void	send_response(int, std::string const&);
 };
 
