@@ -5,7 +5,7 @@ server {
     index index.php;
 
     location /var/www {
-        root /etc/nginx
+        root /etc/nginx;
         try_files $uri $uri/ =404;
     }
 

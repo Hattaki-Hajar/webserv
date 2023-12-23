@@ -1,4 +1,4 @@
-#include "../webserver.hpp"
+#include "../Webserv.hpp"
 
 void	check_line(std::string &line, size_t i, std::string &path)
 {
@@ -47,8 +47,6 @@ void	root_dir(std::string &line, size_t i, location &loc)
 
 	while (line[i] && isspace(line[i]))
 		i++;
-	// if (line[i] != '/')
-	// 	throw std::runtime_error("Error: config file is not valid loc_root1!");
 	while (line[i] && !isspace(line[i]) && line[i] != ';')
 		path += line[i++];
 	while (line[i] && isspace(line[i]))
@@ -127,7 +125,6 @@ void	loc_body_size_directive(std::string &line, size_t i, location &loc)
 		i++;
 	while (line[i] && isdigit(line[i]))
 		size += line[i++];
-	// std::cout << "line[i] = " << line[i] << std::endl;
 	if ((line[i] != 'k' && line[i] != 'K' && line[i] != 'm' && line[i]!= 'M'
 		&& line[i] != 'g' && line[i] != 'G' && line[i] != ';') || size.empty())
 		throw std::runtime_error("Error: config file is not valid size1!");
@@ -152,11 +149,11 @@ void	loc_body_size_directive(std::string &line, size_t i, location &loc)
 		throw std::runtime_error("Error: config file is not valid size3!");
 }
 
-void	location_directive(std::istringstream &ss, std::string &line, size_t i, webserver &w, int server)
+void	location_directive(std::istringstream &ss, std::string &line, Webserv &w, int Server)
 {
 	std::string path, directive;
 	location loc;
-	int open_bracket = 0, close_bracket = 0;
+	int open_bracket = 0, close_bracket = 0, i = 0;
 
 	check_line(line, i, path);
 	loc.max_body_size = -1;
@@ -194,9 +191,9 @@ void	location_directive(std::istringstream &ss, std::string &line, size_t i, web
 			index_directive(line, i, loc);
 		if (directive == "return")
 			return_directive(line, i, loc);
-		if (directive == "client_max_body_size")
+		if (directive == "Client_max_body_size")
 			loc_body_size_directive(line, i, loc);
 		directive.clear();
 	}
-	w.set_location(path, loc, server);
+	w.set_location(path, loc, Server);
 }
