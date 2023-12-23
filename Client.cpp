@@ -17,6 +17,7 @@ Client::Client(Server &s):_server(s) {
 	_event->events = EPOLLIN | EPOLLOUT;
 	_bytesread = -2;
 	bzero(_buffer, BUFFER_SIZE + 1);
+	_done_reading = false;
 }
 	/*  Setters  */
 void	Client::set_socket(int socket) {
@@ -24,11 +25,11 @@ void	Client::set_socket(int socket) {
 	_event->events = EPOLLIN | EPOLLOUT;
 	_socket = socket;
 }
-void	Client::set_message(std::string const& message) {
-	_message = message;
-}
 void	Client::set_bytesread(int bytesread) {
 	_bytesread = bytesread;
+}
+void	Client::set_reading_status(bool status) {
+	_done_reading = status;
 }
 	/*  Getters  */
 int		Client::get_socket() const {
@@ -37,14 +38,17 @@ int		Client::get_socket() const {
 int		Client::get_bytesread() const {
 	return (_bytesread);
 }
-const std::string	&Client::get_message() const {
-	return (_message);
-}
 epoll_event	*Client::get_event() const {
 	return (_event);
 }
+const Server	&Client::get_server() const {
+	return (_server);
+}
 char	*Client::get_buffer(void) const {
 	return ((char *)_buffer);
+}
+bool	Client::get_reading_status(void) const {
+	return (_done_reading);
 }
 	/*  Additional funcs  */
 void	Client::clear_buffer() {

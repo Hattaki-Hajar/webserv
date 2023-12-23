@@ -90,16 +90,18 @@ void	Webserv::start()
 				continue ;
 			}
 			client_nb = find_client(_Clients, fd);
-			if (events[j].events & EPOLLIN && i == -1)
+			if (events[j].events & EPOLLIN)
 			{
+				std::cout << "debug: read" << std::endl;
 				bzero(buffer, BUFFER_SIZE + 1);
 				bytesread = read(fd, _Clients[client_nb]->get_buffer(), BUFFER_SIZE);
 				_Clients[client_nb]->set_bytesread(bytesread);
-				if (bytesread < 0) {
-					std::cout << "debug: read failed" << std::endl;
+				if (!bytesread) {
+					std::cout << "debug: read finished" << std::endl;
 					continue ;
 				}
-				else if (!bytesread){
+				if (bytesread < 0) {
+					std::cout << "debug: read failed" << std::endl;
 					continue ;
 				}
 				std::cout << "buffer: \n" << _Clients[client_nb]->get_buffer() << std::endl;
@@ -107,10 +109,11 @@ void	Webserv::start()
 			}
 			if (events[j].events & EPOLLOUT && _Clients[client_nb]->get_bytesread() >= 0)
 			{
-				if (!_Clients[client_nb]->get_bytesread())
+				if (_Clients[client_nb]->get_bytesread()
+					&& _Clients[client_nb]->get_bytesread() < BUFFER_SIZE)
 				{
 					std::cout << "debug: closing socket" << std::endl;
-					write(fd, "HTTP/1.1 404 OK\r\n\r\n", 20);
+					write(fd, "HTTP/1.1 301 OK\r\n\r\n", 19);
 					epoll_ctl(epfd, EPOLL_CTL_DEL, fd, NULL);
 					close(fd);
 				}
