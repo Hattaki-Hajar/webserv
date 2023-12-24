@@ -9,7 +9,6 @@ Server::Server(int port)
 	_socketaddr_len = sizeof(_addr);
 	_event = new epoll_event;
 }
-
 Server::Server()
 {
 	_port = 80;
@@ -21,7 +20,6 @@ Server::Server()
 	_socketaddr_len = sizeof(_addr);
 	_event = new epoll_event;
 }
-
 Server::Server(Server const &s)
 {
 	_socket = s._socket;
@@ -39,7 +37,6 @@ Server::Server(Server const &s)
 	_addr = s._addr;
 	_socketaddr_len = s._socketaddr_len;
 }
-
 Server::~Server() {
 	// std::cout << "Server destructor" << std::endl;
 	delete _event;
@@ -57,7 +54,6 @@ int set_nonblocking(int sockfd) {
         throw std::runtime_error("fcntl failed 2!");
     return 0;
 }
-
 void	Server::bind_Server()
 {
 	int on = 1;
@@ -73,7 +69,6 @@ void	Server::bind_Server()
 	if (set_nonblocking(_socket) < 0)
 		throw std::runtime_error("set_nonblocking failed!");
 }
-
 void	set_up_Server(Server &s, int epfd)
 {
 	if (epfd < 0)
@@ -86,7 +81,6 @@ void	set_up_Server(Server &s, int epfd)
 	if (listen(s.get_socket(), SOMAXCONN) == -1)
 		throw std::runtime_error("listen failed!");
 }
-
 void	Server::start_listen()
 {
 	if (listen(_socket, SOMAXCONN) < 0)
@@ -98,7 +92,6 @@ void	Server::start_listen()
         << " ***\n\n";
     std::cout << ss.str();
 }
-
 void	Server::acceptconnection(int new_socket)
 {
 	new_socket = accept(_socket, (sockaddr *)&_addr, 
@@ -134,30 +127,27 @@ int	Server::get_epfd() const
 {
 	return (_epfd);
 }
-
 int	Server::get_body_size() const {
 	return (_max_body_size);
 }
-
 const std::string	&Server::get_root() const {
 	return (_root_path);
+}
+const std::string	&Server::get_index() const {
+	return (_index_path);
 }
 const std::string	&Server::get_ip() const {
 	return (_ip);
 }
-
 int	Server::get_port() const {
 	return (_port);
 }
-
 epoll_event	*Server::get_event() {
 	return (_event);
 }
-
 const std::map<std::string, location>::const_iterator	Server::get_location_begin_iter() const {
 	return (_locations.begin());
 }
-
 const std::map<std::string, location>::const_iterator	Server::get_location_end_iter() const {
 	return (_locations.end());
 }
@@ -208,6 +198,10 @@ void	Server::set_addr(int port, std::string const& ip)
 
 void	Server::set_root(std::string const &path) {
 	_root_path = path;
+}
+
+void	Server::set_index(std::string const &path) {
+	_index_path = path;
 }
 
 void	Server::set_location(std::string const &path, location &loc)

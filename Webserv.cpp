@@ -234,6 +234,9 @@ void	Webserv::set_Server_socket(int socket, int Server) {
 void	Webserv::set_root(std::string const &path, int Server) {
 	_Servers[Server]->set_root(path);
 }
+void	Webserv::set_index(std::string const &path, int server) {
+	_Servers[server]->set_index(path);
+}
 void	Webserv::set_location(std::string const &path, location &loc, int Server) {
 	_Servers[Server]->set_location(path, loc);
 }

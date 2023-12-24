@@ -145,3 +145,17 @@ void	root_directive(std::string &line, Webserv &w, int Server)
 		i++;
 	w.set_root(path, Server);
 }
+
+void	index_directive(std::string &line, Webserv &w, int Server)
+{
+	std::string path;
+	size_t i = 0;
+
+	while (line[i] && isspace(line[i]))
+		i++;
+	while (line[i] && !isspace(line[i]) && line[i] != ';')
+		path += line[i++];
+	while (line[i] && isspace(line[i]))
+		i++;
+	w.set_index(path, Server);
+}
