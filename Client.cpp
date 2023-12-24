@@ -52,6 +52,9 @@ char	*Client::get_buffer(void) const {
 bool	Client::get_reading_status(void) const {
 	return (_done_reading);
 }
+const Request	*Client::get_request() const {
+	return (_request);
+}
 	/*  Additional funcs  */
 void	Client::clear_buffer() {
 	bzero(_buffer, BUFFER_SIZE + 1);

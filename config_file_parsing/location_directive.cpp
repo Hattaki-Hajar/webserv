@@ -228,6 +228,8 @@ void	location_directive(std::istringstream &ss, std::string &line, Webserv &w, i
 			return_directive(line, i, loc);
 		if (directive == "client_max_body_size")
 			loc_body_size_directive(line, i, loc);
+		else
+			throw std::runtime_error("Error: config file is not valid location: unknown directive!");
 		directive.clear();
 	}
 	w.set_location(path, loc, Server);
