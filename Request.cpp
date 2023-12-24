@@ -20,8 +20,8 @@ const request_line	&Request::get_request_line() const {
 long	Request::get_size_read() const {
 	return (_size_read);
 }
-std::fstream	&Request::get_file() const {
-	return ((std::fstream &)_file);
+std::fstream	&Request::get_file() {
+	return (_file);
 }
 /*	additional functions	*/
 void	Request::split_request(char *buffer, ssize_t bytesread) {

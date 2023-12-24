@@ -32,7 +32,7 @@ public:
 	std::map<std::string, std::string>	get_headers() const;
 	const request_line					&get_request_line() const;
 	long								get_size_read() const;
-	std::fstream						&get_file() const;
+	std::fstream						&get_file();
 	/*	additional function	*/
 	void	split_request(char *, ssize_t);
 	void	parse_request();
