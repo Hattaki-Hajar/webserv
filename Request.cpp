@@ -1,12 +1,8 @@
 #include "Request.hpp"
 /*  constructors destructors  */
 Request::Request() {
-	// std::string name;
 	_size_read = 0;
-	_file.open("test.txt", std::ios::out | std::ios::app);
-	// if (!_file.is_open())
-	// 	std::cout << "debug: file not open!" << std::endl;
-	// std::cout << "********* debug: should be here once!" << std::endl;
+	_file.open("test.mp4", std::ios::out | std::ios::app);
 	_headers_read = false;
 }
 
@@ -38,12 +34,12 @@ void	Request::split_request(char *buffer, ssize_t bytesread) {
 		_request_headers += buffer[i];
 		i++;
 	}
-	std::cout << "debug: i = " << i << " bytesread = " << bytesread << std::endl;
 	if (!_file.good())
 		std::cout << "debug: file not open!" << std::endl;
-	_file << buffer + i;
+	_file.write(buffer + i, bytesread - i);
 	_file.flush();
 	_size_read += bytesread - i;
+	std::cout << "debug: i = " << i << " bytesread = " << bytesread - i << " size_read = " << _size_read << std::endl;
 }
 void	Request::parse_request() {
 	if (_request_headers.empty())
@@ -60,5 +56,8 @@ void	Request::parse_request() {
 	{
 		_headers[line.substr(0, line.find(':'))] = line.substr(line.find(':') + 2);
 	}
+	std::cout << "headers: " << std::endl;
+	for (std::map<std::string, std::string>::iterator it = _headers.begin(); it != _headers.end(); it++)
+		std::cout << it->first << ": " << it->second << std::endl;
 	_request_headers.clear();
 }

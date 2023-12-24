@@ -16,7 +16,7 @@
 #include <cstring>
 // #include <stdio.h>
 
-#define BUFFER_SIZE 1024
+#define BUFFER_SIZE 10240
 #define	NO_NAME "no name"
 #define	DEFAULT_Server "default"
 #define MAX_EVENTS 10
