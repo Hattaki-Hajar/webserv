@@ -2,7 +2,7 @@
 /*  constructors destructors  */
 Request::Request() {
 	_size_read = 0;
-	_file.open("test.mp4", std::ios::out | std::ios::app);
+	_file.open("test.pdf", std::ios::out | std::ios::app);
 	_headers_read = false;
 }
 

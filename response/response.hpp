@@ -6,7 +6,7 @@
 /*   By: aharrass <aharrass@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/14 15:29:02 by aharrass          #+#    #+#             */
-/*   Updated: 2023/12/22 21:56:25 by aharrass         ###   ########.fr       */
+/*   Updated: 2023/12/24 16:51:25 by aharrass         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 
 #include "method_utils.hpp"
 #include "../Server.hpp"
+#include "../Client.hpp"
 
 #define DIREC 0
 #define FILE 1
@@ -27,16 +28,19 @@ class   Response    {
         std::string _uri;
         Server  _serv;
         const location *_location;
+        Client  *_client;
+        std::map<std::string, std::string> _headers;
+        Request_line    _request_line;
 
         Response();
 
     public:
-        Response(int status_code, std::string uri, Server serv);
+        Response(int status_code, std::string uri, Server serv, Client client);
         ~Response();
 
         void    pars_uri();
         void match_uri();
-        // void get();
+        void get();
         // void setStatusLine();
 
         const std::string &get_uri() const;

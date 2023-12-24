@@ -11,6 +11,7 @@ server {
 
     location    /var/www/html/  {
         root /etc/logs;
+        index index.html;
         try_files $uri $uri/ =404;
     }
 }
