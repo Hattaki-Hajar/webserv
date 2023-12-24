@@ -5,6 +5,7 @@
 Webserv::Webserv()
 {
 	_event = new epoll_event;
+	// std::srand(time(NULL));
 }
 
 void	Webserv::new_connection(Server &s)
@@ -69,7 +70,8 @@ int	find_client(std::vector<Client *> &Clients, int socket)
 
 void	Webserv::start()
 {
-	int i = 0, bytesread = 0, client_nb = 0;
+	int i = 0, client_nb = 0;
+	ssize_t bytesread = 0;
 	char buffer[BUFFER_SIZE + 1];
 	bzero(buffer, BUFFER_SIZE + 1);
 	int epfd = epoll_create1(0), event_nb = 0, fd;
@@ -105,6 +107,7 @@ void	Webserv::start()
 					continue ;
 				}
 				std::cout << "buffer: \n" << _Clients[client_nb]->get_buffer() << std::endl;
+				_Clients[client_nb]->parse_request();
 				_Clients[client_nb]->clear_buffer();
 			}
 			if (events[j].events & EPOLLOUT && _Clients[client_nb]->get_bytesread() >= 0)
