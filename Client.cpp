@@ -61,12 +61,11 @@ void	Client::clear_buffer() {
 }
 void	Client::parse_request() {
 	_request->split_request(_buffer, _bytesread);
-	_request->parse_request();
-	if (_request->get_size_read() == atol(_request->get_headers()["Content-Length"].c_str())) {
-		_done_reading = true;
-		_request->get_file().close();
-		std::cout << std::endl << "\033[31m" << "debug: done reading when _size_read = " << _request->get_size_read() << std::endl << "\033[0m";
-	}
+	// if (_request->get_size_read() == atol(_request->get_headers()["Content-Length"].c_str())) {
+	// 	_done_reading = true;
+	// 	_request->get_file().close();
+	// 	std::cout << std::endl << "\033[31m" << "debug: done reading when _size_read = " << _request->get_size_read() << std::endl << "\033[0m";
+	// }
 }
 	/*  Destructor  */
 Client::~Client() {

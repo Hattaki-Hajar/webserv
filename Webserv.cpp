@@ -14,7 +14,7 @@ void	Webserv::new_connection(Server &s)
 	_Clients.push_back(new Client(s));
 	i = _Clients.size() - 1;
 	int new_socket = accept(s.get_socket(), (struct sockaddr *)&_Clients[i]->_addr, &_Clients[i]->_addr_size);
-	std::cout << "new socket: ******* " << new_socket << std::endl;
+	// std::cout << "new socket: ******* " << new_socket << std::endl;
 	if (new_socket < 0)
 	{
 		perror("accept");

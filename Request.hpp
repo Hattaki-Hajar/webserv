@@ -18,6 +18,9 @@ class Request
 	std::map<std::string, std::string>	_headers;
 	Request_line						_request_line;
 	long								_size_read;
+	ssize_t								_chunk_read;
+	ssize_t								_first_chunk_size;
+	ssize_t								_chunks_size;
 	std::string							_request_headers;
 	std::fstream						_file;
 	bool								_headers_read;
