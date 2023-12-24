@@ -1,6 +1,7 @@
 #include "Webserv.hpp"
 #include <cstring>
 #include <algorithm>
+#include "response/response.hpp"
 
 Webserv::Webserv()
 {
@@ -14,7 +15,7 @@ void	Webserv::new_connection(Server &s)
 	_Clients.push_back(new Client(s));
 	i = _Clients.size() - 1;
 	int new_socket = accept(s.get_socket(), (struct sockaddr *)&_Clients[i]->_addr, &_Clients[i]->_addr_size);
-	std::cout << "new socket: ******* " << new_socket << std::endl;
+	// std::cout << "new socket: ******* " << new_socket << std::endl;
 	if (new_socket < 0)
 	{
 		perror("accept");
@@ -94,7 +95,7 @@ void	Webserv::start()
 			client_nb = find_client(_Clients, fd);
 			if (events[j].events & EPOLLIN)
 			{
-				std::cout << "debug: read" << std::endl;
+				// std::cout << "debug: read" << std::endl;
 				bzero(buffer, BUFFER_SIZE + 1);
 				bytesread = read(fd, _Clients[client_nb]->get_buffer(), BUFFER_SIZE);
 				_Clients[client_nb]->set_bytesread(bytesread);
@@ -108,8 +109,10 @@ void	Webserv::start()
 				}
 				// std::cout << "buffer: \n" << _Clients[client_nb]->get_buffer() << std::endl;
 				_Clients[client_nb]->parse_request();
-				
 				_Clients[client_nb]->clear_buffer();
+				std::cout << "test" << std::endl;
+				Response res(200, *_Clients[client_nb]);
+				res.match_uri();
 			}
 			// if (events[j].events & EPOLLOUT && _Clients[client_nb]->get_bytesread() >= 0)
 			// {
@@ -234,6 +237,9 @@ void	Webserv::set_Server_socket(int socket, int Server) {
 
 void	Webserv::set_root(std::string const &path, int Server) {
 	_Servers[Server]->set_root(path);
+}
+void	Webserv::set_index(std::string const &path, int server) {
+	_Servers[server]->set_index(path);
 }
 void	Webserv::set_location(std::string const &path, location &loc, int Server) {
 	_Servers[Server]->set_location(path, loc);

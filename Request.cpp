@@ -45,7 +45,7 @@ void	Request::split_request(char *buffer, ssize_t bytesread) {
 	_file.write(buffer + i, bytesread - i);
 	_file.flush();
 	_size_read += bytesread - i;
-	std::cout << "debug: i = " << i << " bytesread = " << bytesread - i << " size_read = " << _size_read << std::endl;
+	// std::cout << "debug: i = " << i << " bytesread = " << bytesread - i << " size_read = " << _size_read << std::endl;
 }
 void	Request::parse_request() {
 	if (_request_headers.empty())
@@ -62,8 +62,8 @@ void	Request::parse_request() {
 	{
 		_headers[line.substr(0, line.find(':'))] = line.substr(line.find(':') + 2);
 	}
-	std::cout << "headers: " << std::endl;
-	for (std::map<std::string, std::string>::iterator it = _headers.begin(); it != _headers.end(); it++)
-		std::cout << it->first << ": " << it->second << std::endl;
+	// std::cout << "headers: " << std::endl;
+	// for (std::map<std::string, std::string>::iterator it = _headers.begin(); it != _headers.end(); it++)
+	// 	std::cout << it->first << ": " << it->second << std::endl;
 	_request_headers.clear();
 }

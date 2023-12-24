@@ -72,6 +72,8 @@ void	Server_block_parser(std::ifstream &config_file, Webserv &w, int Server)
 			location_directive(ss, options, w, Server);
 		else if (directive == "root")
 			root_directive(options, w, Server);
+		else if (directive == "index")
+			index_directive(options, w, Server);
 		else if (!directive.empty())
 		{
 			std::cout << directive << '*' << std::endl;
@@ -81,7 +83,7 @@ void	Server_block_parser(std::ifstream &config_file, Webserv &w, int Server)
 		options.clear();
 	}
 
-	std::cout << w;
+	// std::cout << w;
 	w.set_Server(Server);
 }
 

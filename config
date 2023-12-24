@@ -4,24 +4,19 @@ server {
     root /var/www/wordpress;
     index index.php;
 
-    location /var/www {
-        root /etc/nginx;
-        try_files $uri $uri/ =404;
-    }
-
-    location    /var/www/html/  {
-        root /etc/logs;
-        index index.html;
-        try_files $uri $uri/ =404;
-    }
-}
-server  {
-    listen 127.0.1.1:8080;
-
-    root /var/www/html;
-    index index.html;
-
     location / {
-        try_files $uri $uri/ =404;
+        autoindex on;
+    }
+
+    location   /test  {
+        root /var/www/html;
+        index index.html;
+        autoindex on;
+    }
+
+    location   /test/barr  {
+        root /var/www;
+        index index1.html;
+        autoindex on;
     }
 }

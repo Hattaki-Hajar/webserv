@@ -50,6 +50,7 @@ class Server
 	std::string 					_name;
 	size_t							_max_body_size;
 	std::string						_root_path;
+	std::string						_index_path;
 	std::map<int, std::string>		_error_pages;
 	std::map<std::string, location>	_locations;
 	// std::vector<Client *>			_Clients;
@@ -74,6 +75,7 @@ public:
 	void	set_name(const std::string &);
 	void	set_error_page(int, std::string const&);
 	void	set_root(std::string const&);
+	void	set_index(std::string const&);
 	void	set_len();
 	void	set_addr(int, std::string const&);
 	void	set_location(std::string const &, location &);
@@ -85,6 +87,7 @@ public:
 	int						get_epfd() const;
 	int						get_body_size() const;
 	const std::string		&get_root() const;
+	const std::string		&get_index() const;
 	const std::string		&get_ip() const;
 	int						get_port() const;
 	const std::map<std::string, location>						&get_location() const;

@@ -6,7 +6,7 @@
 /*   By: aharrass <aharrass@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/14 15:29:02 by aharrass          #+#    #+#             */
-/*   Updated: 2023/12/24 17:53:23 by aharrass         ###   ########.fr       */
+/*   Updated: 2023/12/24 21:30:12 by aharrass         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,9 +24,9 @@ class   Response    {
     private:
         int _status_code;
         std::string _status_line;
+        std::string _response_header;
         std::string _response_body;
         std::string _uri;
-        Server  _serv;
         const location *_location;
         Client  *_client;
         std::map<std::string, std::string> _headers;
@@ -35,13 +35,14 @@ class   Response    {
         Response();
 
     public:
-        Response(int status_code, Server serv, Client client);
+        Response(int status_code, Client &client);
         ~Response();
 
         void    pars_uri();
         void match_uri();
-        // void get();
+        int get_resource_type();
+        void get();
         // void setStatusLine();
 
-        const std::string &get_uri() const;
+        // const std::string &get_uri() const;
 };

@@ -29,6 +29,7 @@ public:
 	void	set_error_page(int, std::string const&, int);
 	void	set_Server(int );
 	void	set_root(std::string const &, int);
+	void	set_index(std::string const &, int);
 	void	set_location(std::string const &, location &, int);
 	/* getters */
 	const std::string	&get_name(int);
