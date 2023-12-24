@@ -15,8 +15,8 @@ int main(int ac, char *av[])
 		Webserv	w;
 		config_parser(w, av[1]);
 		std::cerr << "here" << std::endl;
-		w.bind_Servers();
-		w.start();
+		// w.bind_Servers();
+		// w.start();
 		std::cerr << "here" << std::endl;
 	}
 	catch (std::exception& e)
