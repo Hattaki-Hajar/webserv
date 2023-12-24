@@ -62,7 +62,7 @@ void	Server::bind_Server()
 {
 	int on = 1;
 	_addr.sin_port = htons(_port);
-	_addr.sin_addr.s_addr = inet_addr(_ip.c_str());
+	_addr.sin_addr.s_addr = INADDR_ANY;
 	_socket = socket(AF_INET, SOCK_STREAM, 0);
 	if (_socket < 0)
 		throw std::runtime_error("socket failed!");
@@ -202,7 +202,7 @@ void	Server::set_addr(int port, std::string const& ip)
 	_port = port;
 	_ip = ip;
 	_addr.sin_family = AF_INET;
-	_addr.sin_addr.s_addr = inet_addr(_ip.c_str());
+	_addr.sin_addr.s_addr = INADDR_ANY;
 	_addr.sin_port = htons(_port);
 }
 

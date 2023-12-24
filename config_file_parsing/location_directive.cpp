@@ -51,7 +51,7 @@ void	root_dir(std::string &line, size_t i, location &loc)
 		path += line[i++];
 	while (line[i] && isspace(line[i]))
 		i++;
-	if (line[i] != ';')
+	if (line[i])
 		throw std::runtime_error("Error: config file is not valid loc_root2!");
 	loc.root = path;
 }
@@ -72,7 +72,7 @@ void	autoindex_directive(std::string &line, size_t i, location &loc)
 		loc.autoindex = false;
 	while (line[i] && isspace(line[i]))
 		i++;
-	if (line[i] != ';')
+	if (line[i])
 		throw std::runtime_error("Error: config file is not valid loc_autoindex2!");
 }
 
@@ -86,7 +86,7 @@ void	index_directive(std::string &line, size_t i, location &loc)
 		index += line[i++];
 	while (line[i] && isspace(line[i]))
 		i++;
-	if (line[i] != ';')
+	if (line[i])
 		throw std::runtime_error("Error: config file is not valid loc_index2!");
 	loc.index = index;
 }
@@ -113,7 +113,7 @@ void	return_directive(std::string &line, size_t i, location &loc)
 		loc.return_path += line[i++];
 	while (line[i] && isspace(line[i]))
 		i++;
-	if (line[i] != ';')
+	if (line[i])
 		throw std::runtime_error("Error: config file is not valid loc_return3!");
 }
 
@@ -146,7 +146,7 @@ void	loc_body_size_directive(std::string &line, size_t i, location &loc)
 	loc.max_body_size = r_size;
 	while (line[i] && isspace(line[i]))
 		i++;
-	if (line[i] && line[i] != ';')
+	if (line[i])
 		throw std::runtime_error("Error: config file is not valid size3!");
 }
 
