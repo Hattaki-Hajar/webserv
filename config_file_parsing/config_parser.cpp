@@ -9,8 +9,6 @@ void	get_block(std::ifstream &config_file, std::string &Server)
 
 	while (std::getline(config_file, line))
 	{
-		Server += line;
-		Server += '\n';
 		pos = line.find('{');
 		if (pos != std::string::npos)
 			open_b++;
@@ -21,6 +19,8 @@ void	get_block(std::ifstream &config_file, std::string &Server)
 			if (open_b == close_b)
 				break ;
 		}
+		Server += line;
+		Server += '\n';
 	}
 	if (open_b != close_b)
 		throw std::runtime_error("Error: config file is not valid 5!");
@@ -62,18 +62,21 @@ void	Server_block_parser(std::ifstream &config_file, Webserv &w, int Server)
 		}
 		if (directive == "listen")
 			listen_directive(options, w, Server);
-		if (directive == "server_name")
+		else if (directive == "server_name")
 			Server_name_directive(options, w, Server);
-		if (directive == "error_page")
+		else if (directive == "error_page")
 			error_page_directive(options, w, Server);
-		if (directive == "client_max_body_size")
+		else if (directive == "client_max_body_size")
 			Client_max_body_size_directive(options, w, Server);
-		if (directive == "location")
+		else if (directive == "location")
 			location_directive(ss, options, w, Server);
-		if (directive == "root")
+		else if (directive == "root")
 			root_directive(options, w, Server);
-		else
+		else if (!directive.empty())
+		{
+			std::cout << directive << '*' << std::endl;
 			throw std::runtime_error("Error: config file is not valid: unknown directive!");
+		}
 		directive.clear();
 		options.clear();
 	}

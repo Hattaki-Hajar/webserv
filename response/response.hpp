@@ -6,7 +6,7 @@
 /*   By: aharrass <aharrass@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/14 15:29:02 by aharrass          #+#    #+#             */
-/*   Updated: 2023/12/24 17:19:26 by aharrass         ###   ########.fr       */
+/*   Updated: 2023/12/24 17:53:23 by aharrass         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,7 @@ class   Response    {
         Response();
 
     public:
-        Response(int status_code, std::string uri, Server serv, Client client);
+        Response(int status_code, Server serv, Client client);
         ~Response();
 
         void    pars_uri();

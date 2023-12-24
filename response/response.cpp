@@ -6,7 +6,7 @@
 /*   By: aharrass <aharrass@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/14 15:34:16 by aharrass          #+#    #+#             */
-/*   Updated: 2023/12/24 17:19:03 by aharrass         ###   ########.fr       */
+/*   Updated: 2023/12/24 17:53:05 by aharrass         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,11 +15,12 @@
 Response::Response()    {
 }
 
-Response::Response(int status_code, std::string uri, Server serv, Client client)
+Response::Response(int status_code, Server serv, Client client)
 : _status_code(status_code) , _serv(serv)   {
     _location = NULL;
     _client = &client;
     _headers = _client->get_request()->get_headers();
+    _uri = _client->get_request()->get_request_line().uri;
     pars_uri();
 }
 
