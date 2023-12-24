@@ -212,23 +212,25 @@ void	location_directive(std::istringstream &ss, std::string &line, Webserv &w, i
 			open_bracket++;
 		while (line[i] && isspace(line[i]))
 			i++;
+		if (line[i] == '#')
+			continue ;
 		while (line[i] && !isspace(line[i]))
 			directive += line[i++];
 		while (line[i] && isspace(line[i]))
 			i++;
 		if (directive == "allow")
 			allow_directive(line, i, loc);
-		if (directive == "root")
+		else if (directive == "root")
 			root_dir(line, i, loc);
-		if (directive == "autoindex")
+		else if (directive == "autoindex")
 			autoindex_directive(line, i, loc);
-		if (directive == "index")
+		else if (directive == "index")
 			index_directive(line, i, loc);
-		if (directive == "return")
+		else if (directive == "return")
 			return_directive(line, i, loc);
-		if (directive == "client_max_body_size")
+		else if (directive == "client_max_body_size")
 			loc_body_size_directive(line, i, loc);
-		else
+		else if (!directive.empty())
 			throw std::runtime_error("Error: config file is not valid location: unknown directive!");
 		directive.clear();
 	}

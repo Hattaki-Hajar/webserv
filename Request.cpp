@@ -17,6 +17,12 @@ std::map<std::string, std::string>	Request::get_headers() const {
 const request_line	&Request::get_request_line() const {
 	return (_request_line);
 }
+long	Request::get_size_read() const {
+	return (_size_read);
+}
+std::fstream	&Request::get_file() {
+	return (_file);
+}
 /*	additional functions	*/
 void	Request::split_request(char *buffer, ssize_t bytesread) {
 	ssize_t	i = 0;
