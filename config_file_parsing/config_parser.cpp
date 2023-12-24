@@ -62,16 +62,18 @@ void	Server_block_parser(std::ifstream &config_file, Webserv &w, int Server)
 		}
 		if (directive == "listen")
 			listen_directive(options, w, Server);
-		if (directive == "Server_name")
+		if (directive == "server_name")
 			Server_name_directive(options, w, Server);
 		if (directive == "error_page")
 			error_page_directive(options, w, Server);
-		if (directive == "Client_max_body_size")
+		if (directive == "client_max_body_size")
 			Client_max_body_size_directive(options, w, Server);
 		if (directive == "location")
 			location_directive(ss, options, w, Server);
 		if (directive == "root")
 			root_directive(options, w, Server);
+		else
+			throw std::runtime_error("Error: config file is not valid: unknown directive!");
 		directive.clear();
 		options.clear();
 	}

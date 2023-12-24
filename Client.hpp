@@ -35,6 +35,7 @@ public:
 	ssize_t				get_bytesread() const;
 	const Server		&get_server() const;
 	bool				get_reading_status(void) const;
+	const Request		*get_request() const;
 	/*  additional funcs  */
 	void	clear_buffer();
 	void	parse_request();

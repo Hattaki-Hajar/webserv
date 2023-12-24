@@ -6,7 +6,7 @@
 /*   By: aharrass <aharrass@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/14 15:34:16 by aharrass          #+#    #+#             */
-/*   Updated: 2023/12/24 16:55:56 by aharrass         ###   ########.fr       */
+/*   Updated: 2023/12/24 17:19:03 by aharrass         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,8 +16,10 @@ Response::Response()    {
 }
 
 Response::Response(int status_code, std::string uri, Server serv, Client client)
-: _status_code(status_code), _uri(uri) , _serv(serv), _client(&client)   {
+: _status_code(status_code) , _serv(serv)   {
     _location = NULL;
+    _client = &client;
+    _headers = _client->get_request()->get_headers();
     pars_uri();
 }
 
@@ -41,23 +43,23 @@ void   Response::pars_uri()   {
     }
 }
 
-void Response::get()  {
-    match_uri();
-    if (_status_code != 200)
-        return;
+// void Response::get()  {
+//     match_uri();
+//     if (_status_code != 200)
+//         return;
     
-    int type = get_resource_type(_uri);
+//     int type = get_resource_type(_uri);
     
-    if (type == NOT_FOUND)
-    {
-        _status_code = 404;
-        return;
-    }
-    if (type == DIREC)  {
+//     if (type == NOT_FOUND)
+//     {
+//         _status_code = 404;
+//         return;
+//     }
+//     if (type == DIREC)  {
         
-    }
+//     }
     
-}
+// }
 
 void Response::match_uri()  {
     std::map<std::string, location> locations = _serv.get_location();
