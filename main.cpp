@@ -1,20 +1,23 @@
-#include "webserver.hpp"
-// #include "config_file_utils.hpp"
+#include "Webserv.hpp"
+#include <signal.h>
 
 int main(int ac, char *av[])
 {
 	(void)av;
-	(void)ac;
-	// if (ac != 2)
-	// {
-	// 	std::cerr << "Error: wrong number of arguments!" << std::endl;
-	// 	return (-1);
-	// }
+	signal(SIGPIPE, SIG_IGN);
+	if (ac != 2)
+	{
+		std::cerr << "Error: wrong number of arguments!" << std::endl;
+		return (-1);
+	}
 	try 
 	{
-		webserver	w;
-		// config_parser(w, av[1]);
-		w.start(1234, "127.0.0.1");
+		Webserv	w;
+		config_parser(w, av[1]);
+		std::cerr << "here" << std::endl;
+		// w.bind_Servers();
+		// w.start();
+		std::cerr << "here" << std::endl;
 	}
 	catch (std::exception& e)
 	{

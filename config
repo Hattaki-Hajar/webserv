@@ -1,0 +1,32 @@
+server {
+    listen  1234; 
+    client_max_body_size  300000000;
+    root www;
+    server_name server_1;
+    error_page 403 www/error_pages/403.html;
+    error_page 404 www/error_pages/404.html;
+    error_page 405 www/error_pages/405.html;
+
+    location / {
+          allow GET;
+		  allow POST;
+          client_max_body_size 10;
+          root www;
+      autoindex on;
+      }
+
+	  location /fdh {
+          allow GET;
+		  allow POST;
+          client_max_body_size 10;
+          root www;
+		  index shi_l3ba;
+      autoindex on;
+      }
+}
+
+server {
+    listen 127.0.0.1:1243;
+    client_max_body_size  300000000;
+    root www;
+}
