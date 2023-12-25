@@ -6,7 +6,7 @@
 /*   By: aharrass <aharrass@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/14 15:34:16 by aharrass          #+#    #+#             */
-/*   Updated: 2023/12/24 21:45:38 by aharrass         ###   ########.fr       */
+/*   Updated: 2023/12/25 17:02:54 by aharrass         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,20 +94,20 @@ void Response::match_uri()  {
         return ;
     std::map<std::string, location>::const_iterator it_tmp = locations.end();
     for(std::map<std::string, location>::const_iterator it = locations.begin(); it != locations.end(); it++)    {
-        if (it->first.length() >= _uri.length())    {
-            comp = _uri.compare(it->first.substr(0, _uri.length()));
-            std::cout << "a: " << it->first.substr(0, _uri.length()) << std::endl;
-            diff = it->first.length() - _uri.length();
-            if (it != locations.begin() && comp == 0)    {
-                if (diff < diff_tmp)   {
-                    it_tmp = it;
-                    diff_tmp = diff;
-                }
-            }
-            else
-                diff_tmp = diff;
-        }
-        else  if (it->first.length() < _uri.length())    {
+        // if (it->first.length() >= _uri.length())    {
+        //     comp = _uri.compare(it->first.substr(0, _uri.length()));
+        //     std::cout << "a: " << it->first.substr(0, _uri.length()) << std::endl;
+        //     diff = it->first.length() - _uri.length();
+        //     if (it != locations.begin() && comp == 0)    {
+        //         if (diff < diff_tmp)   {
+        //             it_tmp = it;
+        //             diff_tmp = diff;
+        //         }
+        //     }
+        //     else
+        //         diff_tmp = diff;
+        // }else 
+        if (it->first.length() <= _uri.length())    {
             comp = it->first.compare(_uri.substr(0, it->first.length()));
             std::cout << "b: " << _uri.substr(0, it->first.length()) << std::endl;
             diff = _uri.length() - it->first.length();
@@ -121,13 +121,14 @@ void Response::match_uri()  {
                 diff_tmp = diff;
         }
     }
-    if (it_tmp != locations.end())
+    if (it_tmp != locations.end())  {
         _location = &it_tmp->second;
-    if (_uri.length() >= it_tmp->first.length()) {
-        std::string tt = _uri.substr(0, it_tmp->first.length());
-        _uri.erase(0, it_tmp->first.length());
-        _uri = _location->root + tt + _uri;
-        
+        if (_uri.length() >= it_tmp->first.length() && !_location->root.empty()) {
+            std::string tt = _uri.substr(0, it_tmp->first.length());
+            _uri.erase(0, it_tmp->first.length());
+            _uri = _location->root + tt + _uri;
+            std::cout << "here" << std::endl;
+        } 
     }
     std::cout << _uri << std::endl;
 }

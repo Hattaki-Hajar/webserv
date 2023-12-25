@@ -9,7 +9,7 @@ server {
     }
 
     location   /test  {
-        root /var/www/html;
+        #root /var/www/html;
         index index.html;
         autoindex on;
     }

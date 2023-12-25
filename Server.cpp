@@ -227,6 +227,7 @@ std::ostream& operator<<(std::ostream &os, const Server& s)
 	while (it != it_end)
 	{
 		// std::cout << "location path: " << it->first << std::endl;
+		std::cout << "******** " << "location" << " ********" << std::endl;
 		os << "location path: " << it->first << std::endl;
 		os << "location root: " << it->second.root << std::endl;
 		os << "location autoindex: " << it->second.autoindex << std::endl;
