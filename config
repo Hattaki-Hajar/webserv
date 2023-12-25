@@ -8,8 +8,8 @@ server {
         autoindex on;
     }
 
-    location   /test  {
-        #root /var/www/html;
+    location  /webserv  {
+        root /nfs/homes/aharrass;
         index index.html;
         autoindex on;
     }
