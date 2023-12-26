@@ -22,8 +22,10 @@ class Request
 	ssize_t								_first_chunk_size;
 	ssize_t								_chunks_size;
 	std::string							_request_headers;
+	char*								_remaining;
 	std::fstream						_file;
 	bool								_headers_read;
+	bool								_end_of_request;
 public:
 	/*	constructor destructor	*/
 	Request();
@@ -36,6 +38,7 @@ public:
 	const request_line					&get_request_line() const;
 	long								get_size_read() const;
 	std::fstream						&get_file();
+	bool								get_end_of_request() const;
 	/*	additional function	*/
 	void	split_request(char *, ssize_t);
 	void	parse_request();

@@ -36,6 +36,7 @@ public:
 	const Server		&get_server() const;
 	bool				get_reading_status(void) const;
 	const Request		*get_request() const;
+	bool				get_done_reading() const;
 	/*  additional funcs  */
 	void	clear_buffer();
 	void	parse_request();

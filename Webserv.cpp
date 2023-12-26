@@ -94,7 +94,7 @@ void	Webserv::start()
 			client_nb = find_client(_Clients, fd);
 			if (events[j].events & EPOLLIN)
 			{
-				std::cout << "debug: read" << std::endl;
+				// std::cout << "debug: read" << std::endl;
 				bzero(buffer, BUFFER_SIZE + 1);
 				bytesread = read(fd, _Clients[client_nb]->get_buffer(), BUFFER_SIZE);
 				_Clients[client_nb]->set_bytesread(bytesread);
@@ -110,17 +110,16 @@ void	Webserv::start()
 				_Clients[client_nb]->parse_request();
 				_Clients[client_nb]->clear_buffer();
 			}
-			// if (events[j].events & EPOLLOUT && _Clients[client_nb]->get_bytesread() >= 0)
-			// {
-			// 	if (_Clients[client_nb]->get_bytesread()
-			// 		&& _Clients[client_nb]->get_bytesread() < BUFFER_SIZE)
-			// 	{
-			// 		std::cout << "debug: closing socket" << std::endl;
-			// 		write(fd, "HTTP/1.1 301 OK\r\n\r\n", 19);
-			// 		epoll_ctl(epfd, EPOLL_CTL_DEL, fd, NULL);
-			// 		close(fd);
-			// 	}
-			// }
+			if (events[j].events & EPOLLOUT && _Clients[client_nb]->get_bytesread() >= 0)
+			{
+				if (_Clients[client_nb]->get_done_reading())
+				{
+					std::cout << "debug: closing socket" << std::endl;
+					write(fd, "HTTP/1.1 301 OK\r\n\r\n", 19);
+					epoll_ctl(epfd, EPOLL_CTL_DEL, fd, NULL);
+					close(fd);
+				}
+			}
 		}
 	}
 }

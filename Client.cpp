@@ -55,12 +55,17 @@ bool	Client::get_reading_status(void) const {
 const Request	*Client::get_request() const {
 	return (_request);
 }
+bool	Client::get_done_reading() const {
+	return (_done_reading);
+}
 	/*  Additional funcs  */
 void	Client::clear_buffer() {
 	bzero(_buffer, BUFFER_SIZE + 1);
 }
 void	Client::parse_request() {
 	_request->split_request(_buffer, _bytesread);
+	if (_request->get_end_of_request())
+		_done_reading = true;
 	// if (_request->get_size_read() == atol(_request->get_headers()["Content-Length"].c_str())) {
 	// 	_done_reading = true;
 	// 	_request->get_file().close();
