@@ -7,6 +7,7 @@ Request::Request() {
 	_first_chunk_size = 0;
 	_chunks_size = 0;
 	_remaining = NULL;
+	_remaining_size = 0;
 	_file.open("test.mp4", std::ios::out | std::ios::app);
 	_headers_read = false;
 	_end_of_request = false;
@@ -55,47 +56,37 @@ void	Request::split_request(char *buffer, ssize_t bytesread) {
 	if (_headers["Transfer-Encoding"] == "chunked") {
 		if (!_chunks_size) {
 			if (_remaining)	{
-				i = 0;
-				char *tmp = new char[bytesread + 1];
-				strcpy(tmp, buffer);
-				buffer = new char[strlen(_remaining) + bytesread];
-				bzero(buffer, strlen(_remaining) + bytesread);
+				char *tmp = new char[bytesread - i];
+				strcpy(tmp, buffer + i);
+				buffer = new char[_remaining_size + bytesread - i];
+				strcpy(buffer, tmp);
 				strcat(buffer, _remaining);
-				bytesread += strlen(_remaining);
-				i += 2;
+				i = 2;
+				bytesread += _remaining_size;
+				delete [] tmp;
 				delete [] _remaining;
 				_remaining = NULL;
 			}
 			std::string line;
 			std::istringstream ss(buffer + i);
 			getline(ss, line);
-			std::cout << "debug: line = " << line.substr(0, line.length() - 1) << std::endl;
 			std::stringstream hex;
 			hex << std::hex << line.substr(0, line.length() - 1);
 			i += line.length() + 1;
-			std::cout << "debug: buffer = " << buffer + 5 << std::endl;
 			hex >> _chunks_size;
-			std::cout << "debug: chunks_size = " << _chunks_size << std::endl;
-			// if (_chunks_size == 0) {
-			// 	_end_of_request = true;
-			// 	_file.close();
-			// 	return ;
-			// }
+			
 		}
 		while (_chunk_read < _chunks_size && i < bytesread) {
-			_file.put(buffer[i]);
-			_file.flush();
-			_chunk_read++;
-			i++;
-			std::cout << "debug in first while: _chunks_size =<" << _chunks_size << ">, chunk read<" << _chunk_read << ">" << std::endl;
+				_file.put(buffer[i]);
+				_file.flush();
+				_chunk_read++;
+				i++;
 		}
 		if (_chunk_read == _chunks_size && i < bytesread) {
-			std::cout << "In the if statement" << std::endl;
 			_chunk_read = 0;
 			_chunks_size = 0;
-			// if (_remaining)
-			// 	delete [] _remaining;
 			_remaining = new char[bytesread - i];
+			_remaining_size = bytesread - i;
 			int j = 0;
 			while(i < bytesread) {
 				_remaining[j] = buffer[i];

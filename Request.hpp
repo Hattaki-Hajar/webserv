@@ -23,6 +23,7 @@ class Request
 	ssize_t								_chunks_size;
 	std::string							_request_headers;
 	char*								_remaining;
+	ssize_t								_remaining_size;
 	std::fstream						_file;
 	bool								_headers_read;
 	bool								_end_of_request;
