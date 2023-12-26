@@ -110,7 +110,7 @@ void	Webserv::start()
 				_Clients[client_nb]->parse_request();
 				_Clients[client_nb]->clear_buffer();
 			}
-			// if (events[j].events & EPOLLOUT && _Clients[client_nb]->get_bytesread() >= 0)
+			// if (events[j].events & EPOLLOUT && _Clients[client_nb]->get_done_reading())
 			// {
 			// 	if (_Clients[client_nb]->get_done_reading())
 			// 	{
