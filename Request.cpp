@@ -55,17 +55,21 @@ void	Request::split_request(char *buffer, ssize_t bytesread) {
 	if (_headers["Transfer-Encoding"] == "chunked") {
 		if (!_chunks_size) {
 			if (_remaining)	{
+				i = 0;
+				char *tmp = new char[bytesread + 1];
+				strcpy(tmp, buffer);
 				buffer = new char[strlen(_remaining) + bytesread];
 				bzero(buffer, strlen(_remaining) + bytesread);
 				strcat(buffer, _remaining);
-				i = 0;
 				bytesread += strlen(_remaining);
+				i += 2;
 				delete [] _remaining;
 				_remaining = NULL;
 			}
 			std::string line;
 			std::istringstream ss(buffer + i);
 			getline(ss, line);
+			std::cout << "debug: line = " << line.substr(0, line.length() - 1) << std::endl;
 			std::stringstream hex;
 			hex << std::hex << line.substr(0, line.length() - 1);
 			i += line.length() + 1;
@@ -77,25 +81,15 @@ void	Request::split_request(char *buffer, ssize_t bytesread) {
 			// 	_file.close();
 			// 	return ;
 			// }
-			while (_chunk_read < _chunks_size && i < bytesread) {
-				_file.put(buffer[i]);
-				_file.flush();
-				_chunk_read++;
-				i++;
-				std::cout << "debug in first while: _chunks_size =<" << _chunks_size << ">, chunk read<" << _chunk_read << ">" << std::endl;
-			}
 		}
-		else if (_chunk_read < _chunks_size && i < bytesread) {
-			while (_chunk_read < _chunks_size && i < bytesread) {
-				_file.put(buffer[i]);
-				_file.flush();
-				_chunk_read++;
-				std::cout << "debug in second while: _chunks_size =<" << _chunks_size << ">, chunk read<" << _chunk_read << ">" << std::endl;
-				i++;
-			}
+		while (_chunk_read < _chunks_size && i < bytesread) {
+			_file.put(buffer[i]);
+			_file.flush();
+			_chunk_read++;
+			i++;
+			std::cout << "debug in first while: _chunks_size =<" << _chunks_size << ">, chunk read<" << _chunk_read << ">" << std::endl;
 		}
 		if (_chunk_read == _chunks_size && i < bytesread) {
-			i += 2;
 			std::cout << "In the if statement" << std::endl;
 			_chunk_read = 0;
 			_chunks_size = 0;
