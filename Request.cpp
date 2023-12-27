@@ -8,7 +8,7 @@ Request::Request() {
 	_chunks_size = 0;
 	_remaining = NULL;
 	_remaining_size = 0;
-	_file.open("original.mp4", std::ios::out | std::ios::app);
+	_file.open("test.txt", std::ios::out | std::ios::app);
 	_headers_read = false;
 	_end_of_request = false;
 }
@@ -44,31 +44,39 @@ void	Request::split_request(char *buffer, ssize_t bytesread) {
 					if (buffer[i + 3] == '\n')
 					{
 						_headers_read = true;
+						this->parse_request();
 						i += 4;
 						break ;
 					}
 		_request_headers += buffer[i];
 		i++;
 	}
-	this->parse_request();
 	if (!_file.good())
 		std::cout << "debug: file not open!" << std::endl;
 	if (_headers.at("Transfer-Encoding") == "chunked") {
 		if (!_chunks_size) {
 			if (_remaining)	{
 				char *tmp = new char[bytesread - i];
-				int j = 0;
+ 				ssize_t	j = 0;
 				for (; j < bytesread - i; j++)
 					tmp[j] = buffer[i + j];
 				buffer = new char[_remaining_size + bytesread - i];
 				j = 0;
-				for (; j < _remaining_size; j++)
+				while (j < _remaining_size) {
 					buffer[j] = _remaining[j];
-				for (int k = 0; k < bytesread - i; k++, j++)
+					j++;
+				}
+				ssize_t k = 0;
+				while (k < bytesread - i) {
 					buffer[j] = tmp[k];
+					j++;
+					k++;
+				}
 				bytesread += _remaining_size;
-				// i += 2;
-				std::cout << "tmp = [" << tmp << "]" << std::endl;
+				i = 0;
+				if (buffer[i] == '\r' && buffer[i + 1] == '\n') {
+					i += 2;
+				}
 				delete [] tmp;
 				delete [] _remaining;
 				_remaining = NULL;
@@ -77,17 +85,15 @@ void	Request::split_request(char *buffer, ssize_t bytesread) {
 			bzero(line, 16);
 			ssize_t k = 0;
 			for (; k < 15; i++, k++) {
-				if (buffer[i] == '\r' && buffer[i + 1] == '\n')
+				if (buffer[i] == '\r' && buffer[i + 1] == '\n') {
+					i += 2;
 					break;
-				// std::cout << "buffer[i]: " << buffer[i] << std::endl;
+				}
 				line[k] = buffer[i];
 			}
-			i += k;
-			// std::cout << "line: " << line << std::endl;
 			std::stringstream hex;
 			hex << std::hex << line;
 			hex >> _chunks_size;
-			std::cout << "chunks size: " << _chunks_size << std::endl;
 		}
 		while (_chunk_read < _chunks_size && i < bytesread) {
 				_file.put(buffer[i]);
@@ -97,7 +103,6 @@ void	Request::split_request(char *buffer, ssize_t bytesread) {
 				i++;
 		}
 		if (_chunk_read == _chunks_size && i < bytesread) {
-			std::cout << "READ" << std::endl;
 			i--;
 			// std::cout << "READ" << std::endl;
 			_chunk_read = 0;
@@ -106,7 +111,6 @@ void	Request::split_request(char *buffer, ssize_t bytesread) {
 			_remaining_size = bytesread - i;
 			int j = 0;
 			while(i < bytesread) {
-				std::cout << "buffer[i]: " << "[" << buffer[i] << "]" << std::endl;
 				_remaining[j] = buffer[i];
 				j++;
 				i++;
