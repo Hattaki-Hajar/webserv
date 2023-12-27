@@ -8,7 +8,7 @@ Request::Request() {
 	_chunks_size = 0;
 	_remaining = NULL;
 	_remaining_size = 0;
-	_file.open("test.txt", std::ios::out | std::ios::app);
+	_file.open("test.mp4", std::ios::out | std::ios::app);
 	_headers_read = false;
 	_end_of_request = false;
 }
@@ -91,9 +91,11 @@ void	Request::split_request(char *buffer, ssize_t bytesread) {
 				}
 				line[k] = buffer[i];
 			}
+			std::cout << "line: " << line << std::endl;
 			std::stringstream hex;
 			hex << std::hex << line;
 			hex >> _chunks_size;
+			std::cout << "chunks_size: " << _chunks_size << std::endl;
 		}
 		while (_chunk_read < _chunks_size && i < bytesread) {
 				_file.put(buffer[i]);
@@ -102,8 +104,8 @@ void	Request::split_request(char *buffer, ssize_t bytesread) {
 				_chunk_read++;
 				i++;
 		}
-		if (_chunk_read == _chunks_size && i < bytesread) {
-			i--;
+		if (_chunk_read  == _chunks_size && i < bytesread) {
+			// i++;
 			// std::cout << "READ" << std::endl;
 			_chunk_read = 0;
 			_chunks_size = 0;
@@ -112,6 +114,12 @@ void	Request::split_request(char *buffer, ssize_t bytesread) {
 			int j = 0;
 			while(i < bytesread) {
 				_remaining[j] = buffer[i];
+				if (_remaining[j] == '\r')
+					std::cout << "remaining: r" << std::endl;
+				else if (_remaining[j] == '\n')
+					std::cout << "remaining: n" << std::endl;
+				else
+					std::cout << "remaining: " << "[" << _remaining[j] << "]" << std::endl;
 				j++;
 				i++;
 			}
