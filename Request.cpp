@@ -8,7 +8,7 @@ Request::Request() {
 	_chunks_size = 0;
 	_remaining = NULL;
 	_remaining_size = 0;
-	_file.open("test.mp4", std::ios::out | std::ios::app);
+	_file.open("original.mp4", std::ios::out | std::ios::app);
 	_headers_read = false;
 	_end_of_request = false;
 }
@@ -53,7 +53,7 @@ void	Request::split_request(char *buffer, ssize_t bytesread) {
 	}
 	if (!_file.good())
 		std::cout << "debug: file not open!" << std::endl;
-	if (_headers.at("Transfer-Encoding") == "chunked") {
+	if (get_headers().find("Transfer-Encoding") != get_headers().end() && get_headers()["Transfer-Encoding"] == "chunked") {
 		if (!_chunks_size) {
 			if (_remaining)	{
 				char *tmp = new char[bytesread - i];
@@ -77,6 +77,11 @@ void	Request::split_request(char *buffer, ssize_t bytesread) {
 				if (buffer[i] == '\r' && buffer[i + 1] == '\n') {
 					i += 2;
 				}
+				if (_remaining[i] == '0' && _remaining[i + 1] == '\r' && _remaining[i + 2] == '\n') {
+					_end_of_request = true;
+					std::cout << "end of request" << std::endl;
+					return ;
+				}
 				delete [] tmp;
 				delete [] _remaining;
 				_remaining = NULL;
@@ -91,11 +96,14 @@ void	Request::split_request(char *buffer, ssize_t bytesread) {
 				}
 				line[k] = buffer[i];
 			}
-			std::cout << "line: " << line << std::endl;
 			std::stringstream hex;
 			hex << std::hex << line;
 			hex >> _chunks_size;
-			std::cout << "chunks_size: " << _chunks_size << std::endl;
+			if (_chunks_size == 0) {
+				std::cout << "end of request" << std::endl;
+				_end_of_request = true;
+				return ;
+			}
 		}
 		while (_chunk_read < _chunks_size && i < bytesread) {
 				_file.put(buffer[i]);
@@ -114,23 +122,32 @@ void	Request::split_request(char *buffer, ssize_t bytesread) {
 			int j = 0;
 			while(i < bytesread) {
 				_remaining[j] = buffer[i];
-				if (_remaining[j] == '\r')
-					std::cout << "remaining: r" << std::endl;
-				else if (_remaining[j] == '\n')
-					std::cout << "remaining: n" << std::endl;
-				else
-					std::cout << "remaining: " << "[" << _remaining[j] << "]" << std::endl;
+				std::cout << "remaining[" << j << "]:" << _remaining[j] << std::endl;
+				std::cout << "buffer[" << i << "]:" << buffer[i] << std::endl;
 				j++;
 				i++;
+			}
+			if (_remaining_size >= 5) {
+				if (_remaining[0] == '\r' && _remaining[1] == '\n' && _remaining[2] == '0' && _remaining[3] == '\r' && _remaining[4] == '\n') {
+					_end_of_request = true;
+					std::cout << "end of request" << std::endl;
+					return ;
+				}
 			}
 		}
 	}
 	else {
-	_file.write(buffer + i, bytesread - i);
-	_file.flush();
-	_size_read += bytesread - i;
+		_file.write(buffer + i, bytesread - i);
+		_file.flush();
+		_size_read += bytesread - i;
+		if (get_size_read() == atol(get_headers()["Content-Length"].c_str())) {
+			_end_of_request = true;
+			std::cout << "end of request" << std::endl;
+			return ;
+		}
 	}
 }
+
 void	Request::parse_request() {
 	if (_request_headers.empty())
 		return ;
