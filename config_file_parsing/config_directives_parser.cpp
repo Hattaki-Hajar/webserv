@@ -1,16 +1,25 @@
 #include "../Webserv.hpp"
 
+std::string	get_option(const std::string &line)
+{
+	std::string option;
+	size_t i = 0;
+	while (line[i] && !isspace(line[i]) && line[i] != ';')
+		option += line[i++];
+	while (line[i] && isspace(line[i]))
+		i++;
+	if (line[i])
+		throw std::runtime_error("Error: config file is not valid 4!");
+	return (option);
+}
+
 void	listen_directive(std::string &line, Webserv &w, int Server)
 {
 	std::string host_port, port, host;
-	size_t pos, i = 0;
-	// std::cout << "line = " << line << std::endl;
-	while (line[i] && isspace(line[i]))
-		i++;
-	if (line[i] && !isdigit(line[i]))
-		throw std::runtime_error("Error: config file is not valid! listen");
-	while (line[i] && !isspace(line[i]) && line[i] != ';')
-		host_port += line[i++];
+	size_t pos, i;
+	// if (line[i] && !isdigit(line[i]))
+	// 	throw std::runtime_error("Error: config file is not valid! listen");
+	host_port = get_option(line);
 	pos = host_port.find(':');
 	if (pos == std::string::npos)
 	{
@@ -39,14 +48,9 @@ void	listen_directive(std::string &line, Webserv &w, int Server)
 void	Server_name_directive(const std::string &line, Webserv &w, int Server)
 {
 	std::string name;
-	int s = 0, i = 0;
+	int s = 0;
 
-	while (line[i] && isspace(line[i]))
-		i++;
-	while (line[i] && !isspace(line[i]) && line[i] != ';')
-		name += line[i++];
-	while (line[i] && isspace(line[i]))
-		i++;
+	name = get_option(line);
 	if (name.empty() || name == """")
 	{
 		w.set_name(DEFAULT_Server, Server);
@@ -106,11 +110,8 @@ void	Client_max_body_size_directive(std::string &line, Webserv &w, int Server)
 	std::string size;
 	int j = 0, r_size, i = 0;
 
-	while (line[i] && isspace(line[i]))
-		i++;
 	while (line[i] && isdigit(line[i]) && line[i] != ';')
 		size += line[i++];
-	// std::cout << "line = " << line << std::endl;
 	if ((line[i] && line[i] != 'k' && line[i] != 'K' && line[i] != 'm' && line[i]!= 'M'
 		&& line[i] != 'g' && line[i] != 'G') || size.empty())
 		throw std::runtime_error("Error: config file is not valid size1!");
@@ -134,28 +135,12 @@ void	Client_max_body_size_directive(std::string &line, Webserv &w, int Server)
 
 void	root_directive(std::string &line, Webserv &w, int Server)
 {
-	std::string path;
-	size_t i = 0;
-
-	while (line[i] && isspace(line[i]))
-		i++;
-	while (line[i] && !isspace(line[i]) && line[i] != ';')
-		path += line[i++];
-	while (line[i] && isspace(line[i]))
-		i++;
+	std::string path = get_option(line);
 	w.set_root(path, Server);
 }
 
 void	index_directive(std::string &line, Webserv &w, int Server)
 {
-	std::string path;
-	size_t i = 0;
-
-	while (line[i] && isspace(line[i]))
-		i++;
-	while (line[i] && !isspace(line[i]) && line[i] != ';')
-		path += line[i++];
-	while (line[i] && isspace(line[i]))
-		i++;
+	std::string path = get_option(line);
 	w.set_index(path, Server);
 }

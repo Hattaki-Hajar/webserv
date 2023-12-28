@@ -10,7 +10,6 @@
 // 	_event->events = EPOLLIN | EPOLLOUT;
 // }
 Client::Client(Server &s):_server(s) {
-	// std::cout << "Client constructor" << std::endl;
 	_addr.sin_family = AF_INET;
 	_addr_size = sizeof(_addr);
 	_event = new epoll_event();
@@ -18,7 +17,6 @@ Client::Client(Server &s):_server(s) {
 	_bytesread = -2;
 	bzero(_buffer, BUFFER_SIZE + 1);
 	_done_reading = false;
-	// std::cout << "debug: should be here once!" << std::endl;
 	_request = new Request();
 }
 	/*  Setters  */

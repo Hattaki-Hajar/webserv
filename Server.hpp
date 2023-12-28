@@ -21,13 +21,6 @@
 #define	DEFAULT_Server "default"
 #define MAX_EVENTS 10
 
-
-typedef struct error_page
-{
-	int			error;
-	std::string	path;
-}				error_page;
-
 typedef struct location
 {
 	std::string root;
@@ -53,7 +46,6 @@ class Server
 	std::string						_index_path;
 	std::map<int, std::string>		_error_pages;
 	std::map<std::string, location>	_locations;
-	// std::vector<Client *>			_Clients;
 	struct epoll_event				*_event;
 public:
 	/* constructors / destructors */
@@ -94,6 +86,7 @@ public:
 	const std::map<std::string, location>::const_iterator		get_location_begin_iter() const;
 	const std::map<std::string, location>::const_iterator		get_location_end_iter() const;
 	const std::map<std::string, location>						&get_locations() const;
+	const std::map<int, std::string>							&get_error_pages() const;
 	// void	send_response(int, std::string const&);
 };
 
