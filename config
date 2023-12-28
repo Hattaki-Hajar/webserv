@@ -1,13 +1,16 @@
 server {
     listen 127.0.0.1:1234;
 
-    root /var/www/wordpress;
+    root /nfs/homes/aharrass;
     index index.php;
 
     location / {
         autoindex on;
     }
 
+    location /put_test {
+
+    }
     location  /webserv  {
         root /nfs/homes/aharrass;
         index index.html;
@@ -17,6 +20,16 @@ server {
     location   /test/barr  {
         root /var/www;
         index index1.html;
+        autoindex on;
+    }
+}
+server {
+    listen 127.0.0.1:8080;
+
+    root /nfs/homes/aharrass
+    index index.html;
+
+    location / {
         autoindex on;
     }
 }

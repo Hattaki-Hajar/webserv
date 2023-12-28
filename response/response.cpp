@@ -6,7 +6,7 @@
 /*   By: aharrass <aharrass@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/14 15:34:16 by aharrass          #+#    #+#             */
-/*   Updated: 2023/12/25 23:23:29 by aharrass         ###   ########.fr       */
+/*   Updated: 2023/12/27 23:57:39 by aharrass         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@ Response::Response(int status_code, Client &client)
     _headers = _client->get_request()->get_headers();
     _uri = _client->get_request()->get_request_line().uri;
     pars_uri();
+    _old_uri = _uri;
     match_uri();
     _error_page = "<!DOCTYPE html>\n<html>\n<head>\n<meta http-equiv=\"content-type\" content=\"text/html; charset=UTF-8\"\n>";
     _error_page += "<title>Error</title>\n<style>\n@import url('https://fonts.googleapis.com/css?family=Press Start 2P');\n";
@@ -35,7 +36,6 @@ Response::~Response()   {
 }
 
 int Response::get_resource_type()    {
-    std::cout << _uri << std::endl;
     if (!check_location(_uri))
         return NOT_FOUND;
     DIR *dir = opendir(_uri.c_str());
@@ -97,14 +97,15 @@ void Response::match_uri()  {
     int diff = 0;
     int diff_tmp = 0;
     int comp = 0;
-
-    std::cout << "first uri: " << _uri << std::endl;
+    
     if (_status_code != 200)
         return ;
     std::map<std::string, location>::const_iterator it_tmp = locations.end();
     for(std::map<std::string, location>::const_iterator it = locations.begin(); it != locations.end(); it++)    {
         if (it->first.length() <= _uri.length())    {
             comp = it->first.compare(_uri.substr(0, it->first.length()));
+            if (comp)
+                continue;
             diff = _uri.length() - it->first.length();
             if (it != locations.begin() && comp == 0)    {
                 if (diff < diff_tmp)   {
@@ -124,17 +125,29 @@ void Response::match_uri()  {
             _uri = _location->root + tt + _uri;
         } 
     }
+    else    {
+        _uri = _client->get_server().get_root() + _uri;
+    }
 }
 
 
 void    Response::responde()    {
-    if (_status_code != 200)    {
-        setResponse();
+    if (_status_code == 200)    {
+        int type = get_resource_type();
+        if (type == NOT_FOUND)   {
+            _status_code = 404;
+        }
+        else if (type == DIREC) {
+            if (_uri[_uri.length() - 1] != '/') {
+                _status_code = 301;
+            }
+            else{
+                _response_body = "hehe";
+                _content_type = "text/html";
+            }
+        }  
     }
-    if (get_resource_type() == NOT_FOUND)   {
-        _status_code = 404;
-        setResponse();
-    }
+    setResponse();
 }
 
 void Response::setResponse()    {
@@ -184,7 +197,7 @@ void Response::setResponse()    {
         }
         else if (_status_code == 301)   {
             _status_line = "HTTP/1.1 301 Moved Permanently\r\n";
-            _response_header = "Location: " + _uri + "\r\n";
+            _response_header = "Location: " + _old_uri + "/" + "\r\n";
         }
         else if (_status_code == 405)   {
             _status_line = "HTTP/1.1 405 Method Not Allowed\r\n";

@@ -113,7 +113,6 @@ void	Webserv::start()
 				Response res(200, *_Clients[client_nb]);
 				res.responde();
 				close(fd);
-				// res.match_uri();
 			}
 			// if (events[j].events & EPOLLOUT && _Clients[client_nb]->get_bytesread() >= 0)
 			// {

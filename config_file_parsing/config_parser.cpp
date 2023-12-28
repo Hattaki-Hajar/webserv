@@ -83,7 +83,7 @@ void	Server_block_parser(std::ifstream &config_file, Webserv &w, int Server)
 		options.clear();
 	}
 
-	std::cout << w;
+	// std::cout << w;
 	w.set_Server(Server);
 }
 
