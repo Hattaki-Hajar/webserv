@@ -53,96 +53,119 @@ void	Request::split_request(char *buffer, ssize_t bytesread) {
 	}
 	if (!_file.good())
 		std::cout << "debug: file not open!" << std::endl;
+	
+	// Check if the request is chunked.
 	if (get_headers().find("Transfer-Encoding") != get_headers().end() && get_headers()["Transfer-Encoding"] == "chunked") {
 		if (!_chunks_size) {
+			// Check if there is a remaining from the previous buffer.
 			if (_remaining)	{
+				// Create a temporaty tmp to store the buffer.
 				char *tmp = new char[bytesread - i];
+				// Copy the buffer into tmp.
  				ssize_t	j = 0;
-				for (; j < bytesread - i; j++)
+				ssize_t k = 0;
+				while (j < bytesread - i) {
 					tmp[j] = buffer[i + j];
+					j++;
+				}
+				// Create a new buffer with the size of the remaining + the size of the tmp.
 				buffer = new char[_remaining_size + bytesread - i];
+				// Copy the remaining into the new buffer.
 				j = 0;
 				while (j < _remaining_size) {
 					buffer[j] = _remaining[j];
 					j++;
 				}
-				ssize_t k = 0;
+				// Copy the tmp into the new buffer.
 				while (k < bytesread - i) {
 					buffer[j] = tmp[k];
 					j++;
 					k++;
 				}
+				// Update the bytesread.
 				bytesread += _remaining_size;
+				// Update the index.
 				i = 0;
+				// Skip the \r\n Before the chunck size.
 				if (buffer[i] == '\r' && buffer[i + 1] == '\n') {
 					i += 2;
 				}
+				// Check for the end of the request.
 				if (_remaining[i] == '0' && _remaining[i + 1] == '\r' && _remaining[i + 2] == '\n') {
 					_end_of_request = true;
-					std::cout << "end of request" << std::endl;
 					return ;
 				}
+				// Delete the allocated buffers.
 				delete [] tmp;
 				delete [] _remaining;
 				_remaining = NULL;
 			}
-			char	line[16];
-			bzero(line, 16);
-			ssize_t k = 0;
-			for (; k < 15; i++, k++) {
+			// Allocate for line aka the buffer holder of the size of the next chunk.
+			ssize_t k = i;
+			while (k < bytesread) {
+				if (buffer[k] == '\r' && buffer[k + 1] == '\n') {
+					break;
+				}
+				k++;
+			}
+			ssize_t line_size = k - i;
+			char *line = new char[line_size + 1];
+			bzero(line, line_size + 1);
+			k = 0;
+			// Copy the next chunck size into line.
+			while (k < line_size + 1) {
 				if (buffer[i] == '\r' && buffer[i + 1] == '\n') {
 					i += 2;
 					break;
 				}
 				line[k] = buffer[i];
+				i++;
+				k++;
 			}
+			// Convert the size of the next chunck from hex to decimal.
 			std::stringstream hex;
 			hex << std::hex << line;
 			hex >> _chunks_size;
-			if (_chunks_size == 0) {
-				std::cout << "end of request" << std::endl;
-				_end_of_request = true;
-				return ;
-			}
 		}
+		// Put the chunk into the file.
 		while (_chunk_read < _chunks_size && i < bytesread) {
 				_file.put(buffer[i]);
-				// if (buffer[i])
 				_file.flush();
 				_chunk_read++;
 				i++;
 		}
+		// Check if the chunk is complete and be ready to the next one.
 		if (_chunk_read  == _chunks_size && i < bytesread) {
-			// i++;
-			// std::cout << "READ" << std::endl;
+			// reset the variables for the next chunk.
 			_chunk_read = 0;
 			_chunks_size = 0;
+			// Allocate for a buffer which will hold the remaining of the buffer.
 			_remaining = new char[bytesread - i];
 			_remaining_size = bytesread - i;
 			int j = 0;
+			// Copy the remaining into the buffer _remaining.
 			while(i < bytesread) {
 				_remaining[j] = buffer[i];
-				std::cout << "remaining[" << j << "]:" << _remaining[j] << std::endl;
-				std::cout << "buffer[" << i << "]:" << buffer[i] << std::endl;
 				j++;
 				i++;
 			}
+			// Check if the remaining is the end of the request.
 			if (_remaining_size >= 5) {
 				if (_remaining[0] == '\r' && _remaining[1] == '\n' && _remaining[2] == '0' && _remaining[3] == '\r' && _remaining[4] == '\n') {
 					_end_of_request = true;
-					std::cout << "end of request" << std::endl;
 					return ;
 				}
 			}
 		}
 	}
+	// If the request is not chunked.
 	else {
 		_file.write(buffer + i, bytesread - i);
 		_file.flush();
 		_size_read += bytesread - i;
+		// Check if the request is complete.
 		if (get_size_read() == atol(get_headers()["Content-Length"].c_str())) {
 			_end_of_request = true;
-			std::cout << "end of request" << std::endl;
 			return ;
 		}
 	}
@@ -165,8 +188,5 @@ void	Request::parse_request() {
 		line = line.substr(0, line.length() - 1);
 		_headers[line.substr(0, line.find(':'))] = line.substr(line.find(':') + 2);
 	}
-	std::cout << "headers: " << std::endl;
-	for (std::map<std::string, std::string>::iterator it = _headers.begin(); it != _headers.end(); it++)
-		std::cout << it->first << ": " << it->second << std::endl;
 	_request_headers.clear();
 }
