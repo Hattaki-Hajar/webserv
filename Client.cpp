@@ -18,6 +18,7 @@ Client::Client(Server &s):_server(s) {
 	_bytesread = -2;
 	bzero(_buffer, BUFFER_SIZE + 1);
 	_done_reading = false;
+	_status_code = 0;
 	// std::cout << "debug: should be here once!" << std::endl;
 	_request = new Request();
 }
@@ -64,8 +65,18 @@ void	Client::clear_buffer() {
 }
 void	Client::parse_request() {
 	_request->split_request(_buffer, _bytesread);
-	if (_request->get_end_of_request())
+
+
+	if (_request->get_end_of_request()) {
 		_done_reading = true;
+		_status_code = _request->get_status_code();
+	}
+
+	// check if the request body is larger than the max body size.
+	if (_request->get_size_read() > get_server().get_max_body_size()) {
+		_done_reading = true;
+		_status_code = 413;
+	}
 }
 	/*  Destructor  */
 Client::~Client() {

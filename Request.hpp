@@ -19,7 +19,6 @@ class Request
 	Request_line						_request_line;
 	long								_size_read;
 	ssize_t								_chunk_read;
-	ssize_t								_first_chunk_size;
 	ssize_t								_chunks_size;
 	std::string							_request_headers;
 	char*								_remaining;
@@ -27,6 +26,7 @@ class Request
 	std::fstream						_file;
 	bool								_headers_read;
 	bool								_end_of_request;
+	unsigned int						_status_code;
 public:
 	/*	constructor destructor	*/
 	Request();
@@ -40,7 +40,9 @@ public:
 	long								get_size_read() const;
 	std::fstream						&get_file();
 	bool								get_end_of_request() const;
+	unsigned int						get_status_code() const;
 	/*	additional function	*/
 	void	split_request(char *, ssize_t);
-	void	parse_request();
+	void	parse_request(void);
+	bool	is_req_well_formed(void);
 };

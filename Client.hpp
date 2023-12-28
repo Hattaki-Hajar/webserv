@@ -16,6 +16,7 @@ class Client
 	struct epoll_event	*_event;
 	bool				_done_reading;
 	Request 			*_request;
+	unsigned int		_status_code;
 	Client();
 public:
 	sockaddr_in			_addr;

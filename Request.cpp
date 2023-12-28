@@ -4,8 +4,9 @@
 Request::Request() {
 	_size_read = 0;
 	_chunk_read = 0;
-	_first_chunk_size = 0;
 	_chunks_size = 0;
+	_status_code = 0;
+	_request_headers = "";
 	_remaining = NULL;
 	_remaining_size = 0;
 	_file.open("original.mp4", std::ios::out | std::ios::app);
@@ -33,7 +34,34 @@ std::fstream	&Request::get_file() {
 bool	Request::get_end_of_request() const {
 	return (_end_of_request);
 }
+unsigned int	Request::get_status_code() const {
+	return (_status_code);
+}
+
 /*	additional functions	*/
+bool	Request::is_req_well_formed(void) {
+	// Check if Transfer-Encoding header exist and is different to “chunked”.
+	if (_headers.find("Transfer-Encoding") != _headers.end() && _headers["Transfer-Encoding"] != "chunked") {
+		_status_code = 501;
+		return (false);
+	}
+	// Check if Transfer-Encoding not exist, Content-Length not exist and the method is Post
+	if (_headers.find("Transfer-Encoding") == _headers.end() && _headers.find("Content-Length") == _headers.end() && _request_line.method == "POST") {
+		_status_code = 400;
+		return (false);
+	}
+	// Check the request uri contain a character not allowed.
+	if (_request_line.uri.find_first_not_of("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 ._~:/?#[]@!$&'()*+,;=%") != std::string::npos) {
+		_status_code = 400;
+		return (false);
+	}
+	// Check if the request uri contain more the 2048 chars.
+	if (_request_line.uri.length() > 2048) {
+		_status_code = 414;
+		return (false);
+	}
+	return (true);
+}
 void	Request::split_request(char *buffer, ssize_t bytesread) {
 	ssize_t	i = 0;
 	while (i < bytesread && !_headers_read)
@@ -45,6 +73,12 @@ void	Request::split_request(char *buffer, ssize_t bytesread) {
 					{
 						_headers_read = true;
 						this->parse_request();
+						// parse for error codes
+						if (!is_req_well_formed()) {
+							// std::cout << "debug: request not well formed" << std::endl;
+							_end_of_request = true;
+							return ;
+						}
 						i += 4;
 						break ;
 					}
@@ -132,6 +166,7 @@ void	Request::split_request(char *buffer, ssize_t bytesread) {
 				_file.put(buffer[i]);
 				_file.flush();
 				_chunk_read++;
+				_size_read++;
 				i++;
 		}
 		// Check if the chunk is complete and be ready to the next one.
