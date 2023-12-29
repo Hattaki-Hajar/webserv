@@ -145,6 +145,10 @@ int	Server::get_port() const {
 epoll_event	*Server::get_event() {
 	return (_event);
 }
+long	Server::get_max_body_size() const {
+	return (_max_body_size);
+}
+
 const std::map<std::string, location>::const_iterator	Server::get_location_begin_iter() const {
 	return (_locations.begin());
 }

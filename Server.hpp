@@ -41,7 +41,7 @@ class Server
 	sockaddr_in						_addr;
 	unsigned int					_socketaddr_len;
 	std::string 					_name;
-	size_t							_max_body_size;
+	long							_max_body_size;
 	std::string						_root_path;
 	std::string						_index_path;
 	std::map<int, std::string>		_error_pages;
@@ -84,6 +84,7 @@ public:
 	int						get_port() const;
 	const std::map<std::string, location>						&get_location() const;
 	epoll_event				*get_event();
+	long					get_max_body_size() const;
 	const std::map<std::string, location>::const_iterator		get_location_begin_iter() const;
 	const std::map<std::string, location>::const_iterator		get_location_end_iter() const;
 	const std::map<std::string, location>						&get_locations() const;

@@ -110,21 +110,18 @@ void	Webserv::start()
 				// std::cout << "buffer: \n" << _Clients[client_nb]->get_buffer() << std::endl;
 				_Clients[client_nb]->parse_request();
 				_Clients[client_nb]->clear_buffer();
-				Response res(200, *_Clients[client_nb]);
-				res.responde();
-				close(fd);
+				
 			}
-			// if (events[j].events & EPOLLOUT && _Clients[client_nb]->get_bytesread() >= 0)
-			// {
-			// 	if (_Clients[client_nb]->get_bytesread()
-			// 		&& _Clients[client_nb]->get_bytesread() < BUFFER_SIZE)
-			// 	{
-			// 		std::cout << "debug: closing socket" << std::endl;
-			// 		write(fd, "HTTP/1.1 301 OK\r\n\r\n", 19);
-			// 		epoll_ctl(epfd, EPOLL_CTL_DEL, fd, NULL);
-			// 		close(fd);
-			// 	}
-			// }
+			if (events[j].events & EPOLLOUT && _Clients[client_nb]->get_done_reading())
+			{
+				if (_Clients[client_nb]->get_done_reading())
+				{
+					Response res(200, *_Clients[client_nb]);
+					res.responde();
+					epoll_ctl(epfd, EPOLL_CTL_DEL, fd, NULL);
+					close(fd);
+				}
+			}
 		}
 	}
 }
