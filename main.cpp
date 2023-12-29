@@ -4,6 +4,7 @@
 int main(int ac, char *av[])
 {
 	(void)av;
+	std::string file = av[1];
 	signal(SIGPIPE, SIG_IGN);
 	if (ac != 2)
 	{
@@ -14,8 +15,9 @@ int main(int ac, char *av[])
 	{
 		Webserv	w;
 		config_parser(w, av[1]);
+		std::cout << w;
 		w.bind_Servers();
-		w.start();
+		// w.start();
 	}
 	catch (std::exception& e)
 	{

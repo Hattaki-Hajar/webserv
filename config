@@ -12,6 +12,8 @@ server {
         root /nfs/homes/aharrass;
         index index.html;
         autoindex on;
+		upload uploads;
+		cgi txt hhhh;
     }
 
     location   /test/barr  {

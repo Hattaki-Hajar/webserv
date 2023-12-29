@@ -220,6 +220,9 @@ void	Server::set_location(std::string const &path, location &loc)
 	_locations[path].return_code = loc.return_code;
 	_locations[path].return_path = loc.return_path;
 	_locations[path].methods = loc.methods;
+	_locations[path].upload_path = loc.upload_path;
+	_locations[path].cgi.extention = loc.cgi.extention;
+	_locations[path].cgi.path = loc.cgi.path;
 }
 	/*  << overload for Server  */
 std::ostream& operator<<(std::ostream &os, const Server& s)
@@ -242,6 +245,9 @@ std::ostream& operator<<(std::ostream &os, const Server& s)
 		os << "location max_body_size: " << it->second.max_body_size << std::endl;
 		os << "location return_code: " << it->second.return_code << std::endl;
 		os << "location return_path: " << it->second.return_path << std::endl;
+		os << "location upload_path: " << it->second.upload_path << std::endl;
+		os << "location cgi_ext: " << it->second.cgi.extention
+		<< ", location cgi_path: " << it->second.cgi.path << std::endl;
 		std::vector<std::string>::const_iterator it2 = it->second.methods.begin();
 		std::vector<std::string>::const_iterator it2_end = it->second.methods.end();
 		while (it2 != it2_end)

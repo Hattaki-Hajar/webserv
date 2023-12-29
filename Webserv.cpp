@@ -15,7 +15,6 @@ void	Webserv::new_connection(Server &s)
 	_Clients.push_back(new Client(s));
 	i = _Clients.size() - 1;
 	int new_socket = accept(s.get_socket(), (struct sockaddr *)&_Clients[i]->_addr, &_Clients[i]->_addr_size);
-	// std::cout << "new socket: ******* " << new_socket << std::endl;
 	if (new_socket < 0)
 	{
 		perror("accept");
@@ -29,12 +28,6 @@ void	Webserv::new_connection(Server &s)
 		perror("epoll_ctl");
 		throw std::runtime_error("epoll_ctl failed! 2");
 	}
-	// bytesread = read(new_socket, _Clients[i]->get_buffer(), BUFFER_SIZE);
-	// _Clients[i]->set_bytesread(bytesread);
-	// if (bytesread >= 0)
-	// 	std::cout << "from new connection, buffer: \n" << _Clients[i]->get_buffer() << std::endl;
-	// _Clients[i]->clear_buffer();
-	// read here the buffer, i setted how much bytes i read in the Client class
 }
 
 int	is_server_socket(std::vector<Server *> &Servers, int socket)
@@ -259,7 +252,7 @@ std::ostream& operator<<(std::ostream &os, const Webserv& s)
 	size_t i = 0;
 	while (i < s.get_size())
 	{
-		os << "Server index: " << i << std::endl;
+		os << " ********* Server index: " << i << std::endl;
 		os << s.get_Server(i);
 		i++;
 	}

@@ -1,3 +1,9 @@
 .vscode
 Dockerfile
 *.o
+config
+todo
+.vscode/settings.json
+.gitignore
+.vscode/settings.json
+.gitignore

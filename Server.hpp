@@ -14,12 +14,21 @@
 // #include "Client.hpp"
 #include <errno.h>
 #include <cstring>
+#include <sys/stat.h>
+#include <dirent.h>
 // #include <stdio.h>
 
 #define BUFFER_SIZE 3072
 #define	NO_NAME "no name"
 #define	DEFAULT_Server "default"
 #define MAX_EVENTS 10
+
+typedef struct cgi
+{
+	std::string	extention;
+	std::string	path;
+} cgi;
+
 
 typedef struct location
 {
@@ -28,7 +37,9 @@ typedef struct location
 	std::string	index;
 	int			max_body_size;
 	int			return_code;
+	cgi			cgi;
 	std::string	return_path;
+	std::string	upload_path;
 	std::vector<std::string>	methods;
 }	location;
 

@@ -151,6 +151,41 @@ void	loc_body_size_directive(std::string &option, location &loc)
 		throw std::runtime_error("Error: config file is not valid size3!");
 }
 
+void	upload_directive(std::string &option, location &loc)
+{
+	std::string upload;
+	size_t i = 0;
+
+	while (option[i] && !isspace(option[i]))
+		upload += option[i++];
+	while (option[i] && isspace(option[i]))
+		i++;
+	if (option[i])
+		throw std::runtime_error("Error: config file is not valid loc_upload2!");
+	loc.upload_path = upload;
+}
+
+void	cgi_directive(std::string &option, location &loc)
+{
+	std::string ext, path;
+	size_t		i = 0;
+
+	while (option[i] && !isspace(option[i]))
+		ext += option[i++];
+	while (option[i] && isspace(option[i]))
+		i++;
+	if (!option[i])
+		throw std::runtime_error("Error: config file is not valid cgi1!");
+	while (option[i] && !isspace(option[i]))
+		path += option[i++];
+	while (option[i] && isspace(option[i]))
+		i++;
+	if (option[i])
+		throw std::runtime_error("Error: config file is not valid cgi2!");
+	loc.cgi.extention = ext;
+	loc.cgi.path = path;
+}
+
 void	init_location(location &loc)
 {
 	loc.max_body_size = -1;
@@ -159,6 +194,7 @@ void	init_location(location &loc)
 	loc.root = "";
 	loc.index = "";
 	loc.return_path = "";
+	loc.upload_path = "";
 }
 
 void	get_option(std::string &line, size_t i, std::string &option)
@@ -175,7 +211,7 @@ void	get_option(std::string &line, size_t i, std::string &option)
 		throw std::runtime_error("Error: config file is not valid location!");
 }
 
-void	find_directive(std::string & directive, std::string &option, location &loc)
+void	find_directive(std::string &directive, std::string &option, location &loc)
 {
 	if (directive == "allow")
 		allow_directive(option, loc);
@@ -189,6 +225,10 @@ void	find_directive(std::string & directive, std::string &option, location &loc)
 		return_directive(option, loc);
 	else if (directive == "client_max_body_size")
 		loc_body_size_directive(option, loc);
+	else if (directive == "upload")
+		upload_directive(option, loc);
+	else if (directive == "cgi")
+		cgi_directive(option, loc);
 	else if (!directive.empty())
 		throw std::runtime_error("Error: config file is not valid location: unknown directive!");
 }

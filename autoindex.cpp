@@ -1,13 +1,11 @@
-#include <iostream>
-#include <vector>
-#include <sys/stat.h>
-#include <dirent.h>
+#include "Webserv.hpp"
 
 void find_files(const std::string &_uri)
 {
 	DIR *dir;
 	struct dirent *d;
 	struct stat s;
+	char buff[18];
 	std::string file, name, path;
 	file = "<!DOCTYPE html>\n<html>\n<head>\n<title>Index of ";
 	file += _uri;
@@ -27,6 +25,7 @@ void find_files(const std::string &_uri)
 			path = _uri + "/" + name;
 			if (stat(path.c_str(), &s) != 0) {
 				std::cout << "fail" << std::endl;
+				closedir(dir);
 				return ;
 			}
 			file += "<a href=" + name;
@@ -34,7 +33,6 @@ void find_files(const std::string &_uri)
 				file += "/>" + name + "/</a>";
 			else
 				file += ">" + name + "</a>";
-			char buff[18];
 			strftime(buff, sizeof(buff), "%d-%b-%Y %H:%M", gmtime(&s.st_mtim.tv_sec));
 			file += "    ";
 			file += buff;
@@ -43,5 +41,6 @@ void find_files(const std::string &_uri)
 		}
 		file += "</pre>\n<hr>\n</body>\n</html>";
 	}
+	closedir(dir);
 	std::cout << file << std::endl;
 }
