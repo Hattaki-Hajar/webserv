@@ -8,9 +8,6 @@ server {
         autoindex on;
     }
 
-    location /put_test {
-
-    }
     location  /webserv  {
         root /nfs/homes/aharrass;
         index index.html;
