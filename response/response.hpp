@@ -6,7 +6,7 @@
 /*   By: aharrass <aharrass@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/14 15:29:02 by aharrass          #+#    #+#             */
-/*   Updated: 2023/12/30 10:54:29 by aharrass         ###   ########.fr       */
+/*   Updated: 2023/12/30 16:21:10 by aharrass         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,8 @@
 #include "method_utils.hpp"
 #include "../Server.hpp"
 #include "../Client.hpp"
+#include <algorithm>
+#include <fstream>
 
 #define DIREC 0
 #define FILE 1
@@ -35,9 +37,9 @@ class   Response    {
         location _location;
         bool    _found_location;
         Client  *_client;
-        std::string						_root_path;
-        std::string						_index_path;
-        std::map<int, std::string>		_error_pages;
+        std::string						_server_root_path;
+        std::string						_server_index_path;
+        std::map<int, std::string>		_server_error_pages;
         std::map<std::string, std::string> _headers;
         Request_line    _request_line;
 
@@ -48,13 +50,14 @@ class   Response    {
         ~Response();
 
         void    pars_uri();
-        void match_uri();
-        int get_resource_type();
-        // void get();
+        void    match_uri();
+        int     get_resource_type();
+        void    find_files();
+        void    get();
 		void	delete_method();
 		void	clear_dir(const std::string &);
         void    responde();
-        void setResponse();
+        void    setResponse();
         
 
         // const std::string &get_uri() const;

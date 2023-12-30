@@ -79,7 +79,7 @@ void	Client::parse_request() {
 }
 	/*  Destructor  */
 Client::~Client() {
-	std::cout << "Client destructor" << std::endl;
+	// std::cout << "Client destructor" << std::endl;
 	close(_socket);
 	delete _event;
 	delete _request;

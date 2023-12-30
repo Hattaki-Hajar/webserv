@@ -19,6 +19,7 @@ server {
 
     location   /test/barr  {
         root /var/www;
+        allow GET;
         index index1.html;
         autoindex on;
     }

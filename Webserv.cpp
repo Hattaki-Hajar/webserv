@@ -28,7 +28,7 @@ void	Webserv::new_connection(Server &s)
 		perror("epoll_ctl");
 		throw std::runtime_error("epoll_ctl failed! 2");
 	}
-	std::cout << "fd: " << new_socket << std::endl;
+	// std::cout << "fd: " << new_socket << std::endl;
 }
 
 int	is_server_socket(std::vector<Server *> &Servers, int socket)
@@ -79,28 +79,28 @@ void	Webserv::start()
 			throw std::runtime_error("epoll_wait failed!");
 		for (int j = 0; j < event_nb; j++)
 		{
-			std::cout << "debug: for" << std::endl;
+			// std::cout << "debug: for" << std::endl;
 			fd = events[j].data.fd;
 			i = is_server_socket(_Servers, fd);
 			if (i >= 0)
 			{
-				std::cout << "debug: from new connection" << std::endl;
+				// std::cout << "debug: from new connection" << std::endl;
 				new_connection(*_Servers[i]);
 				continue ;
 			}
 			client_nb = find_client(_Clients, fd);
 			if (events[j].events & EPOLLIN)
 			{
-				std::cout << "debug: read" << std::endl;
+				// std::cout << "debug: read" << std::endl;
 				bzero(buffer, BUFFER_SIZE + 1);
 				bytesread = read(fd, _Clients[client_nb]->get_buffer(), BUFFER_SIZE);
 				_Clients[client_nb]->set_bytesread(bytesread);
 				if (!bytesread) {
-					std::cout << "debug: read finished" << std::endl;
+					// std::cout << "debug: read finished" << std::endl;
 					continue ;
 				}
 				if (bytesread < 0) {
-					std::cout << "debug: read failed" << std::endl;
+					// std::cout << "debug: read failed" << std::endl;
 					continue ;
 				}
 				// std::cout << "buffer: \n" << _Clients[client_nb]->get_buffer() << std::endl;
@@ -114,12 +114,12 @@ void	Webserv::start()
 				{
 					Response res(_Clients[client_nb]->get_request()->get_status_code(), *_Clients[client_nb]);
 					res.responde();
-					std::cout << "debug: fd = " << fd << std::endl;
+					// std::cout << "debug: fd = " << fd << std::endl;
 					epoll_ctl(epfd, EPOLL_CTL_DEL, fd, NULL);
 					close(fd);
 					delete _Clients[client_nb];
 					_Clients.erase(_Clients.begin() + client_nb);
-					std::cout << "debug: here" << std::endl;
+					// std::cout << "debug: here" << std::endl;
 				}
 			}
 		}

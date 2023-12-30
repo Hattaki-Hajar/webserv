@@ -5,7 +5,7 @@ Request::Request() {
 	_size_read = 0;
 	_chunk_read = 0;
 	_chunks_size = 0;
-	_status_code = 0;
+	_status_code = 200;
 	_request_headers = "";
 	_remaining = NULL;
 	_remaining_size = 0;
@@ -52,7 +52,7 @@ bool	Request::is_req_well_formed(void) {
 		return (false);
 	}
 	// Check the request uri contain a character not allowed.
-	if (_request_line.uri.find_first_not_of("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 ._~:/?#[]@!$&'()*+,;=%") != std::string::npos) {
+	if (_request_line.uri.find_first_not_of("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~:/?#[]@!$&'()*+,;=%") != std::string::npos) {
 		_status_code = 400;
 		return (false);
 	}
@@ -74,6 +74,7 @@ void	Request::split_request(char *buffer, ssize_t bytesread) {
 					{
 						_headers_read = true;
 						this->parse_request();
+						std::cout << "---" << _headers["Content-Type"] << std::endl;
 						// parse for error codes
 						if (!is_req_well_formed()) {
 							// std::cout << "debug: request not well formed" << std::endl;
