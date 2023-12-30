@@ -6,7 +6,7 @@
 /*   By: aharrass <aharrass@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/14 15:34:16 by aharrass          #+#    #+#             */
-/*   Updated: 2023/12/30 16:34:05 by aharrass         ###   ########.fr       */
+/*   Updated: 2023/12/30 18:56:22 by aharrass         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,6 +76,7 @@ void   Response::pars_uri()   {
 }
 
 void Response::get()  {
+    std::cout << "hehe" << std::endl;
     int type = get_resource_type();
     if (type == NOT_FOUND)   {
         _status_code = 404;
@@ -89,16 +90,21 @@ void Response::get()  {
         else{
             if (!_location.index.empty() || !_server_index_path.empty())   {
                 if (!_location.index.empty())
-                    _uri += "/" + _location.index;
+                    _uri += _location.index;
                 else if (!_server_index_path.empty())
-                    _uri += "/" + _server_index_path;
+                    _uri += _server_index_path;
                 std::cout << _uri << std::endl;
+                //needs cgi
                 std::ifstream file(_uri.c_str());
                 if (file.fail())    {
                     _status_code = 404;
                     return;
                 }
-                getline(file, _response_body, '\0');
+                while (!file.eof()) {
+                    std::string buff;
+                    getline(file, buff);
+                    _response_body += buff;
+                }
                 _content_type = "text/html";
                 return ;
             }
@@ -107,9 +113,31 @@ void Response::get()  {
                     find_files();
                     return ;
                 }
+                else    {
+                    _status_code = 403;
+                    return ;
+                }
             }
         }
     }
+    else if (type == FILE)  {
+        int file = open(_uri.c_str(), O_RDONLY);
+        if (file < 0)    {
+            _status_code = 404;
+            return;
+        }
+        char buff[1024 + 1];
+        bzero(buff, 1025);
+        int i = read(file, buff, 1024);
+        while (i) {
+            _response_body += buff;
+            bzero(buff, 1025);
+            i = read(file, buff, 1024);
+        }
+        _content_type = "image/jpg";
+        _content_type = "text/html";
+        return ;
+}
 }  
 
 
