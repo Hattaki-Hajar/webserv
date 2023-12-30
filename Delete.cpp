@@ -5,7 +5,7 @@ void	Response::clear_dir(const std::string &dir_path)
 {
 	DIR				*dir;
 	struct dirent	*d;
-	std::string		path;
+	std::string		path, name;
 	if (_del_error)
 		return ;
 	dir = opendir(dir_path.c_str());
@@ -14,11 +14,27 @@ void	Response::clear_dir(const std::string &dir_path)
 	d = readdir(dir);
 	while (d)
 	{
+		name = d->d_name;
 		path = dir_path + d->d_name;
+		if (name == "." || name == "..")
+		{
+			d = readdir(dir);
+			continue ;
+		}
 		if (std::remove(path.c_str()))
 		{
+			std::cout << "debug: errno = " << errno << std::endl;
+			std::cout << "debug: path: " << path << std::endl;
 			if (errno == EEXIST || errno == ENOTEMPTY)
-				clear_dir(path);
+			{
+				std::cout << "debug: should be here once" << std::endl;
+				clear_dir(path + "/");
+				if (std::remove(path.c_str()))
+				{
+					_del_error = 403;
+					return ;
+				}
+			}
 			else if (errno == EACCES)
 			{
 				_del_error = 403;
@@ -28,8 +44,7 @@ void	Response::clear_dir(const std::string &dir_path)
 			{
 				_del_error = 500;
 				return ;
-			}
-				
+			}	
 		}
 		if (_del_error)
 			return;
@@ -44,6 +59,7 @@ void	Response::delete_method()
 	if (type == NOT_FOUND)
 		_status_code = 404;
 	else if (type == FILE) {
+		std::cout << "debug: found file" << std::endl;
 		if (std::remove(_uri.c_str()))
 		{
 			_status_code = 403;
@@ -51,6 +67,7 @@ void	Response::delete_method()
 		}
 	}
 	else {
+		std::cout << "debug: found dir" << std::endl;
 		if (_uri[_uri.length() - 1] != '/')
 		{
 			_status_code = 409;
@@ -62,6 +79,8 @@ void	Response::delete_method()
 			_status_code = _del_error;
 			return ;
 		}
+		if (std::remove(_uri.c_str()))
+			_status_code = 403;
 	}
 }
 

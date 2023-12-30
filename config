@@ -9,10 +9,10 @@ server {
     }
 
     location  /webserv  {
-        root /nfs/homes/hhattaki;
+        root /nfs/homes/hhattaki/Desktop;
         index index.html;
         autoindex on;
-        return 301 /nfs/homes/hhattaki/webserv/;
+		allow	DELETE;
 		upload uploads;
         cgi vdfj fhgfsgs;
     }

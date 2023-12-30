@@ -131,6 +131,8 @@ void    Response::responde()    {
             else    {
                 if (_request_line.method == "GET")
                     get();
+				else if (_request_line.method == "DELETE")
+					delete_method();
             }
         }
     }
