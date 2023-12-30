@@ -6,7 +6,7 @@
 /*   By: aharrass <aharrass@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/14 15:34:16 by aharrass          #+#    #+#             */
-/*   Updated: 2023/12/27 23:57:39 by aharrass         ###   ########.fr       */
+/*   Updated: 2023/12/30 10:59:14 by aharrass         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,13 +17,18 @@ Response::Response()    {
 
 Response::Response(int status_code, Client &client)
 : _status_code(status_code)   {
-    _location = NULL;
     _client = &client;
+    _found_location = false;
     _headers = _client->get_request()->get_headers();
     _uri = _client->get_request()->get_request_line().uri;
     pars_uri();
     _old_uri = _uri;
     match_uri();
+    std::cout << "uri = " << _uri << std::endl;
+    _root_path = _client->get_server().get_root();
+    _index_path = _client->get_server().get_index();
+    _error_pages = _client->get_server().get_error_pages();
+    // _server = _client->get_server();
     _error_page = "<!DOCTYPE html>\n<html>\n<head>\n<meta http-equiv=\"content-type\" content=\"text/html; charset=UTF-8\"\n>";
     _error_page += "<title>Error</title>\n<style>\n@import url('https://fonts.googleapis.com/css?family=Press Start 2P');\n";
     _error_page += "*   {\nbackground: black;\n}\n.main-box {\npadding: 0%;\nbox-sizing: border-box;\ndisplay: flex;\n";
@@ -118,11 +123,12 @@ void Response::match_uri()  {
         }
     }
     if (it_tmp != locations.end())  {
-        _location = &it_tmp->second;
-        if (_uri.length() >= it_tmp->first.length() && !_location->root.empty()) {
+        _location = it_tmp->second;
+        _found_location = true;
+        if (_uri.length() >= it_tmp->first.length() && !_location.root.empty()) {
             std::string tt = _uri.substr(0, it_tmp->first.length());
             _uri.erase(0, it_tmp->first.length());
-            _uri = _location->root + tt + _uri;
+            _uri = _location.root + tt + _uri;
         } 
     }
     else    {
@@ -132,21 +138,26 @@ void Response::match_uri()  {
 
 
 void    Response::responde()    {
-    if (_status_code == 200)    {
-        int type = get_resource_type();
-        if (type == NOT_FOUND)   {
-            _status_code = 404;
-        }
-        else if (type == DIREC) {
-            if (_uri[_uri.length() - 1] != '/') {
-                _status_code = 301;
-            }
-            else{
-                _response_body = "hehe";
-                _content_type = "text/html";
-            }
-        }  
-    }
+    // if (_status_code == 200)    {
+    //     // if (!_found_location && _server.get_root().empty())
+    //     //     _status_code = 404;
+    //     // else if (_found_location) {
+            
+    //     // }
+    //     int type = get_resource_type();
+    //     if (type == NOT_FOUND)   {
+    //         _status_code = 404;
+    //     }
+    //     else if (type == DIREC) {
+    //         if (_uri[_uri.length() - 1] != '/') {
+    //             _status_code = 301;
+    //         }
+    //         else{
+    //             _response_body = "hehe";
+    //             _content_type = "text/html";
+    //         }
+    //     }  
+    // }
     setResponse();
 }
 

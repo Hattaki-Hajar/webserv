@@ -5,6 +5,7 @@
 #include "config_file_parsing/config_file_utils.hpp"
 #include <fstream>
 #include <vector>
+#include <algorithm>
 
 
 class Webserv

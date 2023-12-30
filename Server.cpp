@@ -31,14 +31,15 @@ Server::Server(Server const &s)
 	_root_path = s._root_path;
 	_error_pages = s._error_pages;
 	_locations = s._locations;
-	_event = new epoll_event;
-	_event->events = s._event->events;
-	_event->data.fd = s._event->data.fd;
+	_event = 0;
+	// _event = new epoll_event;
+	// _event->events = s._event->events;
+	// _event->data.fd = s._event->data.fd;
 	_addr = s._addr;
 	_socketaddr_len = s._socketaddr_len;
 }
 Server::~Server() {
-	// std::cout << "Server destructor" << std::endl;
+	std::cout << "Server destructor" << std::endl;
 	delete _event;
 	// _event = NULL;
 	close(_socket);

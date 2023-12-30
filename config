@@ -12,8 +12,9 @@ server {
         root /nfs/homes/aharrass;
         index index.html;
         autoindex on;
+        return 301 /nfs/homes/aharrass/webserv/;
 		upload uploads;
-		cgi txt hhhh;
+        cgi vdfj fhgfsgs;
     }
 
     location   /test/barr  {
@@ -23,7 +24,7 @@ server {
     }
 }
 server {
-    listen 127.0.0.1:8080;
+    listen 127.0.0.1:1243;
 
     root /nfs/homes/aharrass
     index index.html;

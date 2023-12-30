@@ -6,7 +6,7 @@
 /*   By: aharrass <aharrass@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/14 15:29:02 by aharrass          #+#    #+#             */
-/*   Updated: 2023/12/27 20:55:45 by aharrass         ###   ########.fr       */
+/*   Updated: 2023/12/30 10:54:29 by aharrass         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,8 +31,12 @@ class   Response    {
         std::string _content_type;
         std::string _response;
         std::string _error_page;
-        const location *_location;
+        location _location;
+        bool    _found_location;
         Client  *_client;
+        std::string						_root_path;
+        std::string						_index_path;
+        std::map<int, std::string>		_error_pages;
         std::map<std::string, std::string> _headers;
         Request_line    _request_line;
 

@@ -15,6 +15,7 @@ Request::Request() {
 }
 
 Request::~Request() {
+	_file.close();
 }
 
 /*  setters  */
