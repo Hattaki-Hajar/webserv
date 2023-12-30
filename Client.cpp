@@ -63,7 +63,7 @@ void	Client::clear_buffer() {
 	bzero(_buffer, BUFFER_SIZE + 1);
 }
 void	Client::parse_request() {
-	_request->split_request(_buffer, _bytesread);
+	_request->split_request(_buffer, _bytesread, _socket);
 
 
 	if (_request->get_end_of_request()) {

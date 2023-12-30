@@ -112,7 +112,7 @@ void	Webserv::start()
 			{
 				if (_Clients[client_nb]->get_done_reading())
 				{
-					Response res(_Clients[client_nb]->get_request()->get_status_code(), *_Clients[client_nb]);
+					Response res(_Clients[client_nb]->get_request()->get_status_code(), *_Clients[client_nb], _Clients[client_nb]->get_request()->get_file_path());
 					res.responde();
 					// std::cout << "debug: fd = " << fd << std::endl;
 					epoll_ctl(epfd, EPOLL_CTL_DEL, fd, NULL);

@@ -1,6 +1,7 @@
 server {
     listen 127.0.0.1:1234;
 
+    client_max_body_size 3000000000000;
     root /nfs/homes/hhattaki;
     index index.php;
 
@@ -9,10 +10,10 @@ server {
     }
 
     location  /webserv  {
-        root /nfs/homes/hhattaki;
+        root /nfs/homes/ohalim/Desktop;
+        allow POST;
         index index.html;
         autoindex on;
-        return 301 /nfs/homes/hhattaki/webserv/;
 		upload uploads;
         cgi vdfj fhgfsgs;
     }

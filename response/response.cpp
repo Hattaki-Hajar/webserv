@@ -15,8 +15,8 @@
 Response::Response()    {
 }
 
-Response::Response(int status_code, Client &client)
-: _status_code(status_code)   {
+Response::Response(int status_code, Client &client, std::string file_path)
+: _status_code(status_code), _file_path(file_path)   {
     _client = &client;
     _found_location = false;
     _headers = _client->get_request()->get_headers();
@@ -24,8 +24,8 @@ Response::Response(int status_code, Client &client)
     pars_uri();
     _old_uri = _uri;
     match_uri();
-    std::cout << "old uri = " << _old_uri << std::endl;
-    std::cout << "new uri = " << _uri << std::endl;
+    // std::cout << "old uri = " << _old_uri << std::endl;
+    // std::cout << "new uri = " << _uri << std::endl;
     _server_root_path = _client->get_server().get_root();
     _server_index_path = _client->get_server().get_index();
     _server_error_pages = _client->get_server().get_error_pages();
@@ -113,7 +113,66 @@ void Response::get()  {
     }
 }  
 
+// void    Response::post()    {
+//     std::string path = _location.upload_path;
+//     std::string file_name = _client->get_request()->get_headers()["File-Name"];
+//     std::string file_path = path + "/" + file_name;
+//     std::string file_content = _client->get_request()->get_body();
+//     std::ofstream file(file_path.c_str());
+//     if (file.fail())    {
+//         _status_code = 409;
+//         return ;
+//     }
+//     file << file_content;
+//     file.close();
+//     _status_code = 204;
+// }
 
+void    Response::post() {
+    if (!_found_location) {
+        _status_code = 404;
+        return ;
+    }
+    if (!_location.upload_path.empty()) {
+        std::string path = _location.upload_path + "/" + _file_path.substr(_file_path.find("/") + 1);
+        std::rename(_file_path.c_str(), path.c_str());
+        _status_code = 201;
+        return;
+    }
+    int type = get_resource_type();
+    if (type == NOT_FOUND) {
+        _status_code = 404;
+        return;
+    }
+    if (type == FILE) {
+        if (!_location.Cgi.path.empty()) {
+            // run cgi on requested file with POST.
+            // return _status_code of the cgi;
+        }
+        else {
+            _status_code = 403;
+            return;
+        }
+    } else if (type == DIREC) {
+        if (_uri[_uri.length() - 1] != '/') {
+            _old_uri += "/";
+            _status_code = 301;
+            return;
+        }
+        if (!_location.index.empty()) {
+            _status_code = 403;
+            return;
+        }
+        if (!_location.Cgi.path.empty()) {
+            // run cgi on requested file with POST.
+            // return _status_code of the cgi;
+        }
+        else {
+            _status_code = 403;
+            return;
+        }
+    }
+}
 
 void    Response::responde()    {
     if (_status_code == 200)    {
@@ -131,6 +190,8 @@ void    Response::responde()    {
             else    {
                 if (_request_line.method == "GET")
                     get();
+                if (_request_line.method == "POST")
+                    post();
             }
         }
     }

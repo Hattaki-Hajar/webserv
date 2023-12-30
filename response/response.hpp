@@ -34,6 +34,7 @@ class   Response    {
         std::string _content_type;
         std::string _response;
         std::string _error_page;
+        std::string _file_path;
         location _location;
         bool    _found_location;
         Client  *_client;
@@ -46,7 +47,7 @@ class   Response    {
         Response();
 
     public:
-        Response(int status_code, Client &client);
+        Response(int status_code, Client &client, std::string file_path);
         ~Response();
 
         void    pars_uri();
@@ -55,6 +56,7 @@ class   Response    {
         void    find_files();
         void    get();
 		void	delete_method();
+        void    post();
 		void	clear_dir(const std::string &);
         void    responde();
         void    setResponse();
