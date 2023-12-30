@@ -112,7 +112,7 @@ void	Webserv::start()
 			{
 				if (_Clients[client_nb]->get_done_reading())
 				{
-					Response res(200, *_Clients[client_nb]);
+					Response res(_Clients[client_nb]->get_request()->get_status_code(), *_Clients[client_nb]);
 					res.responde();
 					std::cout << "debug: fd = " << fd << std::endl;
 					epoll_ctl(epfd, EPOLL_CTL_DEL, fd, NULL);
@@ -274,4 +274,5 @@ Webserv::~Webserv()
 	for (size_t i = 0; i < _Clients.size(); i++)
 		delete _Clients[i];
 	delete _event;
+	close(_epfd);
 }

@@ -37,7 +37,7 @@ typedef struct location
 	std::string	index;
 	int			max_body_size;
 	int			return_code;
-	cgi			cgi;
+	cgi			Cgi;
 	std::string	return_path;
 	std::string	upload_path;
 	std::vector<std::string>	methods;

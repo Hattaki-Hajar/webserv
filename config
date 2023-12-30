@@ -1,7 +1,7 @@
 server {
     listen 127.0.0.1:1234;
 
-    root /nfs/homes/aharrass;
+    root /nfs/homes/hhattaki;
     index index.php;
 
     location / {
@@ -9,10 +9,10 @@ server {
     }
 
     location  /webserv  {
-        root /nfs/homes/aharrass;
+        root /nfs/homes/hhattaki;
         index index.html;
         autoindex on;
-        return 301 /nfs/homes/aharrass/webserv/;
+        return 301 /nfs/homes/hhattaki/webserv/;
 		upload uploads;
         cgi vdfj fhgfsgs;
     }
@@ -26,7 +26,7 @@ server {
 server {
     listen 127.0.0.1:1243;
 
-    root /nfs/homes/aharrass
+    root /nfs/homes/hhattaki
     index index.html;
 
     location / {
