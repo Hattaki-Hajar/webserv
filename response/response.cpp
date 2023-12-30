@@ -6,7 +6,7 @@
 /*   By: aharrass <aharrass@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/14 15:34:16 by aharrass          #+#    #+#             */
-/*   Updated: 2023/12/30 10:59:14 by aharrass         ###   ########.fr       */
+/*   Updated: 2023/12/30 16:34:05 by aharrass         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,11 +24,13 @@ Response::Response(int status_code, Client &client)
     pars_uri();
     _old_uri = _uri;
     match_uri();
-    std::cout << "uri = " << _uri << std::endl;
-    _root_path = _client->get_server().get_root();
-    _index_path = _client->get_server().get_index();
-    _error_pages = _client->get_server().get_error_pages();
-    // _server = _client->get_server();
+    std::cout << "old uri = " << _old_uri << std::endl;
+    std::cout << "new uri = " << _uri << std::endl;
+    _server_root_path = _client->get_server().get_root();
+    _server_index_path = _client->get_server().get_index();
+    _server_error_pages = _client->get_server().get_error_pages();
+    _request_line = _client->get_request()->get_request_line();
+    
     _error_page = "<!DOCTYPE html>\n<html>\n<head>\n<meta http-equiv=\"content-type\" content=\"text/html; charset=UTF-8\"\n>";
     _error_page += "<title>Error</title>\n<style>\n@import url('https://fonts.googleapis.com/css?family=Press Start 2P');\n";
     _error_page += "*   {\nbackground: black;\n}\n.main-box {\npadding: 0%;\nbox-sizing: border-box;\ndisplay: flex;\n";
@@ -73,29 +75,66 @@ void   Response::pars_uri()   {
     }
 }
 
-// void Response::get()  {
-//     if (_status_code != 200)
-//         return;
-    
-//     int type = get_resource_type();
-    
-//     if (type == NOT_FOUND)
-//     {
-//         _status_code = 404;
-//         return;
-//     }
-//     if (type == DIREC)  {
-//         if (_uri[_uri.length() - 1] != '/') {
-//             _response_header += "location: ";
-//             _response_header += _uri + "/";
-//             _status_code = 301;
-//             return;
-//         }
-//         if ()
-        
-//     }
-    
-// }
+void Response::get()  {
+    int type = get_resource_type();
+    if (type == NOT_FOUND)   {
+        _status_code = 404;
+    }
+    else if (type == DIREC) {
+        if (_uri[_uri.length() - 1] != '/') {
+            _old_uri += "/";
+            _status_code = 301;
+            return;
+        }
+        else{
+            if (!_location.index.empty() || !_server_index_path.empty())   {
+                if (!_location.index.empty())
+                    _uri += "/" + _location.index;
+                else if (!_server_index_path.empty())
+                    _uri += "/" + _server_index_path;
+                std::cout << _uri << std::endl;
+                std::ifstream file(_uri.c_str());
+                if (file.fail())    {
+                    _status_code = 404;
+                    return;
+                }
+                getline(file, _response_body, '\0');
+                _content_type = "text/html";
+                return ;
+            }
+            else  {
+                if (_location.autoindex)   {
+                    find_files();
+                    return ;
+                }
+            }
+        }
+    }
+}  
+
+
+
+void    Response::responde()    {
+    if (_status_code == 200)    {
+        if (!_found_location && _server_root_path.empty())
+            _status_code = 404;
+        else if (_found_location)   {
+            std::vector<std::string>::iterator it = std::find(_location.methods.begin(), _location.methods.end(), _request_line.method);
+            
+            if (it == _location.methods.end())
+                _status_code = 405;
+            else if (_location.return_code > 299 && _location.return_code < 308 )    {
+                _old_uri = _location.return_path;
+                _status_code = 301;
+            }   
+            else    {
+                if (_request_line.method == "GET")
+                    get();
+            }
+        }
+    }
+    setResponse();
+}
 
 void Response::match_uri()  {
     std::map<std::string, location> locations = _client->get_server().get_locations();
@@ -112,6 +151,11 @@ void Response::match_uri()  {
             if (comp)
                 continue;
             diff = _uri.length() - it->first.length();
+            if (diff == 0)  {
+                it_tmp = it;
+                diff_tmp = diff;
+                break;
+            }
             if (it != locations.begin() && comp == 0)    {
                 if (diff < diff_tmp)   {
                     it_tmp = it;
@@ -134,31 +178,6 @@ void Response::match_uri()  {
     else    {
         _uri = _client->get_server().get_root() + _uri;
     }
-}
-
-
-void    Response::responde()    {
-    // if (_status_code == 200)    {
-    //     // if (!_found_location && _server.get_root().empty())
-    //     //     _status_code = 404;
-    //     // else if (_found_location) {
-            
-    //     // }
-    //     int type = get_resource_type();
-    //     if (type == NOT_FOUND)   {
-    //         _status_code = 404;
-    //     }
-    //     else if (type == DIREC) {
-    //         if (_uri[_uri.length() - 1] != '/') {
-    //             _status_code = 301;
-    //         }
-    //         else{
-    //             _response_body = "hehe";
-    //             _content_type = "text/html";
-    //         }
-    //     }  
-    // }
-    setResponse();
 }
 
 void Response::setResponse()    {
@@ -208,7 +227,7 @@ void Response::setResponse()    {
         }
         else if (_status_code == 301)   {
             _status_line = "HTTP/1.1 301 Moved Permanently\r\n";
-            _response_header = "Location: " + _old_uri + "/" + "\r\n";
+            _response_header = "Location: " + _old_uri + "\r\n";
         }
         else if (_status_code == 405)   {
             _status_line = "HTTP/1.1 405 Method Not Allowed\r\n";
@@ -251,3 +270,44 @@ void Response::setResponse()    {
     // std::cerr << _response << std::endl;
     write(_client->get_socket(), _response.c_str(), _response.length());
 }
+
+void Response::find_files() {
+    DIR *dir;
+	struct dirent *d;
+	struct stat s;
+	char buff[18];
+	std::string file, name, path;
+	file = "<!DOCTYPE html>\n<html>\n<head>\n<title>Index of ";
+	file += _uri;
+	file += "</title>\n</head>\n<body>\n<h1>Index of ";
+	file += _uri + "</h1>\n<hr>\n<pre>\n";
+	dir = opendir(_uri.c_str());
+	if (dir)
+	{
+		d = readdir(dir);
+		while (d)
+		{
+			name = d->d_name;
+			if (name == ".") {
+				d = readdir(dir);
+				continue ;
+			}
+			path = _uri + "/" + name;
+			stat(path.c_str(), &s);
+			file += "<a href=" + name;
+			if (d->d_type == DT_DIR)
+				file += "/>" + name + "/</a>";
+			else
+				file += ">" + name + "</a>";
+			strftime(buff, sizeof(buff), "%d-%b-%Y %H:%M", gmtime(&s.st_mtim.tv_sec));
+			file += "    ";
+			file += buff;
+			file += "\n";
+			d = readdir(dir);
+		}
+		file += "</pre>\n<hr>\n</body>\n</html>";
+	}
+	closedir(dir);
+    _response_body = file;
+}
+

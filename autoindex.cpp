@@ -42,5 +42,4 @@ void find_files(const std::string &_uri)
 		file += "</pre>\n<hr>\n</body>\n</html>";
 	}
 	closedir(dir);
-	std::cout << file << std::endl;
 }

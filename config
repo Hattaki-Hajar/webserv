@@ -2,7 +2,7 @@ server {
     listen 127.0.0.1:1234;
 
     root /nfs/homes/aharrass;
-    index index.php;
+    index index1.html;
 
     location / {
         autoindex on;
@@ -12,13 +12,14 @@ server {
         root /nfs/homes/aharrass;
         index index.html;
         autoindex on;
-        return 301 /nfs/homes/aharrass/webserv/;
+        allow GET;
 		upload uploads;
         cgi vdfj fhgfsgs;
     }
 
     location   /test/barr  {
         root /var/www;
+        allow GET;
         index index1.html;
         autoindex on;
     }
