@@ -17,9 +17,15 @@ Client::Client(Server &s):_server(s) {
 	_bytesread = -2;
 	bzero(_buffer, BUFFER_SIZE + 1);
 	_done_reading = false;
-	_status_code = 0;
+	_status_code = 200;
 	// std::cout << "debug: should be here once!" << std::endl;
 	_request = new Request();
+
+}
+
+void Client::generateResponse() {
+	_response = new Response(_request->get_status_code(), *this);
+	_response->responde();
 }
 	/*  Setters  */
 void	Client::set_socket(int socket) {

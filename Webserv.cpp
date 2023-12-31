@@ -105,6 +105,8 @@ void	Webserv::start()
 				}
 				// std::cout << "buffer: \n" << _Clients[client_nb]->get_buffer() << std::endl;
 				_Clients[client_nb]->parse_request();
+				if (_Clients[client_nb]->get_done_reading())
+					_Clients[client_nb]->generateResponse();
 				_Clients[client_nb]->clear_buffer();
 				
 			}
@@ -112,14 +114,15 @@ void	Webserv::start()
 			{
 				if (_Clients[client_nb]->get_done_reading())
 				{
-					Response res(_Clients[client_nb]->get_request()->get_status_code(), *_Clients[client_nb]);
-					res.responde();
+					write(fd, _Clients[client_nb]->_response->send(), _Clients[client_nb]->_response->getResponse_length());
 					// std::cout << "debug: fd = " << fd << std::endl;
-					epoll_ctl(epfd, EPOLL_CTL_DEL, fd, NULL);
-					close(fd);
-					delete _Clients[client_nb];
-					_Clients.erase(_Clients.begin() + client_nb);
-					// std::cout << "debug: here" << std::endl;
+					if (_Clients[client_nb]->_response->getIs_complete())
+					{
+						epoll_ctl(epfd, EPOLL_CTL_DEL, fd, NULL);
+						close(fd);
+						delete _Clients[client_nb];
+						_Clients.erase(_Clients.begin() + client_nb);
+					}
 				}
 			}
 		}

@@ -1,5 +1,5 @@
-#include "Webserv.hpp"
-#include "./response/response.hpp"
+#include "../Webserv.hpp"
+#include "../response/response.hpp"
 
 void	Response::clear_dir(const std::string &dir_path)
 {

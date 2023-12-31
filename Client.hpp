@@ -5,7 +5,7 @@
 #include <iostream>
 #include "Request.hpp"
 #include "Server.hpp"
-
+class Response;
 class Client
 {
 	int					_socket;
@@ -19,6 +19,7 @@ class Client
 	unsigned int		_status_code;
 	Client();
 public:
+	Response			*_response;
 	sockaddr_in			_addr;
 	unsigned int		_addr_size;
 	/*  constructer/destructer  */
@@ -41,7 +42,9 @@ public:
 	/*  additional funcs  */
 	void	clear_buffer();
 	void	parse_request();
+	void 	generateResponse();
 	// void	acceptconnection(Server &w);
 };
 
+#include "response/response.hpp"
 int set_nonblocking(int sockfd);

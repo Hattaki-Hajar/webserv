@@ -1,17 +1,18 @@
 server {
     listen 127.0.0.1:1234;
 
-    root /nfs/homes/aharrass;
+    root /;
     #index index1.html;
 
     location / {
+        allow GET;
         autoindex on;
     }
 
     location  /webserv  {
         root /nfs/homes/aharrass;
         #index index5.html;
-        autoindex off;
+        autoindex on;
         allow GET;
 		upload uploads;
         cgi vdfj fhgfsgs;

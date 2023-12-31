@@ -74,7 +74,6 @@ void	Request::split_request(char *buffer, ssize_t bytesread) {
 					{
 						_headers_read = true;
 						this->parse_request();
-						std::cout << "---" << _headers["Content-Type"] << std::endl;
 						// parse for error codes
 						if (!is_req_well_formed()) {
 							// std::cout << "debug: request not well formed" << std::endl;
