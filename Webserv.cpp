@@ -274,4 +274,5 @@ Webserv::~Webserv()
 	for (size_t i = 0; i < _Clients.size(); i++)
 		delete _Clients[i];
 	delete _event;
+	close(_epfd);
 }

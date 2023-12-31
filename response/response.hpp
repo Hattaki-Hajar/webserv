@@ -25,6 +25,7 @@
 class   Response    {
     private:
         int _status_code;
+		int	_del_error;
         std::string _status_line;
         std::string _response_header;
         std::string _response_body;
@@ -53,6 +54,8 @@ class   Response    {
         int     get_resource_type();
         void    find_files();
         void    get();
+		void	delete_method();
+		void	clear_dir(const std::string &);
         void    responde();
         void    setResponse();
         

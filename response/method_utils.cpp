@@ -14,6 +14,7 @@
 
 bool check_location(const std::string &path)   {
     std::fstream location(path.c_str(), std::ios::in);
+	
     if (location.fail()){
         return false;
     }

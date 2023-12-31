@@ -27,7 +27,7 @@ server {
 server {
     listen 127.0.0.1:1243;
 
-    root /nfs/homes/aharrass
+    root /nfs/homes/hhattaki
     index index.html;
 
     location / {
