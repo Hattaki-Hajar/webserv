@@ -222,8 +222,7 @@ void	Server::set_location(std::string const &path, location &loc)
 	_locations[path].return_path = loc.return_path;
 	_locations[path].methods = loc.methods;
 	_locations[path].upload_path = loc.upload_path;
-	_locations[path].Cgi.extention = loc.Cgi.extention;
-	_locations[path].Cgi.path = loc.Cgi.path;
+	_locations[path].cgi = loc.cgi;
 }
 	/*  << overload for Server  */
 std::ostream& operator<<(std::ostream &os, const Server& s)

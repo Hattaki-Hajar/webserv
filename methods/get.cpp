@@ -6,7 +6,7 @@
 /*   By: aharrass <aharrass@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/31 21:59:20 by aharrass          #+#    #+#             */
-/*   Updated: 2024/01/01 18:58:10 by aharrass         ###   ########.fr       */
+/*   Updated: 2024/01/01 21:47:31 by aharrass         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,6 +53,7 @@ void Response::get()  {
         }
     }
     else if (type == FILE)  {
+        //needs cgi
         _file.open(_uri.c_str(), std::ios::in | std::ios::out);
         
         if (!_file.good())  {

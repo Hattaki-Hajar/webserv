@@ -23,13 +23,6 @@
 #define	DEFAULT_Server "default"
 #define MAX_EVENTS 10
 
-typedef struct cgi
-{
-	std::string	extention;
-	std::string	path;
-} cgi;
-
-
 typedef struct location
 {
 	std::string root;
@@ -37,7 +30,7 @@ typedef struct location
 	std::string	index;
 	int			max_body_size;
 	int			return_code;
-	cgi			Cgi;
+	std::map<std::string, std::string> cgi;
 	std::string	return_path;
 	std::string	upload_path;
 	std::vector<std::string>	methods;

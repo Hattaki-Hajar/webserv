@@ -13,9 +13,11 @@ server {
         root /nfs/homes/aharrass;
         #index index5.html;
         autoindex on;
+        allow POST;
         allow GET;
 		upload uploads;
-        cgi vdfj fhgfsgs;
+        cgi py /usr/bin/python3;
+        cgi sh /bin/bash;
     }
 
     location   /test/barr  {

@@ -182,8 +182,7 @@ void	cgi_directive(std::string &option, location &loc)
 		i++;
 	if (option[i])
 		throw std::runtime_error("Error: config file is not valid cgi2!");
-	loc.Cgi.extention = ext;
-	loc.Cgi.path = path;
+	loc.cgi[ext] = path;
 }
 
 void	init_location(location &loc)

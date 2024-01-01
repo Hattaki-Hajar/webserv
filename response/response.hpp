@@ -6,7 +6,7 @@
 /*   By: aharrass <aharrass@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/14 15:29:02 by aharrass          #+#    #+#             */
-/*   Updated: 2024/01/01 18:40:42 by aharrass         ###   ########.fr       */
+/*   Updated: 2024/01/01 22:49:26 by aharrass         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 #include "method_utils.hpp"
 #include "../Server.hpp"
 #include "../Request.hpp"
+#include "cgi/Cgi.hpp"
 #include <algorithm>
 #include <fstream>
 
@@ -34,6 +35,7 @@ class   Response    {
         std::string _content_type;
         std::string _response;
         std::string _error_page;
+        std::string _file_path;
         location _location;
         bool    _found_location;
         Client  *_client;
@@ -48,6 +50,7 @@ class   Response    {
         bool    is_complete;
         bool    is_header;
         int _response_length;
+        Cgi *cgi;
 
         Response();
 
@@ -64,9 +67,12 @@ class   Response    {
         char*   send();
         void    set_body();
 		void	delete_method();
+        void    post();
 		void	clear_dir(const std::string &);
         void    responde();
         void    set_headers();
+        void    set_cgi();
+        void    set_file_path(const std::string &);
         std::string    get_ext() const;
         
         bool    getIs_complete() const;

@@ -6,7 +6,7 @@
 /*   By: aharrass <aharrass@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/14 15:34:16 by aharrass          #+#    #+#             */
-/*   Updated: 2024/01/01 21:27:05 by aharrass         ###   ########.fr       */
+/*   Updated: 2024/01/01 21:39:58 by aharrass         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,11 @@ Response::Response(unsigned int status_code, Client &client)
 }
 
 Response::~Response()   {
+}
+
+void    Response::set_file_path(const std::string &path)
+{
+    _file_path = path;
 }
 
 bool    Response::getIs_complete() const {
@@ -132,6 +137,8 @@ void    Response::responde()    {
                     get();
                 else if (_request_line.method == "DELETE")
                     delete_method();
+                if (_request_line.method == "POST")
+                    post();
             }
         }
     }

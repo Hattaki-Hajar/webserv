@@ -25,6 +25,8 @@ Client::Client(Server &s):_server(s) {
 
 void Client::generateResponse() {
 	_response = new Response(_request->get_status_code(), *this);
+	_response->set_file_path(_request->get_file_path());
+	_response->
 	_response->responde();
 }
 	/*  Setters  */
@@ -69,7 +71,7 @@ void	Client::clear_buffer() {
 	bzero(_buffer, BUFFER_SIZE + 1);
 }
 void	Client::parse_request() {
-	_request->split_request(_buffer, _bytesread);
+	_request->split_request(_buffer, _bytesread, _socket);
 
 
 	if (_request->get_end_of_request()) {
