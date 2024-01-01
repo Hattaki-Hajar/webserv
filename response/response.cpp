@@ -6,7 +6,7 @@
 /*   By: aharrass <aharrass@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/14 15:34:16 by aharrass          #+#    #+#             */
-/*   Updated: 2023/12/31 22:15:18 by aharrass         ###   ########.fr       */
+/*   Updated: 2024/01/01 21:27:05 by aharrass         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,7 @@ Response::Response(unsigned int status_code, Client &client)
     std::cout << "old uri = " << _old_uri << std::endl;
     std::cout << "new uri = " << _uri << std::endl;
     _request_line = _client->get_request()->get_request_line();
-    
+    fill_extentions();
     _error_page = "<!DOCTYPE html>\n<html>\n<head>\n<meta http-equiv=\"content-type\" content=\"text/html; charset=UTF-8\"\n>";
     _error_page += "<title>Error</title>\n<style>\n@import url('https://fonts.googleapis.com/css?family=Press Start 2P');\n";
     _error_page += "*   {\nbackground: black;\n}\n.main-box {\npadding: 0%;\nbox-sizing: border-box;\ndisplay: flex;\n";
@@ -74,6 +74,29 @@ int Response::get_resource_type()    {
     return NOT_FOUND;
 }
 
+std::string Response::get_ext() const   {
+    size_t pos = _uri.rfind(".");
+    
+    if (pos == std::string::npos)
+        return ("");
+    else
+        return _uri.substr(pos + 1, std::string::npos);
+}
+
+void    Response::fill_extentions() {
+    const char* ext[] = {"avif", "css", "csv", "docx", "gif", "html", "jpeg",
+        "jpg", "js", "json", "mp3", "mp4", "png", "pdf", "php", "txt", "wav",
+        "weba", "webm", "webp", "xml", ""};
+    const char* mime[] = {"image/avif", "text/css", "text/csv", "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        "image/gif", "text/html", "image/jpeg", "image/jpeg", "text/javascript",
+        "application/json", "audio/mpeg", "video/mp4", "image/png", "application/pdf",
+        "application/x-httpd-php", "text/plain", "audio/wav", "audio/webm", "video/webm",
+        "image/webp", "application/xml", "application/octet-stream"};
+    size_t size = sizeof(ext) / sizeof(ext[0]);
+    for(size_t i = 0; i < size; i++)    {
+        _extensions[ext[i]] = mime[i];
+    }
+}
 void   Response::pars_uri()   {
     std::string prefix = "http://";
     if (_uri.compare(0, prefix.length(), prefix) == 0)   {
@@ -191,8 +214,8 @@ void    Response::set_body()    {
         if (_response_length > 0)    {
             bzero(_response_buffer, BUFFER_SIZE);
             _file.read(_response_buffer, BUFFER_SIZE);
+            // std::cout << _response_buffer << std::endl;
             _response_length = _file.gcount();
-            // _response_length = read(_file, _response_buffer, BUFFER_SIZE);
             std::cout << "length = " << _response_length << std::endl;
             if (_response_length == 0)  {
                 is_complete = true;
@@ -295,27 +318,34 @@ void Response::find_files() {
 	struct dirent *d;
 	struct stat s;
 	char buff[18];
+    std::map<std::string, unsigned char> files;
 	std::string file, name, path;
+    unsigned char type;
 	file = "<!DOCTYPE html>\n<html>\n<head>\n<title>Index of ";
 	file += _uri;
 	file += "</title>\n</head>\n<body>\n<h1>Index of ";
 	file += _old_uri + "</h1>\n<hr>\n<pre>\n<table>\n<tbody>\n";
 	dir = opendir(_uri.c_str());
-    std::cout << _uri.c_str();
-	if (dir)
-	{
-		d = readdir(dir);
-		while (d)
-		{
-			name = d->d_name;
-			if (name == ".") {
-				d = readdir(dir);
-				continue ;
-			}
+    std::cout << _uri.c_str() << std::endl;
+    if (dir)    {
+        d = readdir(dir);
+        while (d)   {
+            name = d->d_name;
+            if (name == "." || (name != ".." && name[0] == '.'))    {
+                d = readdir(dir);
+                continue;
+            }
+            type = d->d_type;
+            files.insert(std::pair<std::string, unsigned char>(name, type));
+            d = readdir(dir);
+        }
+        for(std::map<std::string, unsigned char>::iterator it = files.begin(); it != files.end(); it++) {
+            name = it->first;
+            type = it->second;
 			path = _uri + "/" + name;
 			stat(path.c_str(), &s);
 			file += "<tr>\n<td><a href=" + name;
-			if (d->d_type == DT_DIR)
+			if (type == DT_DIR)
 				file += "/>" + name + "/</a></td>\n";
 			else
 				file += ">" + name + "</a></td>\n";
@@ -328,16 +358,22 @@ void Response::find_files() {
             std::string tmp;
             ss << s.st_size;
             ss >> tmp;
-            if (d->d_type == DT_DIR)
+            if (type == DT_DIR)
                 file += "-";
             else
                 file += tmp;
             file += "</td></tr>\n";
-			d = readdir(dir);
-		}
-		file += "</tbody>\n</table>\n<hr>\n</pre>\n</body>\n</html>";
-	}
+        }
+        file += "</tbody>\n</table>\n<hr>\n</pre>\n</body>\n</html>";
+    }
 	closedir(dir);
-    
+    _file.open("/nfs/homes/aharrass/.cache/autoindex.html", std::ios::out | std::ios::trunc);
+    if (!_file.good())  {
+        _status_code = 404;
+        return;
+    }
+    _file.write(file.c_str(), file.length());
+    _file.close();
+    _file.open("/nfs/homes/aharrass/.cache/autoindex.html", std::ios::in);
 }
 

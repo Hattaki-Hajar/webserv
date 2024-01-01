@@ -6,7 +6,7 @@
 /*   By: aharrass <aharrass@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/31 21:59:20 by aharrass          #+#    #+#             */
-/*   Updated: 2023/12/31 22:08:15 by aharrass         ###   ########.fr       */
+/*   Updated: 2024/01/01 18:58:10 by aharrass         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,22 +31,18 @@ void Response::get()  {
                     _uri += _server_index_path;
                 std::cout << _uri << std::endl;
                 //needs cgi
-                _file.open(_uri.c_str());
+                _file.open(_uri.c_str(), std::ios::in);
                 if (!_file.good())  {
                     _status_code = 404;
                     return;
                 }
-                // _file = open(_uri.c_str(), O_RDONLY);
-                // if (_file < 0)    {
-                //     _status_code = 404;
-                //     return;
-                // }
-                _content_type = "text/html";
+                _content_type = _extensions[get_ext()];
                 return ;
             }
             else  {
                 if (_location.autoindex)   {
-                    // find_files();
+                    find_files();
+                    _content_type = "text/html";
                     return ;
                 }
                 else    {
@@ -57,14 +53,13 @@ void Response::get()  {
         }
     }
     else if (type == FILE)  {
-        _file.open(_uri.c_str());
+        _file.open(_uri.c_str(), std::ios::in | std::ios::out);
         
         if (!_file.good())  {
             _status_code = 404;
             return;
         }
-        // _file = open(_uri.c_str(), O_RDONLY);
-        _content_type = "video/webm";
+        _content_type = _extensions[get_ext()];
         //need content-type
         return ;
     }

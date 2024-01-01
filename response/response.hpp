@@ -6,7 +6,7 @@
 /*   By: aharrass <aharrass@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/14 15:29:02 by aharrass          #+#    #+#             */
-/*   Updated: 2023/12/31 22:07:03 by aharrass         ###   ########.fr       */
+/*   Updated: 2024/01/01 18:40:42 by aharrass         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,9 @@ class   Response    {
         location _location;
         bool    _found_location;
         Client  *_client;
-        std::ifstream _file;
+        std::fstream _file;
+        std::map<std::string, std::string> _extensions;
+        std::string _ext;
         std::string						_server_root_path;
         std::string						_server_index_path;
         std::map<int, std::string>		_server_error_pages;
@@ -57,13 +59,15 @@ class   Response    {
         void    match_uri();
         int     get_resource_type();
         void    find_files();
+        void    fill_extentions();
         void    get();
         char*   send();
         void    set_body();
 		void	delete_method();
 		void	clear_dir(const std::string &);
-        void   responde();
-        void   set_headers();
+        void    responde();
+        void    set_headers();
+        std::string    get_ext() const;
         
         bool    getIs_complete() const;
         bool    getIs_header() const;
