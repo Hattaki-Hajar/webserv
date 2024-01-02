@@ -6,7 +6,7 @@
 /*   By: aharrass <aharrass@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/14 15:29:02 by aharrass          #+#    #+#             */
-/*   Updated: 2024/01/01 22:49:26 by aharrass         ###   ########.fr       */
+/*   Updated: 2024/01/02 23:46:55 by aharrass         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,7 @@ class   Response    {
         char _response_buffer[BUFFER_SIZE];
         std::string _uri;
         std::string _old_uri;
+        std::string _query;
         std::string _content_type;
         std::string _response;
         std::string _error_page;
@@ -71,12 +72,16 @@ class   Response    {
 		void	clear_dir(const std::string &);
         void    responde();
         void    set_headers();
-        void    set_cgi(std::map<std::string, std::string>, const std::string &, std::map<std::string, std::string>);
+        void    set_cgi(std::map<std::string, std::string>, std::map<std::string, std::string>);
         void    set_file_path(const std::string &);
         std::string    get_ext() const;
         
         bool    getIs_complete() const;
         bool    getIs_header() const;
+        const std::string&  get_old_uri() const;
+        const std::string&  get_uri() const;
+        const std::string&  get_method() const;
+        Client*             get_client() const;
         const int &getResponse_length() const;
         // const std::string &get_uri() const;
 };

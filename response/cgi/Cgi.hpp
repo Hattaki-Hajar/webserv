@@ -17,12 +17,12 @@ class Cgi
 		int                                 _fd[2];
 		int									_outfile;
 		char								**_env;
-		Response							&_response;
+		Response							*_response;
 		Cgi();
 	public:
 		bool                                is_complete;
 		bool                                is_timeout;
-		Cgi(std::map<std::string, std::string> ,std::map<std::string, std::string>, Response &);
+		Cgi(std::map<std::string, std::string> ,std::map<std::string, std::string>, Response *);
 		~Cgi();
 		void	py_setup(int);
 		void	php_setup(int);

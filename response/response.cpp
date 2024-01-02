@@ -6,7 +6,7 @@
 /*   By: aharrass <aharrass@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/14 15:34:16 by aharrass          #+#    #+#             */
-/*   Updated: 2024/01/01 21:39:58 by aharrass         ###   ########.fr       */
+/*   Updated: 2024/01/02 23:47:30 by aharrass         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,15 +41,15 @@ Response::Response(unsigned int status_code, Client &client)
     _error_page += "font-family: 'Press Start 2P', cursive;\nheight: 100vh;\nbackground: rgb(0, 0, 0);\njustify-content: center;\n";
     _error_page += "flex-direction: column;\ntext-align: center;\nalign-items: center;\nfont-size: 2rem;\ncolor: #54FE55;\n}\n</style>\n";
     _error_page += "</head>\n<body>\n<div class=\"main-box\">\n...\n</div>\n</body>\n</html>";
-	set_cgi(_location.cgi, _uri, _client->get_request()->get_headers());
+	set_cgi(_location.cgi, _client->get_request()->get_headers());
 }
 
 Response::~Response()   {
 	delete cgi;
 }
 
-void    Response::set_cgi(std::map<std::string, std::string>config_info, const std::string &resource, std::map<std::string, std::string> headers) {
-	this->cgi = new Cgi(config_info, headers, *this);
+void    Response::set_cgi(std::map<std::string, std::string>config_info, std::map<std::string, std::string> headers) {
+	this->cgi = new Cgi(config_info, headers, this);
 }
 
 void    Response::set_file_path(const std::string &path)
@@ -69,6 +69,21 @@ const int& Response::getResponse_length() const {
     return _response_length;
 }
 
+const std::string&   Response::get_old_uri() const  {
+    return (this->_old_uri);
+}
+
+const std::string&   Response::get_uri() const  {
+    return (this->_uri);
+}
+
+const std::string&   Response::get_method() const  {
+    return (this->_request_line.method);
+}
+
+Client* Response::get_client() const   {
+    return (this->_client);
+}
 int Response::get_resource_type()    {
     if (!check_location(_uri))
         return NOT_FOUND;
@@ -121,7 +136,13 @@ void   Response::pars_uri()   {
         }
     }
     else if (_uri[0] != '/') {
-        _status_code = 301;
+        _status_code = 404;
+    }
+    size_t pos = _uri.find('?', 0);
+    if (pos != std::string::npos)   {
+        _query = _uri.substr(pos + 1);
+        std::cout << _query << std::endl;
+        _uri.erase(pos);
     }
 }
 
