@@ -41,9 +41,15 @@ Response::Response(unsigned int status_code, Client &client)
     _error_page += "font-family: 'Press Start 2P', cursive;\nheight: 100vh;\nbackground: rgb(0, 0, 0);\njustify-content: center;\n";
     _error_page += "flex-direction: column;\ntext-align: center;\nalign-items: center;\nfont-size: 2rem;\ncolor: #54FE55;\n}\n</style>\n";
     _error_page += "</head>\n<body>\n<div class=\"main-box\">\n...\n</div>\n</body>\n</html>";
+	set_cgi(_location.cgi, _uri, _client->get_request()->get_headers());
 }
 
 Response::~Response()   {
+	delete cgi;
+}
+
+void    Response::set_cgi(std::map<std::string, std::string>config_info, const std::string &resource, std::map<std::string, std::string> headers) {
+	this->cgi = new Cgi(config_info, headers, *this);
 }
 
 void    Response::set_file_path(const std::string &path)

@@ -4,9 +4,11 @@ CONF_PATH = config_file_parsing/
 
 RES_PATH = response/
 
+CGI_PATH = response/cgi/
+
 OBJ_PATH = obj/
 
-SRCS = $(wildcard *.cpp) $(wildcard config_file_parsing/*.cpp) $(wildcard response/*.cpp) $(wildcard methods/*.cpp)
+SRCS = $(wildcard *.cpp) $(wildcard config_file_parsing/*.cpp) $(wildcard response/*.cpp) $(wildcard methods/*.cpp) $(wildcard response/cgi/*.cpp)
 
 HEADERS = $(wildcard *.hpp) $(wildcard config_file_parsing/*.hpp) $(wildcard response/*.hpp)
 
@@ -25,7 +27,7 @@ $(NAME): $(OBJS) $(HEADERS)
 	@echo "\033[35mCreating webserv!\033[0m"
 
 $(OBJ_PATH)%.o: %.cpp
-	@mkdir -p $(OBJ_PATH) $(OBJ_PATH)$(CONF_PATH) $(OBJ_PATH)$(RES_PATH) $(OBJ_PATH)$(METHODS_PATH)
+	@mkdir -p $(OBJ_PATH) $(OBJ_PATH)$(CONF_PATH) $(OBJ_PATH)$(RES_PATH) $(OBJ_PATH)$(METHODS_PATH) $(OBJ_PATH)$(CGI_PATH)
 	@$(CPP) $(CFLAGS) -c $< -o $@
 
 run: $(NAME)

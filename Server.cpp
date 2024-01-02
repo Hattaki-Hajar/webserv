@@ -246,8 +246,8 @@ std::ostream& operator<<(std::ostream &os, const Server& s)
 		os << "location return_code: " << it->second.return_code << std::endl;
 		os << "location return_path: " << it->second.return_path << std::endl;
 		os << "location upload_path: " << it->second.upload_path << std::endl;
-		os << "location cgi_ext: " << it->second.Cgi.extention
-		<< ", location Cgi_path: " << it->second.Cgi.path << std::endl;
+		// os << "location cgi_ext: " << it->second.Cgi.extention
+		// << ", location Cgi_path: " << it->second.Cgi.path << std::endl;
 		std::vector<std::string>::const_iterator it2 = it->second.methods.begin();
 		std::vector<std::string>::const_iterator it2_end = it->second.methods.end();
 		while (it2 != it2_end)

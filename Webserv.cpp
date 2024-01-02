@@ -79,43 +79,34 @@ void	Webserv::start()
 			throw std::runtime_error("epoll_wait failed!");
 		for (int j = 0; j < event_nb; j++)
 		{
-			// std::cout << "debug: for" << std::endl;
 			fd = events[j].data.fd;
 			i = is_server_socket(_Servers, fd);
 			if (i >= 0)
 			{
-				// std::cout << "debug: from new connection" << std::endl;
 				new_connection(*_Servers[i]);
 				continue ;
 			}
 			client_nb = find_client(_Clients, fd);
 			if (events[j].events & EPOLLIN)
 			{
-				// std::cout << "debug: read" << std::endl;
 				bzero(buffer, BUFFER_SIZE + 1);
 				bytesread = read(fd, _Clients[client_nb]->get_buffer(), BUFFER_SIZE);
 				_Clients[client_nb]->set_bytesread(bytesread);
-				if (!bytesread) {
-					// std::cout << "debug: read finished" << std::endl;
+				if (bytesread <= 0) {
 					continue ;
 				}
-				if (bytesread < 0) {
-					// std::cout << "debug: read failed" << std::endl;
-					continue ;
-				}
-				// std::cout << "buffer: \n" << _Clients[client_nb]->get_buffer() << std::endl;
-				_Clients[client_nb]->parse_request();
 				if (_Clients[client_nb]->get_done_reading())
+				{
+					_Clients[client_nb]->parse_request();
 					_Clients[client_nb]->generateResponse();
+				}
 				_Clients[client_nb]->clear_buffer();
-				
 			}
 			if (events[j].events & EPOLLOUT && _Clients[client_nb]->get_done_reading())
 			{
 				if (_Clients[client_nb]->get_done_reading())
 				{
 					write(fd, _Clients[client_nb]->_response->send(), _Clients[client_nb]->_response->getResponse_length());
-					// std::cout << "debug: fd = " << fd << std::endl;
 					if (_Clients[client_nb]->_response->getIs_complete())
 					{
 						epoll_ctl(epfd, EPOLL_CTL_DEL, fd, NULL);

@@ -18,7 +18,6 @@ Client::Client(Server &s):_server(s) {
 	bzero(_buffer, BUFFER_SIZE + 1);
 	_done_reading = false;
 	_status_code = 200;
-	// std::cout << "debug: should be here once!" << std::endl;
 	_request = new Request();
 
 }
@@ -26,7 +25,6 @@ Client::Client(Server &s):_server(s) {
 void Client::generateResponse() {
 	_response = new Response(_request->get_status_code(), *this);
 	_response->set_file_path(_request->get_file_path());
-	_response->
 	_response->responde();
 }
 	/*  Setters  */

@@ -15,7 +15,6 @@
 #include "method_utils.hpp"
 #include "../Server.hpp"
 #include "../Request.hpp"
-#include "cgi/Cgi.hpp"
 #include <algorithm>
 #include <fstream>
 
@@ -23,6 +22,7 @@
 #define FILE 1
 #define NOT_FOUND -1
 class Client;
+class Cgi;
 class   Response    {
     private:
         unsigned int _status_code;
@@ -71,7 +71,7 @@ class   Response    {
 		void	clear_dir(const std::string &);
         void    responde();
         void    set_headers();
-        void    set_cgi();
+        void    set_cgi(std::map<std::string, std::string>, const std::string &, std::map<std::string, std::string>);
         void    set_file_path(const std::string &);
         std::string    get_ext() const;
         
@@ -81,3 +81,4 @@ class   Response    {
         // const std::string &get_uri() const;
 };
 #include "../Client.hpp"
+#include "cgi/Cgi.hpp"
