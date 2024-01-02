@@ -11,7 +11,7 @@ server {
 
     location  /webserv  {
         allow POST;
-        upload /nfs/homes/uploads;
+        upload /nfs/homes/ohalim/Desktop/webserv/uploadsd;
         index index.html;
         autoindex on;
         cgi vdfj fhgfsgs;

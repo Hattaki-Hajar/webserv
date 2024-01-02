@@ -113,14 +113,6 @@ void Response::get()  {
     }
 }  
 
-bool directoryExists(const char* path) {
-    struct stat info;
-    if (stat(path, &info) != 0) {
-        return false;  // Unable to get the status
-    }
-    return (info.st_mode & S_IFDIR) != 0;  // Check if it's a directory
-}
-
 void    Response::post() {
     if (!_found_location) {
         _status_code = 404;

@@ -139,7 +139,7 @@ void	Request::split_request(char *buffer, ssize_t bytesread, int socket) {
 			std::srand(static_cast<unsigned int>(std::time(0)));
 			int rand = std::rand() % 1000 + 1;
 			std::string	extension = generate_extension();
-			_file_path = ".cache/" + to_string(socket) + to_string(rand) + extension;
+			_file_path = "/nfs/homes/ohalim/Desktop/webserv/.cache/" + to_string(socket) + to_string(rand) + extension;
 			_file.open(_file_path.c_str(), std::ios::out | std::ios::app);
 			if (!_file.good()) {
 				return ;
@@ -281,10 +281,11 @@ void	Request::parse_request() {
 	_request_line.version = line.substr(0, line.find(' '));
 	while (getline(ss, line))
 	{
-		if (line.find("\r") == std::string::npos)
+		if (line.find("\r") == std::string::npos) {
 			line = line.substr(0, line.length());
-		else
+		} else {
 			line = line.substr(0, line.length() - 1);
+		}
 		_headers[line.substr(0, line.find(':'))] = line.substr(line.find(':') + 2);
 	}
 	_request_headers.clear();
