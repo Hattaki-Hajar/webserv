@@ -113,20 +113,13 @@ void Response::get()  {
     }
 }  
 
-// void    Response::post()    {
-//     std::string path = _location.upload_path;
-//     std::string file_name = _client->get_request()->get_headers()["File-Name"];
-//     std::string file_path = path + "/" + file_name;
-//     std::string file_content = _client->get_request()->get_body();
-//     std::ofstream file(file_path.c_str());
-//     if (file.fail())    {
-//         _status_code = 409;
-//         return ;
-//     }
-//     file << file_content;
-//     file.close();
-//     _status_code = 204;
-// }
+bool directoryExists(const char* path) {
+    struct stat info;
+    if (stat(path, &info) != 0) {
+        return false;  // Unable to get the status
+    }
+    return (info.st_mode & S_IFDIR) != 0;  // Check if it's a directory
+}
 
 void    Response::post() {
     if (!_found_location) {
@@ -134,7 +127,13 @@ void    Response::post() {
         return ;
     }
     if (!_location.upload_path.empty()) {
-        std::string path = _location.upload_path + "/" + _file_path.substr(_file_path.find("/") + 1);
+        std::string path = _location.upload_path + "/" + _file_path.substr(_file_path.find(".cache/") + 7);
+        std::cout << path << std::endl;
+        std::fstream file(path.c_str(), std::ios::out | std::ios::trunc);
+        if (file.fail()) {
+            _status_code = 409;
+            return ;
+        }
         std::rename(_file_path.c_str(), path.c_str());
         _status_code = 201;
         return;

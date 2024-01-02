@@ -17,6 +17,7 @@
 #include "../Client.hpp"
 #include <algorithm>
 #include <fstream>
+#include <sys/stat.h>
 
 #define DIREC 0
 #define FILE 1

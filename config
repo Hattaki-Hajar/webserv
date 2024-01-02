@@ -10,11 +10,10 @@ server {
     }
 
     location  /webserv  {
-        root /nfs/homes/ohalim/Desktop;
         allow POST;
+        upload /nfs/homes/uploads;
         index index.html;
         autoindex on;
-		upload uploads;
         cgi vdfj fhgfsgs;
     }
 
