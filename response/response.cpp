@@ -6,7 +6,7 @@
 /*   By: aharrass <aharrass@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/14 15:34:16 by aharrass          #+#    #+#             */
-/*   Updated: 2024/01/02 23:47:30 by aharrass         ###   ########.fr       */
+/*   Updated: 2024/01/03 00:07:21 by aharrass         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -236,7 +236,7 @@ char* Response::send()    {
 }
 
 void    Response::set_body()    {
-    if (_status_code != 200)    {
+    if (_status_code != 200 && _status_code != 201)    {
         bzero(_response_buffer, BUFFER_SIZE);
         strcpy(_response_buffer, _error_page.c_str());
         _response_length = _error_page.length();
@@ -267,6 +267,9 @@ void   Response::set_headers()    {
     if (_status_code == 200)    {
         _status_line = "HTTP/1.1 200 OK\r\n";
         _response_header = "Content-Type: " + _content_type + "\r\n";
+    }
+    else if (_status_code == 201)   {
+        _status_line = "HTTP/1.1 201 Created\r\n";
     }
     else    {
         int pos;

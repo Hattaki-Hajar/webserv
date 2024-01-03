@@ -281,10 +281,11 @@ void	Request::parse_request() {
 	_request_line.version = line.substr(0, line.find(' '));
 	while (getline(ss, line))
 	{
-		if (line.substr(0, line.find(":")) == "Content-Type")
+		if (line.find("\r") == std::string::npos) {
 			line = line.substr(0, line.length());
-		else
+		} else {
 			line = line.substr(0, line.length() - 1);
+		}
 		_headers[line.substr(0, line.find(':'))] = line.substr(line.find(':') + 2);
 	}
 	_request_headers.clear();

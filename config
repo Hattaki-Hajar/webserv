@@ -2,6 +2,7 @@ server {
     listen 127.0.0.1:1234;
 
     root /;
+    client_max_body_size 5;
     #index index1.html;
 
     location / {
@@ -15,7 +16,7 @@ server {
         autoindex on;
         allow POST;
         allow GET;
-		upload uploads;
+		upload /nfs/homes/aharrass/webserv;
         cgi py /usr/bin/python3;
         cgi sh /bin/bash;
     }
