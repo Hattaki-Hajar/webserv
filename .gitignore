@@ -13,3 +13,8 @@ t.pdf
 tester
 .gitignore
 ubuntu_tester
+obj
+webserv
+.cache
+php
+python

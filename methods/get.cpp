@@ -6,7 +6,7 @@
 /*   By: aharrass <aharrass@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/31 21:59:20 by aharrass          #+#    #+#             */
-/*   Updated: 2024/01/01 21:47:31 by aharrass         ###   ########.fr       */
+/*   Updated: 2024/01/03 09:46:14 by aharrass         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,18 @@ void Response::get()  {
                     _uri += _location.index;
                 else if (!_server_index_path.empty())
                     _uri += _server_index_path;
-                std::cout << _uri << std::endl;
+                std::string extension = get_ext();
+                if (extension == "php" || extension == "py"){
+                    try {
+                        if (extension == "php")
+                            _cgi->php_setup();
+                        else
+                            _cgi->py_setup();   
+                    }
+                    catch (std::exception &e)   {
+                        std::cout << e.what() << std::endl;
+                    }
+                }
                 //needs cgi
                 _file.open(_uri.c_str(), std::ios::in);
                 if (!_file.good())  {
@@ -53,15 +64,45 @@ void Response::get()  {
         }
     }
     else if (type == FILE)  {
-        //needs cgi
-        _file.open(_uri.c_str(), std::ios::in | std::ios::out);
-        
-        if (!_file.good())  {
-            _status_code = 404;
-            return;
+        std::string extension = get_ext();
+        if ((extension == "php" && _location.cgi.at("php") != "") || (extension == "py" && _location.cgi.at("py") != "")){
+            int f = open(_uri.c_str(), O_RDONLY);
+            if (f == -1)    {
+                _status_code = 403;
+                return;
+            }
+            try
+            {
+                if (extension == "php")
+                    _cgi->php_setup();
+                else
+                    _cgi->py_setup();
+            }
+            catch(const std::exception& e)
+            {
+                std::cerr << e.what() << std::endl;
+            }
+            
+            if (_status_code == 200)    {
+                _file.open(_file_name.c_str(), std::ios::in);
+                if (!_file.good())  {
+                    std::cout << "fail" << std::endl;
+                    _status_code = 403;
+                    return;
+                }
+                _content_type = "text/html";
+            }
         }
-        _content_type = _extensions[get_ext()];
-        //need content-type
+        else    {
+            _file.open(_uri.c_str(), std::ios::in | std::ios::out);
+            
+            if (!_file.good())  {
+                _status_code = 403;
+                return;
+            }
+            _content_type = _extensions[get_ext()];
+            
+        }
         return ;
     }
 }  

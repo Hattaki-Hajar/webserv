@@ -6,7 +6,7 @@
 /*   By: aharrass <aharrass@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/14 15:29:02 by aharrass          #+#    #+#             */
-/*   Updated: 2024/01/02 23:46:55 by aharrass         ###   ########.fr       */
+/*   Updated: 2024/01/03 08:41:52 by aharrass         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,6 +38,7 @@ class   Response    {
         std::string _response;
         std::string _error_page;
         std::string _file_path;
+        std::string _file_name;
         location _location;
         bool    _found_location;
         Client  *_client;
@@ -52,7 +53,7 @@ class   Response    {
         bool    is_complete;
         bool    is_header;
         int _response_length;
-        Cgi *cgi;
+        Cgi *_cgi;
 
         Response();
 
@@ -73,8 +74,10 @@ class   Response    {
 		void	clear_dir(const std::string &);
         void    responde();
         void    set_headers();
-        void    set_cgi(std::map<std::string, std::string>, std::map<std::string, std::string>);
+        void    set_cgi();
         void    set_file_path(const std::string &);
+        void    set_status_code(unsigned int);
+        void    set_file_name(std::string);
         std::string    get_ext() const;
         
         bool    getIs_complete() const;
@@ -83,6 +86,8 @@ class   Response    {
         const std::string&  get_uri() const;
         const std::string&  get_method() const;
         Client*             get_client() const;
+        const location&     get_location() const;
+        const std::string&  get_query() const;
         const int &getResponse_length() const;
         // const std::string &get_uri() const;
 };

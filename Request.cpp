@@ -274,6 +274,7 @@ void	Request::parse_request() {
 	std::string line;
 	getline(ss, line);
 	line = line.substr(0, line.length() - 1);
+
 	_request_line.method = line.substr(0, line.find(' '));
 	line.erase(0, line.find(' ') + 1);
 	_request_line.uri = line.substr(0, line.find(' '));

@@ -98,7 +98,6 @@ void	Webserv::start()
 				_Clients[client_nb]->parse_request();
 				if (_Clients[client_nb]->get_done_reading())
 				{
-					std::cout << "ff" << std::endl;
 					_Clients[client_nb]->generateResponse();
 				}
 				_Clients[client_nb]->clear_buffer();

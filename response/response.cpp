@@ -6,7 +6,7 @@
 /*   By: aharrass <aharrass@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/14 15:34:16 by aharrass          #+#    #+#             */
-/*   Updated: 2024/01/03 00:07:21 by aharrass         ###   ########.fr       */
+/*   Updated: 2024/01/03 08:42:14 by aharrass         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,20 +41,31 @@ Response::Response(unsigned int status_code, Client &client)
     _error_page += "font-family: 'Press Start 2P', cursive;\nheight: 100vh;\nbackground: rgb(0, 0, 0);\njustify-content: center;\n";
     _error_page += "flex-direction: column;\ntext-align: center;\nalign-items: center;\nfont-size: 2rem;\ncolor: #54FE55;\n}\n</style>\n";
     _error_page += "</head>\n<body>\n<div class=\"main-box\">\n...\n</div>\n</body>\n</html>";
-	set_cgi(_location.cgi, _client->get_request()->get_headers());
+	set_cgi();
 }
 
 Response::~Response()   {
-	delete cgi;
+	delete _cgi;
 }
 
-void    Response::set_cgi(std::map<std::string, std::string>config_info, std::map<std::string, std::string> headers) {
-	this->cgi = new Cgi(config_info, headers, this);
+void    Response::set_cgi() {
+    // for (std::map<std::string, std::string>::iterator it = _headers.begin(); it != _headers.end(); ++it)    {
+    //     std::cout << it->first + " = " + it->second << std::endl;
+    // }
+	this->_cgi = new Cgi(_headers, this);
 }
 
 void    Response::set_file_path(const std::string &path)
 {
     _file_path = path;
+}
+
+void    Response::set_status_code(unsigned int status)  {
+    this->_status_code = status;
+}
+
+void    Response::set_file_name(std::string name)   {
+    this->_file_name = name;
 }
 
 bool    Response::getIs_complete() const {
@@ -84,6 +95,16 @@ const std::string&   Response::get_method() const  {
 Client* Response::get_client() const   {
     return (this->_client);
 }
+
+const location& Response::get_location() const   {
+    return (this->_location);
+}
+
+const std::string& Response::get_query() const   {
+    return (this->_query);
+}
+
+
 int Response::get_resource_type()    {
     if (!check_location(_uri))
         return NOT_FOUND;
@@ -141,7 +162,6 @@ void   Response::pars_uri()   {
     size_t pos = _uri.find('?', 0);
     if (pos != std::string::npos)   {
         _query = _uri.substr(pos + 1);
-        std::cout << _query << std::endl;
         _uri.erase(pos);
     }
 }
@@ -250,7 +270,6 @@ void    Response::set_body()    {
             _file.read(_response_buffer, BUFFER_SIZE);
             // std::cout << _response_buffer << std::endl;
             _response_length = _file.gcount();
-            std::cout << "length = " << _response_length << std::endl;
             if (_response_length == 0)  {
                 is_complete = true;
                 _file.close();
@@ -363,7 +382,6 @@ void Response::find_files() {
 	file += "</title>\n</head>\n<body>\n<h1>Index of ";
 	file += _old_uri + "</h1>\n<hr>\n<pre>\n<table>\n<tbody>\n";
 	dir = opendir(_uri.c_str());
-    std::cout << _uri.c_str() << std::endl;
     if (dir)    {
         d = readdir(dir);
         while (d)   {
