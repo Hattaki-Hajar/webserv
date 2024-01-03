@@ -6,7 +6,6 @@
 Webserv::Webserv()
 {
 	_event = new epoll_event;
-	// std::srand(time(NULL));
 }
 
 void	Webserv::new_connection(Server &s)
@@ -63,6 +62,41 @@ int	find_client(std::vector<Client *> &Clients, int socket)
 	return (-1);
 }
 
+void	Webserv::check_cgi()
+{
+	double	time;
+	clock_t	end;
+	int		status;
+	
+	for (size_t i = 0; i < _Clients.size(); i++)
+	{
+		if (_Clients[i]->_cgi && _Clients[i]->_cgi->is_running)
+		{
+			end = clock();
+			if (waitpid(_Clients[i]->_cgi->_pid, &status, WNOHANG) > 0)
+			{
+				if (WIFEXITED(status))
+					_Clients[i]->_response->set_status_code(200);
+				else
+					_Clients[i]->_response->set_status_code(500);
+				_Clients[i]->_cgi->is_running = false;
+				_Clients[i]->_cgi->is_complete = true;
+			}
+			else
+			{
+				time = (double)(end - _Clients[i]->_cgi->_start) / CLOCKS_PER_SEC;
+				if (time >= 30)
+				{
+					kill(_Clients[i]->_cgi->_pid, SIGKILL);
+					_Clients[i]->_response->set_status_code(504);
+					_Clients[i]->_cgi->is_running = false;
+					_Clients[i]->_cgi->is_complete = true;
+				}
+			}
+		}
+	}
+}
+
 void	Webserv::start()
 {
 	int i = 0, client_nb = 0;
@@ -74,7 +108,7 @@ void	Webserv::start()
 	set_up_webserv(_Servers, epfd);
 	while (1)
 	{
-		event_nb = epoll_wait(epfd, events, 1, 0);
+		event_nb = epoll_wait(epfd, events, MAX_EVENTS, 0);
 		if (event_nb < 0)
 			throw std::runtime_error("epoll_wait failed!");
 		for (int j = 0; j < event_nb; j++)
@@ -89,33 +123,30 @@ void	Webserv::start()
 			client_nb = find_client(_Clients, fd);
 			if (events[j].events & EPOLLIN)
 			{
-				bzero(buffer, BUFFER_SIZE + 1);
+				bzero(_Clients[client_nb]->get_buffer(), BUFFER_SIZE + 1);
 				bytesread = read(fd, _Clients[client_nb]->get_buffer(), BUFFER_SIZE);
 				_Clients[client_nb]->set_bytesread(bytesread);
 				if (bytesread <= 0) {
 					continue ;
 				}
-				_Clients[client_nb]->parse_request();
+				if (!_Clients[client_nb]->get_done_reading())
+					_Clients[client_nb]->parse_request();
 				if (_Clients[client_nb]->get_done_reading())
-				{
 					_Clients[client_nb]->generateResponse();
-				}
 				_Clients[client_nb]->clear_buffer();
 			}
-			if (events[j].events & EPOLLOUT && _Clients[client_nb]->get_done_reading())
+			if (events[j].events & EPOLLOUT && _Clients[client_nb]->get_done_reading() && !_Clients[client_nb]->_cgi->is_running)
 			{
-				if (_Clients[client_nb]->get_done_reading())
+				write(fd, _Clients[client_nb]->_response->send(), _Clients[client_nb]->_response->getResponse_length());
+				if (_Clients[client_nb]->_response->getIs_complete())
 				{
-					write(fd, _Clients[client_nb]->_response->send(), _Clients[client_nb]->_response->getResponse_length());
-					if (_Clients[client_nb]->_response->getIs_complete())
-					{
-						epoll_ctl(epfd, EPOLL_CTL_DEL, fd, NULL);
-						close(fd);
-						delete _Clients[client_nb];
-						_Clients.erase(_Clients.begin() + client_nb);
-					}
+					epoll_ctl(epfd, EPOLL_CTL_DEL, fd, NULL);
+					close(fd);
+					delete _Clients[client_nb];
+					_Clients.erase(_Clients.begin() + client_nb);
 				}
 			}
+			this->check_cgi();
 		}
 	}
 }

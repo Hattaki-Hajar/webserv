@@ -40,6 +40,7 @@ public:
 	void	start();
 	void	bind_Servers();
 	void	new_connection(Server &);
+	void	check_cgi();
 
 	// void	listen_directive(std::string &, int, int);
 };

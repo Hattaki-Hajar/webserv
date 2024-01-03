@@ -31,8 +31,6 @@ Response::Response(unsigned int status_code, Client &client)
     _server_index_path = _client->get_server().get_index();
     _server_error_pages = _client->get_server().get_error_pages();
     match_uri();
-    std::cout << "old uri = " << _old_uri << std::endl;
-    std::cout << "new uri = " << _uri << std::endl;
     _request_line = _client->get_request()->get_request_line();
     fill_extentions();
     _error_page = "<!DOCTYPE html>\n<html>\n<head>\n<meta http-equiv=\"content-type\" content=\"text/html; charset=UTF-8\"\n>";
@@ -41,19 +39,19 @@ Response::Response(unsigned int status_code, Client &client)
     _error_page += "font-family: 'Press Start 2P', cursive;\nheight: 100vh;\nbackground: rgb(0, 0, 0);\njustify-content: center;\n";
     _error_page += "flex-direction: column;\ntext-align: center;\nalign-items: center;\nfont-size: 2rem;\ncolor: #54FE55;\n}\n</style>\n";
     _error_page += "</head>\n<body>\n<div class=\"main-box\">\n...\n</div>\n</body>\n</html>";
-	set_cgi();
+	// set_cgi();
 }
 
 Response::~Response()   {
-	delete _cgi;
+	// delete _cgi;
 }
 
-void    Response::set_cgi() {
-    // for (std::map<std::string, std::string>::iterator it = _headers.begin(); it != _headers.end(); ++it)    {
-    //     std::cout << it->first + " = " + it->second << std::endl;
-    // }
-	this->_cgi = new Cgi(_headers, this);
-}
+// void    Response::set_cgi() {
+//     // for (std::map<std::string, std::string>::iterator it = _headers.begin(); it != _headers.end(); ++it)    {
+//     //     std::cout << it->first + " = " + it->second << std::endl;
+//     // }
+// 	this->_cgi = new Cgi(_headers, this);
+// }
 
 void    Response::set_file_path(const std::string &path)
 {
@@ -62,6 +60,10 @@ void    Response::set_file_path(const std::string &path)
 
 void    Response::set_status_code(unsigned int status)  {
     this->_status_code = status;
+}
+
+void	Response::set_cgi(Cgi *cgi)	{
+	this->_cgi = cgi;
 }
 
 void    Response::set_file_name(std::string name)   {
@@ -182,7 +184,7 @@ void    Response::responde()    {
             else    {
                 if (_request_line.method == "GET")
                     get();
-                else if (_request_line.method == "DELETE")
+                if (_request_line.method == "DELETE")
                     delete_method();
                 if (_request_line.method == "POST")
                     post();
@@ -249,7 +251,7 @@ char* Response::send()    {
     if (!is_header){
         set_headers();
     }
-    else {
+    else if (_status_code != 204) {
         set_body();
     }
     return _response_buffer;
@@ -270,16 +272,13 @@ void    Response::set_body()    {
             _file.read(_response_buffer, BUFFER_SIZE);
             // std::cout << _response_buffer << std::endl;
             _response_length = _file.gcount();
-            if (_response_length == 0)  {
+            if (_response_length == 0 && !this->_cgi->is_running)  {
                 is_complete = true;
                 _file.close();
                 // close(_file);
             }
-        }
-
-        
+        }  
     }
-
 }
 
 void   Response::set_headers()    {
@@ -318,6 +317,7 @@ void   Response::set_headers()    {
             _content_type = "text/html";
             _response_header = "Content-Type: " + _content_type + "\r\n";
             _error_page.insert(pos, "<p>Error 413!<br>Request Entity Too Large</p>");
+			this->is_complete = true;
         }
         else if (_status_code == 404)   {
             _status_line = "HTTP/1.1 404 Not Found\r\n";
@@ -358,6 +358,12 @@ void   Response::set_headers()    {
             _content_type = "text/html";
             _response_header = "Content-Type: " + _content_type + "\r\n";
             _error_page.insert(pos, "<p>Error 500!<br>Internal Server Error</p>");
+        }
+		else if (_status_code == 504)   {
+            _status_line = "HTTP/1.1 504 Gateway Timeout\r\n";
+            _content_type = "text/html";
+            _response_header = "Content-Type: " + _content_type + "\r\n";
+            _error_page.insert(pos, "<p>Error 504!<br>Gateway Timeout</p>");
         }
     }
     // std::cerr << "test" << std::endl;

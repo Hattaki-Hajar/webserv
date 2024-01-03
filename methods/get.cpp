@@ -65,7 +65,8 @@ void Response::get()  {
     }
     else if (type == FILE)  {
         std::string extension = get_ext();
-        if ((extension == "php" && _location.cgi.at("php") != "") || (extension == "py" && _location.cgi.at("py") != "")){
+		std::map<std::string, std::string>::iterator it = _location.cgi.find(extension);
+        if ((extension == "php" && it != _location.cgi.end()) || (extension == "py" && it != _location.cgi.end())){
             int f = open(_uri.c_str(), O_RDONLY);
             if (f == -1)    {
                 _status_code = 403;

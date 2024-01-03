@@ -21,7 +21,7 @@
 #define BUFFER_SIZE 3072
 #define	NO_NAME "no name"
 #define	DEFAULT_Server "default"
-#define MAX_EVENTS 10
+#define MAX_EVENTS 500
 
 typedef struct location
 {

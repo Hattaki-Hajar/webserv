@@ -1,6 +1,7 @@
 #pragma once
 #include "../../Server.hpp"
 #include "sys/wait.h"
+#include <time.h>
 
 // typedef enum extension {
 // 	PHP, // 0
@@ -14,14 +15,16 @@ class Cgi
 		std::map<std::string, std::string>  _extension_map;
 		std::map<std::string, std::string>  _headers;
 		// std::string                         _resource;
-		pid_t                               _pid;
 		int									_outfile;
 		char								**_env;
 		Response							*_response;
 		Cgi();
 	public:
+		clock_t								_start;
+		pid_t                               _pid;
 		bool                                is_complete;
 		bool                                is_timeout;
+		bool								is_running;
 		Cgi(std::map<std::string, std::string>, Response *);
 		~Cgi();
 		void	py_setup();

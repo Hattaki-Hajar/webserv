@@ -10,7 +10,7 @@ OBJ_PATH = obj/
 
 SRCS = $(wildcard *.cpp) $(wildcard config_file_parsing/*.cpp) $(wildcard response/*.cpp) $(wildcard methods/*.cpp) $(wildcard response/cgi/*.cpp)
 
-HEADERS = $(wildcard *.hpp) $(wildcard config_file_parsing/*.hpp) $(wildcard response/*.hpp)
+HEADERS = $(wildcard *.hpp) $(wildcard config_file_parsing/*.hpp) $(wildcard response/*.hpp) $(wildcard methods/*.cpp) $(wildcard response/cgi/*.cpp)
 
 CPP = c++
 

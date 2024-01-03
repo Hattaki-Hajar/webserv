@@ -265,6 +265,11 @@ void	Request::split_request(char *buffer, ssize_t bytesread, int socket) {
 			}
 		}
 	}
+	// If the request is not a POST.
+	else {
+		_end_of_request = true;
+		return ;
+	}
 }
 
 void	Request::parse_request() {

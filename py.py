@@ -9,7 +9,6 @@ print("<head><title>Python CGI Script</title></head>")
 print("<body>")
 print("<h1>Hello, CGI World!</h1>")
 print("<p>This is a simple Python CGI script.</p>")
+print(3 + 1)
 print("</body>")
 print("</html>")
-while 1:
-    print("a")

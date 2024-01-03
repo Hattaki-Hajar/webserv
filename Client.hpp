@@ -5,6 +5,7 @@
 #include <iostream>
 #include "Request.hpp"
 #include "Server.hpp"
+#include "./response/cgi/Cgi.hpp"
 class Response;
 class Client
 {
@@ -19,6 +20,7 @@ class Client
 	unsigned int		_status_code;
 	Client();
 public:
+	Cgi					*_cgi;
 	Response			*_response;
 	sockaddr_in			_addr;
 	unsigned int		_addr_size;

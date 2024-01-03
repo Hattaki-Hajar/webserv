@@ -23,11 +23,8 @@ void	Response::clear_dir(const std::string &dir_path)
 		}
 		if (std::remove(path.c_str()))
 		{
-			std::cout << "debug: errno = " << errno << std::endl;
-			std::cout << "debug: path: " << path << std::endl;
 			if (errno == EEXIST || errno == ENOTEMPTY)
 			{
-				std::cout << "debug: should be here once" << std::endl;
 				clear_dir(path + "/");
 				if (std::remove(path.c_str()))
 				{
@@ -59,7 +56,6 @@ void	Response::delete_method()
 	if (type == NOT_FOUND)
 		_status_code = 404;
 	else if (type == FILE) {
-		std::cout << "debug: found file" << std::endl;
 		if (std::remove(_uri.c_str()))
 		{
 			_status_code = 403;
@@ -67,7 +63,6 @@ void	Response::delete_method()
 		}
 	}
 	else {
-		std::cout << "debug: found dir" << std::endl;
 		if (_uri[_uri.length() - 1] != '/')
 		{
 			_status_code = 409;

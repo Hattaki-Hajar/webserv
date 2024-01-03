@@ -58,6 +58,7 @@ class   Response    {
         Response();
 
     public:
+		bool	has_cgi;
         Response(unsigned int status_code, Client &client);
         ~Response();
 
@@ -74,7 +75,7 @@ class   Response    {
 		void	clear_dir(const std::string &);
         void    responde();
         void    set_headers();
-        void    set_cgi();
+        void    set_cgi(Cgi *);
         void    set_file_path(const std::string &);
         void    set_status_code(unsigned int);
         void    set_file_name(std::string);
@@ -92,4 +93,3 @@ class   Response    {
         // const std::string &get_uri() const;
 };
 #include "../Client.hpp"
-#include "cgi/Cgi.hpp"

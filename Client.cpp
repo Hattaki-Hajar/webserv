@@ -1,14 +1,6 @@
 #include "Client.hpp"
 #include "Webserv.hpp"
 
-// Client::Client() {
-// 	// std::cout << "Client constructor" << std::endl;
-// 	_socket = -1;
-// 	_addr.sin_family = AF_INET;
-// 	_addr_size = sizeof(_addr);
-// 	_event = new epoll_event();
-// 	_event->events = EPOLLIN | EPOLLOUT;
-// }
 Client::Client(Server &s):_server(s) {
 	_addr.sin_family = AF_INET;
 	_addr_size = sizeof(_addr);
@@ -19,13 +11,15 @@ Client::Client(Server &s):_server(s) {
 	_done_reading = false;
 	_status_code = 200;
 	_request = new Request();
-
+	_cgi = 0;
 }
 
 void Client::generateResponse() {
-	_response = new Response(_request->get_status_code(), *this);
-	_response->set_file_path(_request->get_file_path());
-	_response->responde();
+	this->_response = new Response(this->_status_code, *this);
+	this->_cgi = new Cgi(_request->get_headers(), this->_response);
+	this->_response->set_cgi(this->_cgi);
+	this->_response->set_file_path(this->_request->get_file_path());
+	this->_response->responde();
 }
 	/*  Setters  */
 void	Client::set_socket(int socket) {
@@ -78,7 +72,7 @@ void	Client::parse_request() {
 	}
 
 	// check if the request body is larger than the max body size.
-	if (_request->get_size_read() > get_server().get_max_body_size()) {
+	if (_request->get_size_read() > get_server().get_max_body_size() && get_server().get_max_body_size() != -1) {
 		_done_reading = true;
 		_status_code = 413;
 	}
@@ -89,5 +83,7 @@ Client::~Client() {
 	close(_socket);
 	delete _event;
 	delete _request;
+	if (_cgi)
+		delete _cgi;
 }
 

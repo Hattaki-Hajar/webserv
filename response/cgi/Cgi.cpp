@@ -29,6 +29,7 @@ Cgi::Cgi(std::map<std::string, std::string> headers, Response *response)
     this->_extension_map = _response->get_location().cgi;
 	this->is_complete = false;
 	this->is_timeout = false;
+	this->is_running = false;
 	setup_env(headers);
 }
 
@@ -69,7 +70,7 @@ void	Cgi::setup_env(std::map<std::string, std::string> headers)
     this->_headers["REQUEST_SCHEME"] = "http";
     this->_headers["HTTPS"] = "off";
     this->_headers["SERVER_SIGNATURE"] = "webserv/1.0";
-	_env = new char*[_headers.size()];
+	_env = new char*[_headers.size() + 1];
 	int i = 0;
 	std::map<std::string, std::string>::iterator it;
 	for (it = this->_headers.begin(); it != this->_headers.end(); it++, i++)
@@ -84,14 +85,14 @@ void	Cgi::run(const std::string &bin)
 {
 	const char 	*av[3];
 
-    dup2(this->_outfile, 1);
-    // close(this->_outfile);
+	dup2(this->_outfile, 1);
+    close(this->_outfile);
     av[0] = bin.c_str();
     av[1] = this->_response->get_uri().c_str();
     av[2] = 0;
-    for (int i = 0; i != 2; i++)    {
-        std::cerr << av[i] << std::endl;
-    }
+    // for (int i = 0; i != 2; i++)    {
+    //     std::cerr << av[i] << std::endl;
+    // }
     execve(bin.c_str(), (char *const *)av, this->_env);
     std::cerr << "not executed" << std::endl;
     exit(-1);
@@ -99,6 +100,7 @@ void	Cgi::run(const std::string &bin)
 
 void	Cgi::php_setup()
 {
+	std::cout << "php setup" << std::endl;
 	std::map<std::string, std::string>::iterator    it = this->_extension_map.find("php");
 	if (it == this->_extension_map.end())
 	{
@@ -115,25 +117,27 @@ void	Cgi::php_setup()
 		}
         std::string	file_name = generateUUID();
         file_name = ".cache/" + file_name;
-        _response->set_file_name(file_name);
+        this->_response->set_file_name(file_name);
         umask(0);
         this->_outfile = open(file_name.c_str(), O_CREAT | O_RDWR, 0666);
         if (_outfile == -1) {
             std::cerr << "file not open" << std::endl;
-            _response->set_status_code(403);
+            this->_response->set_status_code(403);
             return;
         }
+		this->is_running = true;
+		this->_start = clock();
 		this->_pid = fork();
 		if (!this->_pid)
 			run("/usr/bin/php");
         else    {
             int status;
-            close(_outfile);
+            close(this->_outfile);
             waitpid(this->_pid, &status, 0);
             if (WIFEXITED(status))   {
                 if (WEXITSTATUS(status) != 0) {
                     std::cout << WEXITSTATUS(status) << std::endl;
-                    _response->set_status_code(500);
+                    this->_response->set_status_code(500);
                 }
             }
         }
@@ -142,6 +146,7 @@ void	Cgi::php_setup()
 
 void	Cgi::py_setup()
 {
+	std::cout << "py setup" << std::endl;
 	std::map<std::string, std::string>::iterator    it = this->_extension_map.find("py");
 	if (it == this->_extension_map.end())
 	{
@@ -166,13 +171,14 @@ void	Cgi::py_setup()
             _response->set_status_code(403);
             return;
         }
+		this->is_running = true;
+		this->_start = clock();
 		this->_pid = fork();
 		if (!this->_pid)
 			run("/usr/bin/python3");
         else    {
             int status;
-            waitpid(this->_pid, &status, 0);
-
+            waitpid(this->_pid, &status, WNOHANG);
             if (WIFEXITED(status))   {
                 if (WEXITSTATUS(status) != 0) {
                     std::cout << WEXITSTATUS(status) << std::endl;
