@@ -1,23 +1,30 @@
 server {
     listen 127.0.0.1:1234;
 
-    root /;
+    root /nfs/homes/aharrass/webserv/;
     client_max_body_size 5000000000000000000000000000;
-    #index index1.html;
+    #index index.html;
 
     location / {
         allow GET;
+        allow POST;
+        allow DELETE;
+        #upload /nfs/homes/aharrass/webserv/www/uploads;
+        cgi php /usr/bin/php-cgi;
         autoindex on;
     }
 
+
+
     location  /webserv  {
-        root /nfs/homes/hhattaki/Desktop;
-        index index.html;
+        root /nfs/homes/aharrass;
+        #index index.html;
         autoindex on;
         allow POST;
         allow GET;
+        upload /nfs/homes/aharrass/webserv/;
         cgi py /usr/bin/python3;
-        cgi php /usr/bin/php;
+        cgi php /usr/bin/php-cgi;
     }
 
     location   /test/barr  {

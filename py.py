@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 # Set the content type to text/html
-# print("Content-Type: text/html\n")
+print("Content-Type: text/html\n")
 
 # Output the HTML content
 print("<html>")

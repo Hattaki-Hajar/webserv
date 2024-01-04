@@ -6,7 +6,7 @@
 /*   By: aharrass <aharrass@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/14 15:34:16 by aharrass          #+#    #+#             */
-/*   Updated: 2024/01/04 13:17:32 by aharrass         ###   ########.fr       */
+/*   Updated: 2024/01/04 21:00:31 by aharrass         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -282,6 +282,8 @@ void    Response::set_body()    {
             _response_length = _file.gcount();
             if (_response_length == 0 && !this->_cgi->is_running)  {
                 is_complete = true;
+                // std::cout << _file_name << std::endl;
+                std::remove(_file_name.c_str());
                 _file.close();
                 // close(_file);
             }

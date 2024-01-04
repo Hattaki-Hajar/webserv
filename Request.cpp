@@ -157,7 +157,7 @@ void	Request::split_request(char *buffer, ssize_t bytesread) {
 	}
 	
 	if (_request_line.method == "POST" || _request_line.method == "GET" || _request_line.method == "DELETE" ) {
-		if (!_is_file_open) {
+		if (!_is_file_open && _request_line.method == "POST") {
 			std::string	extension = generate_extension();
 			_file_path = ".cache/" + request_generateUUID() + extension;
 			_file.open(_file_path.c_str(), std::ios::out | std::ios::app);
