@@ -155,7 +155,7 @@ void	Webserv::bind_Servers()
 {
 	size_t i = 0, j, found;
 	int port;
-	std::string host;
+	std::string host, server_name;
 
 	while (i < _Servers.size())
 	{
@@ -163,17 +163,17 @@ void	Webserv::bind_Servers()
 		found = 0;
 		port = _Servers[i]->get_port();
 		host = _Servers[i]->get_ip();
+		server_name = _Servers[i]->get_name();
 		while (j < i)
 		{
 			if (_Servers[j]->get_port() == port && _Servers[j]->get_ip() == host)
 			{
-				found = 1;
-				break ;
+				throw std::runtime_error("Error: multiple servers with same port and ip!");
 			}
 			j++;
 		}
-		if (found)
-			continue ;
+		std::cout << "debug: should be here with " << std::endl;
+		std::cout << "i: " << i << " host: " << _Servers[i]->get_ip() << " port: " << _Servers[i]->get_port() << std::endl;
 		_Servers[i]->bind_Server();
 		i++;
 	}

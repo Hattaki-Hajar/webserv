@@ -203,11 +203,11 @@ void	get_option(std::string &line, size_t i, std::string &option)
 	while (line[i] && line[i] != ';')
 		option += line[i++];
 	if (!line[i] || line[i++] != ';')
-		throw std::runtime_error("Error: config file is not valid location!");
+		throw std::runtime_error("Error: config file is not valid location1!");
 	while (line[i] && isspace(line[i]))
 		i++;
 	if (line[i])
-		throw std::runtime_error("Error: config file is not valid location!");
+		throw std::runtime_error("Error: config file is not valid location2!");
 }
 
 void	find_directive(std::string &directive, std::string &option, location &loc)
@@ -257,7 +257,7 @@ void	location_directive(std::istringstream &ss, std::string &line, Webserv &w, i
 			open_bracket++;
 		while (line[i] && isspace(line[i]))
 			i++;
-		if (line[i] == '#')
+		if (!line[i] || line[i] == '#')
 			continue ;
 		while (line[i] && !isspace(line[i]))
 			directive += line[i++];

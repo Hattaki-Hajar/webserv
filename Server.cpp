@@ -3,7 +3,10 @@
 Server::Server(int port)
 {
 	_port = port;
-	_name = "no_name";
+	_name = "";
+	_root_path = "/nfs/homes/";
+	_root_path += USER;
+	_root_path += "/www";
 	memset(&_addr, 0, sizeof(_addr));
 	_addr.sin_family = AF_INET;
 	_socketaddr_len = sizeof(_addr);
@@ -11,9 +14,12 @@ Server::Server(int port)
 }
 Server::Server()
 {
-	_port = 80;
+	_port = 8080;
 	_ip = "127.0.0.1";
-	_name = "no_name";
+	_name = "";
+	_root_path = "/nfs/homes/";
+	_root_path += USER;
+	_root_path += "/www";
 	_max_body_size = -1;
 	memset(&_addr, 0, sizeof(_addr));
 	_addr.sin_family = AF_INET;

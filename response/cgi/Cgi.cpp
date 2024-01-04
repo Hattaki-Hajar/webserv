@@ -112,7 +112,10 @@ void	Cgi::php_setup(const std::string &file_path)
 		return ;
 	}
 	std::string	file_name = generateUUID();
-	file_name = ".cache/cgi" + file_name;
+    std::string tmp = "/nfs/homes/";
+    tmp += USER;
+    tmp += "/.cache/cgi"; 
+	file_name = tmp + file_name;
 	this->_response->set_file_name(file_name);
 	umask(0);
 	this->_outfile = open(file_name.c_str(), O_CREAT | O_RDWR, 0666);
@@ -160,7 +163,10 @@ void	Cgi::py_setup(const std::string &file_path)
 		return ;
 	}
 	std::string	file_name = generateUUID();
-	file_name = ".cache/cgi" + file_name;
+    std::string tmp = "/nfs/homes/";
+    tmp += USER;
+    tmp += "/.cache/cgi"; 
+	file_name = tmp + file_name;
 	_response->set_file_name(file_name);
 	umask(0);
 	this->_outfile = open(file_name.c_str(), O_CREAT | O_RDWR, 0666);

@@ -8,8 +8,11 @@ std::string	get_option(const std::string &line)
 		option += line[i++];
 	while (line[i] && isspace(line[i]))
 		i++;
-	if (line[i])
+	if (line[i++] != ';')
 		throw std::runtime_error("Error: config file is not valid 4!");
+	while (line[i])
+		if (!isspace(line[i++]))
+			throw std::runtime_error("Error: config file is not valid 5!");
 	return (option);
 }
 
@@ -17,9 +20,9 @@ void	listen_directive(std::string &line, Webserv &w, int Server)
 {
 	std::string host_port, port, host;
 	size_t pos, i;
-	// if (line[i] && !isdigit(line[i]))
-	// 	throw std::runtime_error("Error: config file is not valid! listen");
 	host_port = get_option(line);
+	if (host_port.empty())
+		throw std::runtime_error("Error: config file is not valid");
 	pos = host_port.find(':');
 	if (pos == std::string::npos)
 	{
@@ -51,6 +54,8 @@ void	Server_name_directive(const std::string &line, Webserv &w, int Server)
 	int s = 0;
 
 	name = get_option(line);
+	// if (name.empty())
+	// 	std::cout << 
 	if (name.empty() || name == """")
 	{
 		w.set_name(DEFAULT_Server, Server);
@@ -113,7 +118,7 @@ void	Client_max_body_size_directive(std::string &line, Webserv &w, int Server)
 	while (line[i] && isdigit(line[i]) && line[i] != ';')
 		size += line[i++];
 	if ((line[i] && line[i] != 'k' && line[i] != 'K' && line[i] != 'm' && line[i]!= 'M'
-		&& line[i] != 'g' && line[i] != 'G') || size.empty())
+		&& line[i] != 'g' && line[i] != 'G' && line[i] != ';') || size.empty())
 		throw std::runtime_error("Error: config file is not valid size1!");
 	while (size[j] && isdigit(size[j]))
 		j++;

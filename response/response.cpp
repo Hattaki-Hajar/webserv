@@ -6,7 +6,7 @@
 /*   By: aharrass <aharrass@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/14 15:34:16 by aharrass          #+#    #+#             */
-/*   Updated: 2024/01/04 21:00:31 by aharrass         ###   ########.fr       */
+/*   Updated: 2024/01/04 22:06:34 by aharrass         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -282,7 +282,6 @@ void    Response::set_body()    {
             _response_length = _file.gcount();
             if (_response_length == 0 && !this->_cgi->is_running)  {
                 is_complete = true;
-                // std::cout << _file_name << std::endl;
                 std::remove(_file_name.c_str());
                 _file.close();
                 // close(_file);
@@ -444,7 +443,10 @@ void Response::find_files() {
         file += "</tbody>\n</table>\n<hr>\n</pre>\n</body>\n</html>";
     }
 	closedir(dir);
-    _file.open("/nfs/homes/aharrass/.cache/autoindex.html", std::ios::out | std::ios::trunc);
+    std::string tmp = "/nfs/homes/";
+    tmp += USER;
+    tmp += "/.cache/autoindex.html"; 
+    _file.open(tmp.c_str(), std::ios::out | std::ios::trunc);
     if (!_file.good())  {
         _status_code = 404;
         return;

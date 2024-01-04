@@ -29,7 +29,7 @@ void	get_block(std::ifstream &config_file, std::string &Server)
 void	Server_block_parser(std::ifstream &config_file, Webserv &w, int Server)
 {
 	std::string line, directive, block, options;
-	size_t i;
+	size_t i, found = 0;
 	get_block(config_file, block);
 	std::istringstream ss(block);
 	w.set_new_Server(Server);
@@ -51,14 +51,8 @@ void	Server_block_parser(std::ifstream &config_file, Webserv &w, int Server)
 			}
 			while (line[i] && isspace(line[i]))
 				i++;
-			while (line[i] && line[i] != ';')
+			while (line[i])
 				options += line[i++];
-			if (line[i] && line[i++] != ';')
-				throw std::runtime_error("Error: config file is not valid 4!");
-			while (line[i] && isspace(line[i]))
-				i++;
-			if (line[i])
-				throw std::runtime_error("Error: config file is not valid 3!");
 		}
 		if (directive == "listen")
 			listen_directive(options, w, Server);
@@ -75,15 +69,19 @@ void	Server_block_parser(std::ifstream &config_file, Webserv &w, int Server)
 		else if (directive == "index")
 			index_directive(options, w, Server);
 		else if (!directive.empty())
-		{
-			std::cout << directive << '*' << std::endl;
 			throw std::runtime_error("Error: config file is not valid: unknown directive!");
+		else
+		{
+			directive.clear();
+			options.clear();
+			continue ;
 		}
+		found++;
 		directive.clear();
 		options.clear();
 	}
-
-	// std::cout << w;
+	if (!found)
+		throw std::runtime_error("Error: empty server");
 	w.set_Server(Server);
 }
 
@@ -119,5 +117,9 @@ void	config_parser(Webserv &w, const char *name)
 		// std::cout << "here" << std::endl;
 		Server_block_parser(config_file, w, Server_nb - 1);
 		block.clear();
+	}
+	if (!Server_nb)
+	{
+		throw std::runtime_error("Error: config file has no servers!");
 	}
 }

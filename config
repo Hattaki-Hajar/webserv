@@ -3,7 +3,7 @@ server {
 
     root /nfs/homes/aharrass/webserv/;
     client_max_body_size 5000000000000000000000000000;
-    #index index.html;
+    index index.html;
 
     location / {
         allow GET;
@@ -14,7 +14,13 @@ server {
         autoindex on;
     }
 
-
+    location /42 {
+        allow GET;
+        allow POST;
+        allow DELETE;
+        root /nfs/homes/aharrass/webserv;
+        index index.html;
+    }
 
     location  /webserv  {
         root /nfs/homes/aharrass;
@@ -37,7 +43,7 @@ server {
 server {
     listen 127.0.0.1:1243;
 
-    root /nfs/homes/hhattaki
+    root /nfs/homes/hhattaki;
     index index.html;
 
     location / {
