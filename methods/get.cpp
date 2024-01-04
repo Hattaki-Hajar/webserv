@@ -33,9 +33,9 @@ void Response::get()  {
                 if (extension == "php" || extension == "py"){
                     try { 
                         if (extension == "php")
-                            _cgi->php_setup();
+                            _cgi->php_setup("");
                         else
-                            _cgi->py_setup();   
+                            _cgi->py_setup("");
                     }
                     catch (std::exception &e)   {
                         std::cout << e.what() << std::endl;
@@ -64,8 +64,8 @@ void Response::get()  {
         }
     }
     else if (type == FILE)  {
+		std::cout << "debug: in get file" << std::endl;
         std::string extension = get_ext();
-        std::cout << "debug: extension = " << extension << std::endl;
 		std::map<std::string, std::string>::iterator it = _location.cgi.find(extension);
         if ((extension == "php" && it != _location.cgi.end()) || (extension == "py" && it != _location.cgi.end())){
             int f = open(_uri.c_str(), O_RDONLY);
@@ -76,9 +76,9 @@ void Response::get()  {
             try
             {
                 if (extension == "php")
-                    _cgi->php_setup();
+                    _cgi->php_setup("");
                 else
-                    _cgi->py_setup();
+                    _cgi->py_setup("");
             }
             catch(const std::exception& e)
             {

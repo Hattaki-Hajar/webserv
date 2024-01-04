@@ -4,7 +4,7 @@ std::string generateUUID() {
     // Seed for the random number generator
     std::srand(static_cast<unsigned>(time(0)));
 
-    const char hex_chars[] = "0123456789abcdef";
+    const char hex_chars[] = "abcdef0123456789";
 
     std::string uuid;
 
@@ -34,6 +34,7 @@ Cgi::Cgi(std::map<std::string, std::string> headers, Response *response)
 }
 
 Cgi::~Cgi() {
+	delete[] _env;
 }
 
 int Cgi::get_outfile() const {
@@ -85,106 +86,112 @@ void	Cgi::run(const std::string &bin)
 {
 	const char 	*av[3];
 
+	if (_fd != -1)
+	{
+		dup2(_fd, 0);
+		close(_fd);
+	}
 	dup2(this->_outfile, 1);
     close(this->_outfile);
     av[0] = bin.c_str();
     av[1] = this->_response->get_uri().c_str();
     av[2] = 0;
-    // for (int i = 0; i != 2; i++)    {
-    //     std::cerr << av[i] << std::endl;
-    // }
     execve(bin.c_str(), (char *const *)av, this->_env);
     std::cerr << "not executed" << std::endl;
     exit(-1);
 }
 
-void	Cgi::php_setup()
+void	Cgi::php_setup(const std::string &file_path)
 {
 	std::cout << "php setup" << std::endl;
 	std::map<std::string, std::string>::iterator    it = this->_extension_map.find("php");
-	if (it == this->_extension_map.end())
+	int check = access((it->second).c_str(), F_OK && X_OK);
+	if (check)
 	{
-		throw std::runtime_error("No extension!");
+		this->_response->set_status_code(500);
 		return ;
 	}
-	else
+	std::string	file_name = generateUUID();
+	file_name = ".cache/" + file_name;
+	this->_response->set_file_name(file_name);
+	umask(0);
+	this->_outfile = open(file_name.c_str(), O_CREAT | O_RDWR, 0666);
+	if (_outfile == -1) {
+		std::cerr << "file not open" << std::endl;
+		this->_response->set_status_code(403);
+		return;
+	}
+	if (!file_path.empty())
 	{
-		int check = access((it->second).c_str(), F_OK && X_OK);
-		if (check)
-		{
-			this->_response->set_status_code(500);
-			return ;
+		_fd = open(file_path.c_str(), O_RDONLY, 0666);
+		if (_fd == -1) {
+			_response->set_status_code(500);
+			return;
 		}
-        std::string	file_name = generateUUID();
-        file_name = ".cache/" + file_name;
-        this->_response->set_file_name(file_name);
-        umask(0);
-        this->_outfile = open(file_name.c_str(), O_CREAT | O_RDWR, 0666);
-        if (_outfile == -1) {
-            std::cerr << "file not open" << std::endl;
-            this->_response->set_status_code(403);
-            return;
-        }
-		this->is_running = true;
-		this->_start = clock();
-		this->_pid = fork();
-		if (!this->_pid)
-			run("/usr/bin/php");
-        else    {
-            int status;
-            close(this->_outfile);
-            waitpid(this->_pid, &status, WNOHANG);
-            if (WIFEXITED(status))   {
-                if (WEXITSTATUS(status) != 0) {
-                    std::cout << WEXITSTATUS(status) << std::endl;
-                    this->_response->set_status_code(500);
-                }
-            }
-        }
+	}
+	else
+		_fd = -1;
+	this->is_running = true;
+	this->_start = clock();
+	this->_pid = fork();
+	if (!this->_pid)
+		run("/usr/bin/php-cgi");
+	else    {
+		int status;
+		close(this->_outfile);
+		waitpid(this->_pid, &status, WNOHANG);
+		if (WIFEXITED(status))   {
+			if (WEXITSTATUS(status) != 0) {
+				std::cout << WEXITSTATUS(status) << std::endl;
+				this->_response->set_status_code(500);
+			}
+		}
 	}
 }
 
-void	Cgi::py_setup()
+void	Cgi::py_setup(const std::string &file_path)
 {
 	std::cout << "py setup" << std::endl;
 	std::map<std::string, std::string>::iterator    it = this->_extension_map.find("py");
-	if (it == this->_extension_map.end())
+	int check = access((it->second).c_str(), F_OK && X_OK);
+	if (check)
 	{
-		throw std::runtime_error("No extension!");
+		this->_response->set_status_code(500);
 		return ;
 	}
-	else
+	std::string	file_name = generateUUID();
+	file_name = ".cache/" + file_name;
+	_response->set_file_name(file_name);
+	umask(0);
+	this->_outfile = open(file_name.c_str(), O_CREAT | O_RDWR, 0666);
+	if (_outfile == -1) {
+		std::cerr << "file not open" << std::endl;
+		_response->set_status_code(500);
+		return;
+	}
+	if (!file_path.empty())
 	{
-		int check = access((it->second).c_str(), F_OK && X_OK);
-		if (check)
-		{
-			this->_response->set_status_code(500);
-			return ;
+		_fd = open(file_path.c_str(), O_RDONLY, 0666);
+		if (_fd == -1) {
+			_response->set_status_code(500);
+			return;
 		}
-        std::string	file_name = generateUUID();
-        file_name = ".cache/" + file_name;
-        _response->set_file_name(file_name);
-        umask(0);
-        this->_outfile = open(file_name.c_str(), O_CREAT | O_RDWR, 0666);
-        if (_outfile == -1) {
-            std::cerr << "file not open" << std::endl;
-            _response->set_status_code(403);
-            return;
-        }
-		this->is_running = true;
-		this->_start = clock();
-		this->_pid = fork();
-		if (!this->_pid)
-			run("/usr/bin/python3");
-        else    {
-            int status;
-            waitpid(this->_pid, &status, WNOHANG);
-            if (WIFEXITED(status))   {
-                if (WEXITSTATUS(status) != 0) {
-                    std::cout << WEXITSTATUS(status) << std::endl;
-                    _response->set_status_code(500);
-                }
-            }
-        }
+	}
+	else
+		_fd = -1;
+	this->is_running = true;
+	this->_start = clock();
+	this->_pid = fork();
+	if (!this->_pid)
+		run("/usr/bin/python3");
+	else    {
+		int status;
+		waitpid(this->_pid, &status, WNOHANG);
+		if (WIFEXITED(status))   {
+			if (WEXITSTATUS(status) != 0) {
+				std::cout << WEXITSTATUS(status) << std::endl;
+				_response->set_status_code(500);
+			}
+		}
 	}
 }

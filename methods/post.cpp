@@ -23,14 +23,27 @@ void    Response::post() {
         return;
     }
     if (type == FILE) {
-        // if (!_location.Cgi.path.empty()) {
-        //     // run cgi on requested file with POST.
-        //     // return _status_code of the cgi;
-        // }
-        // else {
+		std::string extension = get_ext();
+		std::map<std::string, std::string>::iterator it = _location.cgi.find(extension);
+        if (it != _location.cgi.end() && (extension == "php" || extension == "py")) {
+			if (extension == "php")
+				_cgi->php_setup(_file_path);
+			else
+				_cgi->py_setup(_file_path);
+			if (_status_code == 200)    {
+                _file.open(_file_name.c_str(), std::ios::in);
+                if (!_file.good())  {
+                    std::cout << "fail" << std::endl;
+                    _status_code = 403;
+                    return;
+                }
+                _content_type = "text/html";
+            }
+        }
+        else {
             _status_code = 403;
             return;
-        // }
+        }
     } else if (type == DIREC) {
         if (_uri[_uri.length() - 1] != '/') {
             _old_uri += "/";
@@ -41,13 +54,26 @@ void    Response::post() {
             _status_code = 403;
             return;
         }
-        // if (!_location.Cgi.path.empty()) {
-        //     // run cgi on requested file with POST.
-        //     // return _status_code of the cgi;
-        // }
-        // else {
+        std::string extension = get_ext();
+		std::map<std::string, std::string>::iterator it = _location.cgi.find(extension);
+        if (it != _location.cgi.end() && (extension == "php" || extension == "py")) {
+			if (extension == "php")
+				_cgi->php_setup(_file_path);
+			else
+				_cgi->py_setup(_file_path);
+			if (_status_code == 200)    {
+                _file.open(_file_name.c_str(), std::ios::in);
+                if (!_file.good())  {
+                    std::cout << "fail" << std::endl;
+                    _status_code = 403;
+                    return;
+                }
+                _content_type = "text/html";
+            }
+        }
+        else {
             _status_code = 403;
             return;
-        // }
+        }
     }
 }

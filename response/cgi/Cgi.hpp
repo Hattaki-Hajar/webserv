@@ -18,6 +18,7 @@ class Cgi
 		int									_outfile;
 		char								**_env;
 		Response							*_response;
+		int									_fd;
 		Cgi();
 	public:
 		clock_t								_start;
@@ -27,8 +28,8 @@ class Cgi
 		bool								is_running;
 		Cgi(std::map<std::string, std::string>, Response *);
 		~Cgi();
-		void	py_setup();
-		void	php_setup();
+		void	py_setup(const std::string &);
+		void	php_setup(const std::string &);
 		void	run(const std::string &);
 		void	setup_env(std::map<std::string, std::string>);
 		int		get_outfile() const;

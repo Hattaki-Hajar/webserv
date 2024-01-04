@@ -8,6 +8,28 @@ std::string to_string(T value) {
     return os.str();
 }
 
+std::string request_generateUUID() {
+    // Seed for the random number generator
+    std::srand(static_cast<unsigned>(time(0)));
+
+    const char hex_chars[] = "0123456789abcdef";
+
+    std::string uuid;
+
+    // Generate 32 random hexadecimal characters
+    for (int i = 0; i < 32; ++i) {
+        uuid += hex_chars[std::rand() % 16];
+    }
+
+    // Insert hyphens at appropriate positions
+    uuid.insert(8, 1, '-');
+    uuid.insert(13, 1, '-');
+    uuid.insert(18, 1, '-');
+    uuid.insert(23, 1, '-');
+
+    return uuid;
+}
+
 /*  constructors destructors  */
 Request::Request() {
 	_size_read = 0;
@@ -110,7 +132,7 @@ std::string	Request::generate_extension() {
 	return (extension);
 }
 
-void	Request::split_request(char *buffer, ssize_t bytesread, int socket) {
+void	Request::split_request(char *buffer, ssize_t bytesread) {
 	ssize_t	i = 0;
 	while (i < bytesread && !_headers_read)
 	{
@@ -136,10 +158,8 @@ void	Request::split_request(char *buffer, ssize_t bytesread, int socket) {
 	
 	if (_request_line.method == "POST" || _request_line.method == "GET" || _request_line.method == "DELETE" ) {
 		if (!_is_file_open) {
-			std::srand(static_cast<unsigned int>(std::time(0)));
-			int rand = std::rand() % 1000 + 1;
 			std::string	extension = generate_extension();
-			_file_path = ".cache/" + to_string(socket) + to_string(rand) + extension;
+			_file_path = ".cache/" + request_generateUUID() + extension;
 			_file.open(_file_path.c_str(), std::ios::out | std::ios::app);
 			if (!_file.good()) {
 				return ;
