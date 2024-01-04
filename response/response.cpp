@@ -6,7 +6,7 @@
 /*   By: aharrass <aharrass@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/14 15:34:16 by aharrass          #+#    #+#             */
-/*   Updated: 2024/01/03 08:42:14 by aharrass         ###   ########.fr       */
+/*   Updated: 2024/01/04 13:17:32 by aharrass         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -175,8 +175,9 @@ void    Response::responde()    {
         else if (_found_location)   {
             std::vector<std::string>::iterator it = std::find(_location.methods.begin(), _location.methods.end(), _request_line.method);
             
-            if (it == _location.methods.end())
+            if (it == _location.methods.end()) {
                 _status_code = 405;
+            }
             else if (_location.return_code > 299 && _location.return_code < 308 )    {
                 _old_uri = _location.return_path;
                 _status_code = 301;
@@ -184,10 +185,12 @@ void    Response::responde()    {
             else    {
                 if (_request_line.method == "GET")
                     get();
-                if (_request_line.method == "DELETE")
+                else if (_request_line.method == "DELETE")
                     delete_method();
-                if (_request_line.method == "POST")
+                else if (_request_line.method == "POST")
                     post();
+                else
+                    _status_code = 405;
             }
         }
     }
@@ -260,8 +263,13 @@ char* Response::send()    {
 void    Response::set_body()    {
     if (_status_code != 200 && _status_code != 201)    {
         bzero(_response_buffer, BUFFER_SIZE);
-        strcpy(_response_buffer, _error_page.c_str());
-        _response_length = _error_page.length();
+        if (_request_line.method != "HEAD") {
+            strcpy(_response_buffer, _error_page.c_str());
+            _response_length = _error_page.length();
+            
+        }
+        else
+            _response_length = 0;
         is_complete = true;
         // close(_file);
         _file.close();
@@ -331,8 +339,10 @@ void   Response::set_headers()    {
         }
         else if (_status_code == 405)   {
             _status_line = "HTTP/1.1 405 Method Not Allowed\r\n";
-            _content_type = "text/html";
-            _response_header = "Content-Type: " + _content_type + "\r\n";
+            if (_request_line.method != "HEAD") {
+                _content_type = "text/html";
+                _response_header = "Content-Type: " + _content_type + "\r\n";
+            }
             _error_page.insert(pos, "<p>Error 405!<br>Method Not Allowed</p>");
         }
         else if (_status_code == 403)   {

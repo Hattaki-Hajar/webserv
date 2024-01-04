@@ -12,6 +12,7 @@ Client::Client(Server &s):_server(s) {
 	_status_code = 200;
 	_request = new Request();
 	_cgi = 0;
+	this->_response = 0;
 }
 
 void Client::generateResponse() {
@@ -19,6 +20,9 @@ void Client::generateResponse() {
 	this->_cgi = new Cgi(_request->get_headers(), this->_response);
 	this->_response->set_cgi(this->_cgi);
 	this->_response->set_file_path(this->_request->get_file_path());
+	if (this->_request->get_request_line().method != "POST")	{
+		std::remove(this->_request->get_file_path().c_str());
+	}
 	this->_response->responde();
 }
 	/*  Setters  */

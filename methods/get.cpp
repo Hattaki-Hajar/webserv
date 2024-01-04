@@ -6,7 +6,7 @@
 /*   By: aharrass <aharrass@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/31 21:59:20 by aharrass          #+#    #+#             */
-/*   Updated: 2024/01/03 09:46:14 by aharrass         ###   ########.fr       */
+/*   Updated: 2024/01/04 12:11:17 by aharrass         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ void Response::get()  {
                     _uri += _server_index_path;
                 std::string extension = get_ext();
                 if (extension == "php" || extension == "py"){
-                    try {
+                    try { 
                         if (extension == "php")
                             _cgi->php_setup();
                         else
@@ -65,6 +65,7 @@ void Response::get()  {
     }
     else if (type == FILE)  {
         std::string extension = get_ext();
+        std::cout << "debug: extension = " << extension << std::endl;
 		std::map<std::string, std::string>::iterator it = _location.cgi.find(extension);
         if ((extension == "php" && it != _location.cgi.end()) || (extension == "py" && it != _location.cgi.end())){
             int f = open(_uri.c_str(), O_RDONLY);

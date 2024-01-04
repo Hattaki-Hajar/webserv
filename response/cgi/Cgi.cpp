@@ -133,7 +133,7 @@ void	Cgi::php_setup()
         else    {
             int status;
             close(this->_outfile);
-            waitpid(this->_pid, &status, 0);
+            waitpid(this->_pid, &status, WNOHANG);
             if (WIFEXITED(status))   {
                 if (WEXITSTATUS(status) != 0) {
                     std::cout << WEXITSTATUS(status) << std::endl;

@@ -134,7 +134,7 @@ void	Request::split_request(char *buffer, ssize_t bytesread, int socket) {
 		i++;
 	}
 	
-	if (_request_line.method == "POST") {
+	if (_request_line.method == "POST" || _request_line.method == "GET" || _request_line.method == "DELETE" ) {
 		if (!_is_file_open) {
 			std::srand(static_cast<unsigned int>(std::time(0)));
 			int rand = std::rand() % 1000 + 1;

@@ -45,6 +45,7 @@ public:
 	std::string							get_file_path() const;
 	bool								get_end_of_request() const;
 	unsigned int						get_status_code() const;
+	
 	/*	additional function	*/
 	void		split_request(char *, ssize_t, int);
 	void		parse_request(void);
