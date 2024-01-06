@@ -77,7 +77,7 @@ void	Cgi::setup_env(std::map<std::string, std::string> headers)
 	for (it = this->_headers.begin(); it != this->_headers.end(); it++, i++)
 	{
 		temp = (it->first) + "=" + (it->second);
-		_env[i] = strdup(temp.c_str());
+		_env[i] = const_cast<char*>(temp.c_str());
 	}
     _env[i] = 0;
 }

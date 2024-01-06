@@ -6,7 +6,7 @@
 /*   By: aharrass <aharrass@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/31 21:59:20 by aharrass          #+#    #+#             */
-/*   Updated: 2024/01/04 12:11:17 by aharrass         ###   ########.fr       */
+/*   Updated: 2024/01/06 16:26:42 by aharrass         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@ void Response::get()  {
     int type = get_resource_type();
     if (type == NOT_FOUND)   {
         _status_code = 404;
+        // std::cout << "huh" << std::endl;
     }
     else if (type == DIREC) {
         if (_uri[_uri.length() - 1] != '/') {
@@ -52,6 +53,7 @@ void Response::get()  {
             }
             else  {
                 if (_location.autoindex)   {
+                    std::cout << "here" << std::endl;
                     find_files();
                     _content_type = "text/html";
                     return ;

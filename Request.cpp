@@ -79,7 +79,7 @@ bool	Request::is_req_well_formed(void) {
 		return (false);
 	}
 	// Check if Transfer-Encoding not exist, Content-Length not exist and the method is Post
-	if (_headers.find("Transfer-Encoding") == _headers.end() && _headers.find("Content-Length") == _headers.end() && _request_line.method == "POST") {
+	if (_headers.find("Transfer-Encoding") != _headers.end() && _headers.find("Content-Length") != _headers.end() && _request_line.method == "POST") {
 		_status_code = 400;
 		return (false);
 	}
@@ -154,7 +154,6 @@ void	Request::split_request(char *buffer, ssize_t bytesread) {
 					}
 		_request_headers += buffer[i];
 		i++;
-		std::cout << _request_headers << "*" << std::endl;
 	}
 	if (_request_line.method == "POST" || _request_line.method == "GET" || _request_line.method == "DELETE" ) {
 		if (!_is_file_open && _request_line.method == "POST") {
