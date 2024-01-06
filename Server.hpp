@@ -15,6 +15,7 @@
 #include <cstring>
 #include <sys/stat.h>
 #include <dirent.h>
+#include <vector>
 
 #define BUFFER_SIZE 3072
 #define	NO_NAME "no name"
@@ -62,6 +63,7 @@ public:
 	void	start_listen();
 	void	start();
 	void	acceptconnection(int );
+	void	ip_to_in_addr_t();
 	/* setters */
 	void	set_socket(int);
 	void	set_epoll_fd(int);

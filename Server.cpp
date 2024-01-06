@@ -64,18 +64,18 @@ int set_nonblocking(int sockfd) {
 void	Server::bind_Server()
 {
 	int on = 1;
-	_addr.sin_port = htons(_port);
-	_addr.sin_addr.s_addr = inet_addr(_ip.c_str());
-	_socket = socket(AF_INET, SOCK_STREAM, 0);
-	if (_socket < 0)
+	this->_addr.sin_port = htons(this->_port);
+	ip_to_in_addr_t();
+	this->_socket = socket(AF_INET, SOCK_STREAM, 0);
+	if (this->_socket < 0)
 		throw std::runtime_error("socket failed!");
-	setsockopt(_socket, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on));
-    setsockopt(_socket, SOL_SOCKET, SO_REUSEPORT, &on, sizeof(on));
-	if (bind(_socket,(sockaddr *)&_addr, _socketaddr_len) < 0)
+	setsockopt(this->_socket, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on));
+    setsockopt(this->_socket, SOL_SOCKET, SO_REUSEPORT, &on, sizeof(on));
+	if (bind(this->_socket,(sockaddr *)&this->_addr, this->_socketaddr_len) < 0)
 		throw std::runtime_error("bind failed!");
-	if (set_nonblocking(_socket) < 0)
+	if (set_nonblocking(this->_socket) < 0)
 		throw std::runtime_error("set_nonblocking failed!");
-	_is_bound = true;
+	this->_is_bound = true;
 }
 void	set_up_Server(Server &s, int epfd)
 {
@@ -102,6 +102,16 @@ void	Server::acceptconnection(int new_socket)
                         &_socketaddr_len);
     if (new_socket < 0)
         throw std::runtime_error("failed to connect2!");
+}
+void	Server::ip_to_in_addr_t()
+{
+	std::stringstream ss(this->_ip);
+	std::vector<int> addr;
+	std::string nb;
+
+	while (std::getline(ss, nb, '.'))
+		addr.push_back(atoi(nb.c_str()));
+	this->_addr.sin_addr.s_addr = htonl((addr[0] << 24) | (addr[1] << 16) | (addr[2] << 8) | addr[3]);
 }
 	/*  getters  */
 const std::string	&Server::get_name(void) const {
