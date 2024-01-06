@@ -1,9 +1,10 @@
 server {
     listen 127.0.0.1:1234;
 
-    root /nfs/homes/aharrass/webserv/;
+    root /nfs/homes/hhattaki/Desktop/webserv/;
     client_max_body_size 5000000000000000000000000000;
     index index.html;
+	server_name shi_haja;
 
     location / {
         allow GET;
@@ -41,7 +42,7 @@ server {
     }
 }
 server {
-    listen 127.0.0.1:1243;
+    listen 127.0.1.1:1234;
 
     root /nfs/homes/hhattaki;
     index index.html;

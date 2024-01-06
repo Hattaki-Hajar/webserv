@@ -8,7 +8,7 @@ std::string to_string(T value) {
     return os.str();
 }
 
-std::string request_generateUUID() {
+std::string generate_request_file() {
     // Seed for the random number generator
     std::srand(static_cast<unsigned>(time(0)));
 
@@ -154,14 +154,13 @@ void	Request::split_request(char *buffer, ssize_t bytesread) {
 					}
 		_request_headers += buffer[i];
 		i++;
-		std::cout << _request_headers << "*" << std::endl;
 	}
 	if (_request_line.method == "POST" || _request_line.method == "GET" || _request_line.method == "DELETE" ) {
 		if (!_is_file_open && _request_line.method == "POST") {
 			std::string	extension = generate_extension();
 			_file_path = "/nfs/homes/";
 			_file_path += USER;
-			_file_path += "/.cache/" + request_generateUUID() + extension;
+			_file_path += "/.cache/" + generate_request_file() + extension;
 			_file.open(_file_path.c_str(), std::ios::out | std::ios::app);
 			if (!_file.good()) {
 				return ;

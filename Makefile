@@ -14,7 +14,7 @@ HEADERS = $(wildcard *.hpp) $(wildcard config_file_parsing/*.hpp) $(wildcard res
 
 CPP = c++
 
-CFLAGS = -Wall -Wextra -Werror -std=c++98 #-fsanitize=address -g3
+CFLAGS = -Wall -Wextra -Werror -std=c++98 -fsanitize=address -g3
 
 OBJS = $(addprefix $(OBJ_PATH), $(SRCS:.cpp=.o))
 

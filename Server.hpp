@@ -11,12 +11,10 @@
 #include <map>
 #include <vector>
 #include <fcntl.h>
-// #include "Client.hpp"
 #include <errno.h>
 #include <cstring>
 #include <sys/stat.h>
 #include <dirent.h>
-// #include <stdio.h>
 
 #define BUFFER_SIZE 3072
 #define	NO_NAME "no name"
@@ -53,6 +51,7 @@ class Server
 	std::map<std::string, location>	_locations;
 	struct epoll_event				*_event;
 public:
+	bool							_is_bound;
 	/* constructors / destructors */
 	Server();
 	Server(Server const &);

@@ -51,25 +51,10 @@ void	listen_directive(std::string &line, Webserv &w, int Server)
 void	Server_name_directive(const std::string &line, Webserv &w, int Server)
 {
 	std::string name;
-	int s = 0;
 
 	name = get_option(line);
-	// if (name.empty())
-	// 	std::cout << 
-	if (name.empty() || name == """")
-	{
-		w.set_name(DEFAULT_Server, Server);
-		while (s <= Server)
-		{
-			if (w.get_name(s) == DEFAULT_Server)
-			{
-				w.set_name(NO_NAME, Server);
-				return ;
-			}
-			s++;
-		}
-		return ;
-	}
+	if (name.empty())
+		throw std::runtime_error("Error: config file is not valid name!");
 	w.set_name(name, Server);
 }
 
