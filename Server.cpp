@@ -206,7 +206,7 @@ void	Server::set_addr(int port, std::string const& ip)
 	_port = port;
 	_ip = ip;
 	_addr.sin_family = AF_INET;
-	_addr.sin_addr.s_addr = inet_addr(_ip.c_str());
+	ip_to_in_addr_t();
 	_addr.sin_port = htons(_port);
 }
 
