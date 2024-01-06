@@ -155,8 +155,8 @@ void	Request::split_request(char *buffer, ssize_t bytesread) {
 		_request_headers += buffer[i];
 		i++;
 	}
-	if (_request_line.method == "POST" || _request_line.method == "GET" || _request_line.method == "DELETE" ) {
-		if (!_is_file_open && _request_line.method == "POST") {
+	if (_request_line.method == "POST") {
+		if (!_is_file_open) {
 			std::string	extension = generate_extension();
 			_file_path = "/nfs/homes/";
 			_file_path += USER;

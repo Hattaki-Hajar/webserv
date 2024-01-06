@@ -304,8 +304,8 @@ void    Response::set_body()    {
                 _response_length = _file.gcount();
                 if (_response_length == 0) {
                     is_complete = true;
-                    std::remove(_file_name.c_str());
-                    _file.close();
+                    // std::remove(_file_name.c_str());
+                    // _file.close();
                     is_header = true;
                 }
             }
@@ -324,8 +324,8 @@ void    Response::set_body()    {
             _response_length = _file.gcount();
             if (_response_length == 0 && !this->_cgi->is_running)  {
                 is_complete = true;
-                std::remove(_file_name.c_str());
-                _file.close();
+                // std::remove(_file_name.c_str());
+                // _file.close();
                 // close(_file);
             }
         }
