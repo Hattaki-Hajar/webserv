@@ -33,7 +33,8 @@ server {
         autoindex on;
         allow POST;
         allow GET;
-        upload /nfs/homes/ohalim/Desktop/webserv/;
+        allow DELETE;
+        upload /nfs/homes/ohalim/Desktop/webserv/sfdgsdfg;
         cgi py /usr/bin/python3;
         cgi php /usr/bin/php-cgi;
     }

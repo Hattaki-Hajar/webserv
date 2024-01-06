@@ -93,6 +93,13 @@ bool	Request::is_req_well_formed(void) {
 		_status_code = 414;
 		return (false);
 	}
+	// Check if the content type is not supported.
+	if (_headers.find("Content-Type") != _headers.end()) {
+		if (_headers["Content-Type"].find("multipart") != std::string::npos) {
+			_status_code = 400;
+			return (false);
+		}
+	}
 	return (true);
 }
 
@@ -288,6 +295,7 @@ void	Request::split_request(char *buffer, ssize_t bytesread) {
 	}
 	// If the request is not a POST.
 	else {
+		std::cout << "debug: not a post" << std::endl;
 		_end_of_request = true;
 		return ;
 	}

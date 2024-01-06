@@ -32,10 +32,10 @@ Response::Response(unsigned int status_code, Client &client)
     _server_index_path = _client->get_server().get_index();
     _server_error_pages = _client->get_server().get_error_pages();
     match_uri();
-    std::cout << "---------------------------------------" << std::endl;
-    std::cout << "old uri = " << _old_uri << std::endl;
-    std::cout << "new uri = " << _uri << std::endl;
-    std::cout << "---------------------------------------" << std::endl;
+    // std::cout << "---------------------------------------" << std::endl;
+    // std::cout << "old uri = " << _old_uri << std::endl;
+    // std::cout << "new uri = " << _uri << std::endl;
+    // std::cout << "---------------------------------------" << std::endl;
     _request_line = _client->get_request()->get_request_line();
     fill_extentions();
     fill_error_line();
