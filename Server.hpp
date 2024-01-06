@@ -20,7 +20,7 @@
 #define	NO_NAME "no name"
 #define	DEFAULT_Server "default"
 #define MAX_EVENTS 500
-#define USER "aharrass"
+#define USER "hhattaki"
 
 typedef struct location
 {

@@ -95,26 +95,13 @@ void	Server::start_listen()
 {
 	if (listen(_socket, SOMAXCONN) < 0)
 		throw std::runtime_error("listen failed!");
-	std::ostringstream ss;
-    ss << "\n*** Listening on ADDRESS: " 
-        << inet_ntoa(_addr.sin_addr) 
-        << " PORT: " << ntohs(_addr.sin_port) 
-        << " ***\n\n";
-    std::cout << ss.str();
 }
 void	Server::acceptconnection(int new_socket)
 {
 	new_socket = accept(_socket, (sockaddr *)&_addr, 
                         &_socketaddr_len);
     if (new_socket < 0)
-    {
-        std::ostringstream ss;
-        ss << 
-        "Server failed to accept incoming connection from ADDRESS: " 
-        << inet_ntoa(_addr.sin_addr) << "; PORT: " 
-        << ntohs(_addr.sin_port);
         throw std::runtime_error("failed to connect2!");
-    }
 }
 	/*  getters  */
 const std::string	&Server::get_name(void) const {

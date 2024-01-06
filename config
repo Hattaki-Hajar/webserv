@@ -10,7 +10,7 @@ server {
         allow GET;
         allow POST;
         allow DELETE;
-        #upload /nfs/homes/aharrass/webserv/www/uploads;
+        upload /nfs/homes/hhattaki/Desktop/webserv/uploads;
         cgi php /usr/bin/php-cgi;
         autoindex on;
     }
@@ -29,7 +29,7 @@ server {
         autoindex on;
         allow POST;
         allow GET;
-        upload /nfs/homes/aharrass/webserv/;
+        upload /nfs/homes/hhattaki/Desktop/webserv/;
         cgi py /usr/bin/python3;
         cgi php /usr/bin/php-cgi;
     }
