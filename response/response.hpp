@@ -6,7 +6,7 @@
 /*   By: aharrass <aharrass@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/14 15:29:02 by aharrass          #+#    #+#             */
-/*   Updated: 2024/01/03 08:41:52 by aharrass         ###   ########.fr       */
+/*   Updated: 2024/01/06 10:27:54 by aharrass         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,7 @@ class   Response    {
     private:
         unsigned int _status_code;
 		int	_del_error;
+        std::map<int, std::string> _error_line;
         std::string _status_line;
         std::string _response_header;
         char _response_buffer[BUFFER_SIZE];
@@ -43,6 +44,7 @@ class   Response    {
         bool    _found_location;
         Client  *_client;
         std::fstream _file;
+        int          _error_file_good;
         std::map<std::string, std::string> _extensions;
         std::string _ext;
         std::string						_server_root_path;
@@ -67,6 +69,7 @@ class   Response    {
         int     get_resource_type();
         void    find_files();
         void    fill_extentions();
+        void    fill_error_line();
         void    get();
         char*   send();
         void    set_body();
@@ -79,6 +82,7 @@ class   Response    {
         void    set_file_path(const std::string &);
         void    set_status_code(unsigned int);
         void    set_file_name(std::string);
+        void    set_error();
         std::string    get_ext() const;
         
         bool    getIs_complete() const;

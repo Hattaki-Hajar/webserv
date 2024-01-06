@@ -6,7 +6,7 @@
 /*   By: aharrass <aharrass@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/14 15:34:16 by aharrass          #+#    #+#             */
-/*   Updated: 2024/01/04 22:06:34 by aharrass         ###   ########.fr       */
+/*   Updated: 2024/01/06 16:24:53 by aharrass         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@ Response::Response()    {
 Response::Response(unsigned int status_code, Client &client)
 : _status_code(status_code)   {
     _client = &client;
+    _error_file_good = 0;
     is_complete = false;
     is_header = false;
     _found_location = false;
@@ -31,8 +32,14 @@ Response::Response(unsigned int status_code, Client &client)
     _server_index_path = _client->get_server().get_index();
     _server_error_pages = _client->get_server().get_error_pages();
     match_uri();
+    std::cout << "---------------------------------------" << std::endl;
+    std::cout << "old uri = " << _old_uri << std::endl;
+    std::cout << "new uri = " << _uri << std::endl;
+    std::cout << "---------------------------------------" << std::endl;
     _request_line = _client->get_request()->get_request_line();
     fill_extentions();
+    fill_error_line();
+    _cgi = NULL;
     _error_page = "<!DOCTYPE html>\n<html>\n<head>\n<meta http-equiv=\"content-type\" content=\"text/html; charset=UTF-8\"\n>";
     _error_page += "<title>Error</title>\n<style>\n@import url('https://fonts.googleapis.com/css?family=Press Start 2P');\n";
     _error_page += "*   {\nbackground: black;\n}\n.main-box {\npadding: 0%;\nbox-sizing: border-box;\ndisplay: flex;\n";
@@ -43,7 +50,7 @@ Response::Response(unsigned int status_code, Client &client)
 }
 
 Response::~Response()   {
-	// delete _cgi;
+	delete _cgi;
 }
 
 // void    Response::set_cgi() {
@@ -115,7 +122,7 @@ int Response::get_resource_type()    {
         closedir(dir);
         return DIREC;
     }
-    std::fstream file(_uri.c_str(), std::ios::in);
+    std::fstream file(_uri.c_str());
     if (!file.fail()){
         file.close();   
         return FILE;
@@ -130,6 +137,21 @@ std::string Response::get_ext() const   {
         return ("");
     else
         return _uri.substr(pos + 1, std::string::npos);
+}
+
+void    Response::fill_error_line() {
+    const int code[] = {400, 501, 414, 413, 404, 405, 403, 409, 500, 504};
+    const char* line[] = {"Bad Request", "Not Implemented", "Request-URI Too Long",
+        "Request Entity Too Large", "Not Found", "Method Not Allowed", "Forbidden",
+        "Conflict", "Internal Server Error", "Gateway Timeout"};
+    size_t size = sizeof(line) / sizeof(line[0]);
+    std::string tmp;
+    for(size_t i = 0; i < size; i++)    {
+        std::stringstream ss;
+        ss << code[i];
+        ss >> tmp;
+        _error_line[code[i]] = "HTTP/1.1 " + tmp + " " + line[i];
+    }
 }
 
 void    Response::fill_extentions() {
@@ -260,19 +282,39 @@ char* Response::send()    {
     return _response_buffer;
 }
 
+
+
 void    Response::set_body()    {
     if (_status_code != 200 && _status_code != 201)    {
         bzero(_response_buffer, BUFFER_SIZE);
         if (_request_line.method != "HEAD") {
-            strcpy(_response_buffer, _error_page.c_str());
-            _response_length = _error_page.length();
-            
+            if (_error_file_good == -1) {
+                
+                // strcpy(_response_buffer, _error_page.c_str());
+                _response_length = _error_page.length();
+                for (int i = 0; i < _response_length; i++) {
+                    _response_buffer[i] = _error_page[i];
+                }
+                is_complete = true;
+                _file.close();
+                is_header = true;
+            }
+            else    {
+                _file.read(_response_buffer, BUFFER_SIZE);
+                _response_length = _file.gcount();
+                if (_response_length == 0) {
+                    is_complete = true;
+                    std::remove(_file_name.c_str());
+                    _file.close();
+                    is_header = true;
+                }
+            }
         }
         else
             _response_length = 0;
-        is_complete = true;
-        // close(_file);
-        _file.close();
+        // is_complete = true;
+        // // close(_file);
+        // _file.close();
     }
     else {
         if (_response_length > 0)    {
@@ -286,8 +328,72 @@ void    Response::set_body()    {
                 _file.close();
                 // close(_file);
             }
-        }  
+        }
     }
+}
+
+void    Response::set_error() {
+    std::map<int, std::string> error = _client->get_server().get_error_pages();
+    std::map<int, std::string>::iterator it = error.find(_status_code);
+    if (it != error.end())  {
+        _file.open(it->second.c_str(), std::ios::in);
+        if (!_file.good()) {
+            _error_file_good = -1;
+        }
+        else {
+            _content_type = "Content-Type: text/html";
+            _response_header = "Content-Type: " + _content_type + "\r\n";
+            is_header = true;
+        }
+    }
+    if (it == error.end() || _error_file_good == -1)  {
+        _error_file_good = -1;
+        int pos;
+        std::string tmp = "...";
+        pos = _error_page.find(tmp, 0);
+        _error_page.erase(pos, 3);
+        if (_status_code == 400){
+            _error_page.insert(pos, "<p>Error 400!<br>Bad Request</p>");
+        }
+        else if (_status_code == 501){
+            _error_page.insert(pos, "<p>Error 501!<br>Not Implemented</p>");
+        }
+        else if (_status_code == 414){
+            _error_page.insert(pos, "<p>Error 414!<br>Request-URI Too Long</p>");
+        }
+        else if (_status_code == 413){
+            _error_page.insert(pos, "<p>Error 413!<br>Request Entity Too Large</p>");
+        }
+        else if (_status_code == 404) {
+            _error_page.insert(pos, "<p>Error 404!<br>Not Found</p>");
+        }
+        else if (_status_code == 405) {
+            _error_page.insert(pos, "<p>Error 405!<br>Method Not Allowed</p>");
+        }
+        else if (_status_code == 403) {
+            _error_page.insert(pos, "<p>Error 403!<br>Forbidden</p>");
+        }
+        else if (_status_code == 409) {
+            _error_page.insert(pos, "<p>Error 409!<br>Conflict</p>");
+        }
+        else if (_status_code == 500) {
+            _error_page.insert(pos, "<p>Error 500!<br>Internal Server Error</p>");
+        }
+        else if (_status_code == 504) {
+            _error_page.insert(pos, "<p>Error 504!<br>Gateway Timeout</p>");
+        }
+        if (_request_line.method != "HEAD"){
+            _content_type = "text/html";
+            _response_header = "Content-Type: " + _content_type + "\r\n";
+            std::stringstream ss;
+            ss << _error_page.length();
+            std::string tmp;
+            ss >> tmp;
+            _response_header += "Content-Length: " + tmp + "\r\n";
+        }
+        is_header = true;
+    }
+    _status_line = _error_line[_status_code] + "\r\n";
 }
 
 void   Response::set_headers()    {
@@ -296,97 +402,30 @@ void   Response::set_headers()    {
 		if (!_cgi->is_complete)	{
         	_response_header = "Content-Type: " + _content_type + "\r\n";
 		}
+        is_header = true;
     }
     else if (_status_code == 201)   {
         _status_line = "HTTP/1.1 201 Created\r\n";
+        is_header = true;
+    }
+    else if (_status_code == 204)   {
+        _status_line = "HTTP/1.1 204 No Content\r\n";
+        is_header = true;
+    }
+    else if (_status_code == 301)   {
+        _status_line = "HTTP/1.1 301 Moved Permanently\r\n";
+        _response_header = "Location: " + _old_uri + "\r\n";
+        is_header = true;
     }
     else    {
-        int pos;
-        std::string tmp = "...";
-        pos = _error_page.find(tmp, 0);
-        _error_page.erase(pos, 3);
-        if (_status_code == 400)    {
-            _status_line = "HTTP/1.1 400 Bad Request\r\n";
-            _content_type = "text/html";
-            _response_header = "Content-Type: " + _content_type + "\r\n";
-            _error_page.insert(pos, "<p>Error 400!<br>Bad Request</p>");
-        }
-        else if (_status_code == 501)   {
-            _status_line = "HTTP/1.1 501 Not Implemented\r\n";
-            _content_type = "text/html";
-            _response_header = "Content-Type: " + _content_type + "\r\n";
-            _error_page.insert(pos, "<p>Error 501!<br>Not Implemented</p>");
-        }
-        else if (_status_code == 414)   {
-            _status_line = "HTTP/1.1 414 Request-URI Too Long\r\n";
-            _content_type = "text/html";
-            _response_header = "Content-Type: " + _content_type + "\r\n";
-            _error_page.insert(pos, "<p>Error 414!<br>Request-URI Too Long</p>");
-        }
-        else if (_status_code == 413)   {
-            _status_line = "HTTP/1.1 413 Request Entity Too Large\r\n";
-            _content_type = "text/html";
-            _response_header = "Content-Type: " + _content_type + "\r\n";
-            _error_page.insert(pos, "<p>Error 413!<br>Request Entity Too Large</p>");
-			this->is_complete = true;
-        }
-        else if (_status_code == 404)   {
-            _status_line = "HTTP/1.1 404 Not Found\r\n";
-            _content_type = "text/html";
-            _response_header = "Content-Type: " + _content_type + "\r\n";
-            _error_page.insert(pos, "<p>Error 404!<br>Not Found</p>");
-        }
-        else if (_status_code == 301)   {
-            _status_line = "HTTP/1.1 301 Moved Permanently\r\n";
-            _response_header = "Location: " + _old_uri + "\r\n";
-        }
-        else if (_status_code == 405)   {
-            _status_line = "HTTP/1.1 405 Method Not Allowed\r\n";
-            if (_request_line.method != "HEAD") {
-                _content_type = "text/html";
-                _response_header = "Content-Type: " + _content_type + "\r\n";
-            }
-            _error_page.insert(pos, "<p>Error 405!<br>Method Not Allowed</p>");
-        }
-        else if (_status_code == 403)   {
-            _status_line = "HTTP/1.1 403 Forbidden\r\n";
-            _content_type = "text/html";
-            _response_header = "Content-Type: " + _content_type + "\r\n";
-            _error_page.insert(pos, "<p>Error 403!<br>Forbidden</p>");
-        }
-        else if (_status_code == 409)   {
-            _status_line = "HTTP/1.1 409 Conflict\r\n";
-            _content_type = "text/html";
-            _response_header = "Content-Type: " + _content_type + "\r\n";
-            _error_page.insert(pos, "<p>Error 409!<br>Conflict</p>");
-        }
-        else if (_status_code == 204)   {
-            _status_line = "HTTP/1.1 204 No Content\r\n";
-            _content_type = "text/html";
-            _response_header = "Content-Type: " + _content_type + "\r\n";
-            _error_page.insert(pos, "<p>Error 204!<br>No Content</p>");
-        }
-        else if (_status_code == 500)   {
-            _status_line = "HTTP/1.1 500 Internal Server Error\r\n";
-            _content_type = "text/html";
-            _response_header = "Content-Type: " + _content_type + "\r\n";
-            _error_page.insert(pos, "<p>Error 500!<br>Internal Server Error</p>");
-        }
-		else if (_status_code == 504)   {
-            _status_line = "HTTP/1.1 504 Gateway Timeout\r\n";
-            _content_type = "text/html";
-            _response_header = "Content-Type: " + _content_type + "\r\n";
-            _error_page.insert(pos, "<p>Error 504!<br>Gateway Timeout</p>");
-        }
+        set_error();
     }
-    // std::cerr << "test" << std::endl;
     _response = _status_line + _response_header;
 	if (!_cgi->is_complete)
 		_response += "\r\n";
     bzero(_response_buffer, BUFFER_SIZE);
     strcpy(_response_buffer, _response.c_str());
-    is_header = true;
-    // std::cerr << _response << std::endl;
+    // is_header = true;
     _response_length = _response.length();
 }
 
@@ -453,6 +492,6 @@ void Response::find_files() {
     }
     _file.write(file.c_str(), file.length());
     _file.close();
-    _file.open("/nfs/homes/aharrass/.cache/autoindex.html", std::ios::in);
+    _file.open(tmp.c_str(), std::ios::in);
 }
 

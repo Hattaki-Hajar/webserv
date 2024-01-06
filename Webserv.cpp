@@ -131,8 +131,9 @@ void	Webserv::start()
 				}
 				if (!_Clients[client_nb]->get_done_reading())
 					_Clients[client_nb]->parse_request();
-				if (_Clients[client_nb]->get_done_reading() && !_Clients[client_nb]->_response)
+				if (_Clients[client_nb]->get_done_reading() && !_Clients[client_nb]->_response) {
 					_Clients[client_nb]->generateResponse();
+				}
 				_Clients[client_nb]->clear_buffer();
 			}
 			if (events[j].events & EPOLLOUT && _Clients[client_nb]->get_done_reading() && !_Clients[client_nb]->_cgi->is_running)

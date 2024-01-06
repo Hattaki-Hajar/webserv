@@ -87,7 +87,8 @@ Client::~Client() {
 	close(_socket);
 	delete _event;
 	delete _request;
-	if (_cgi)
-		delete _cgi;
+	// if (_cgi)
+	// 	delete _cgi;
+	delete _response;
 }
 
