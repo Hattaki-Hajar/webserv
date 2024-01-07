@@ -117,7 +117,8 @@ void	Cgi::php_setup(const std::string &file_path)
     tmp += "/.cache/cgi"; 
 	file_name = tmp + file_name;
 	this->_response->set_file_name(file_name);
-	umask(0);
+	std::cout << file_name << std::endl;
+	// umask(0);
 	this->_outfile = open(file_name.c_str(), O_CREAT | O_RDWR, 0666);
 	if (_outfile == -1) {
 		std::cerr << "file not open" << std::endl;
@@ -167,8 +168,9 @@ void	Cgi::py_setup(const std::string &file_path)
     tmp += USER;
     tmp += "/.cache/cgi"; 
 	file_name = tmp + file_name;
+	std::cout << file_name << std::endl;
 	_response->set_file_name(file_name);
-	umask(0);
+	// umask(0);
 	this->_outfile = open(file_name.c_str(), O_CREAT | O_RDWR, 0666);
 	if (_outfile == -1) {
 		std::cerr << "file not open" << std::endl;

@@ -6,7 +6,7 @@
 /*   By: aharrass <aharrass@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/31 21:59:20 by aharrass          #+#    #+#             */
-/*   Updated: 2024/01/06 16:26:42 by aharrass         ###   ########.fr       */
+/*   Updated: 2024/01/07 17:20:29 by aharrass         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,7 +86,6 @@ void Response::get()  {
             {
                 std::cerr << e.what() << std::endl;
             }
-            
             if (_status_code == 200)    {
                 _file.open(_file_name.c_str(), std::ios::in);
                 if (!_file.good())  {

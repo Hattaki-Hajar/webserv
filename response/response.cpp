@@ -6,7 +6,7 @@
 /*   By: aharrass <aharrass@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/14 15:34:16 by aharrass          #+#    #+#             */
-/*   Updated: 2024/01/07 15:34:34 by aharrass         ###   ########.fr       */
+/*   Updated: 2024/01/07 17:21:16 by aharrass         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,10 +32,10 @@ Response::Response(unsigned int status_code, Client &client)
     _server_index_path = _client->get_server().get_index();
     _server_error_pages = _client->get_server().get_error_pages();
     match_uri();
-    std::cout << "---------------------------------------" << std::endl;
-    std::cout << "old uri = " << _old_uri << std::endl;
-    std::cout << "new uri = " << _uri << std::endl;
-    std::cout << "---------------------------------------" << std::endl;
+    // std::cout << "---------------------------------------" << std::endl;
+    // std::cout << "old uri = " << _old_uri << std::endl;
+    // std::cout << "new uri = " << _uri << std::endl;
+    // std::cout << "---------------------------------------" << std::endl;
     _request_line = _client->get_request()->get_request_line();
     fill_extentions();
     fill_error_line();
@@ -300,6 +300,8 @@ void    Response::set_body()    {
                 for (int i = 0; i < _response_length; i++) {
                     _response_buffer[i] = _error_page[i];
                 }
+                std::cout << "Write Length: " << _response_length << std::endl;
+                std::cout << "header content Length: " << _content_length << std::endl;
                 is_complete = true;
                 _file.close();
                 is_header = true;
@@ -309,8 +311,8 @@ void    Response::set_body()    {
                 _response_length = _file.gcount();
                 if (_response_length == 0) {
                     is_complete = true;
-                    std::remove(_file_name.c_str());
-                    _file.close();
+                    // std::remove(_file_name.c_str());
+                    // _file.close();
                     is_header = true;
                 }
             }
@@ -329,8 +331,8 @@ void    Response::set_body()    {
             _response_length = _file.gcount();
             if (_response_length == 0 && !this->_cgi->is_running)  {
                 is_complete = true;
-                std::remove(_file_name.c_str());
-                _file.close();
+                // std::remove(_file_name.c_str());
+                // _file.close();
                 // close(_file);
             }
         }
@@ -392,9 +394,8 @@ void    Response::set_error() {
             _response_header = "Content-Type: " + _content_type + "\r\n";
             std::stringstream ss;
             ss << _error_page.length();
-            std::string tmp;
-            ss >> tmp;
-            _response_header += "Content-Length: " + tmp + "\r\n";
+            ss >> _content_length;
+            _response_header += "Content-Length: " + _content_length + "\r\n";
         }
         is_header = true;
     }
@@ -405,6 +406,7 @@ void   Response::set_headers()    {
     if (_status_code == 200)    {
         _status_line = "HTTP/1.1 200 OK\r\n";
 		if (!_cgi->is_complete)	{
+            std::cout << "-------------------------huh" << std::endl;
         	_response_header = "Content-Type: " + _content_type + "\r\n";
 		}
         is_header = true;
@@ -444,7 +446,7 @@ void Response::find_files() {
 	std::string file, name, path;
     unsigned char type;
 	file = "<!DOCTYPE html>\n<html>\n<head>\n<title>Index of ";
-	file += _uri;
+	file += _old_uri;
 	file += "</title>\n</head>\n<body>\n<h1>Index of ";
 	file += _old_uri + "</h1>\n<hr>\n<pre>\n<table>\n<tbody>\n";
 	dir = opendir(_uri.c_str());

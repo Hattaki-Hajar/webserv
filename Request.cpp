@@ -93,6 +93,13 @@ bool	Request::is_req_well_formed(void) {
 		_status_code = 414;
 		return (false);
 	}
+	// Check if the content type is not supported.
+	if (_headers.find("Content-Type") != _headers.end()) {
+		if (_headers["Content-Type"].find("multipart") != std::string::npos) {
+			_status_code = 400;
+			return (false);
+		}
+	}
 	return (true);
 }
 
@@ -155,8 +162,8 @@ void	Request::split_request(char *buffer, ssize_t bytesread) {
 		_request_headers += buffer[i];
 		i++;
 	}
-	if (_request_line.method == "POST" || _request_line.method == "GET" || _request_line.method == "DELETE" ) {
-		if (!_is_file_open && _request_line.method == "POST") {
+	if (_request_line.method == "POST") {
+		if (!_is_file_open) {
 			std::string	extension = generate_extension();
 			_file_path = "/nfs/homes/";
 			_file_path += USER;
@@ -204,7 +211,7 @@ void	Request::split_request(char *buffer, ssize_t bytesread) {
 						i += 2;
 					}
 					// Check for the end of the request.
-					if (_remaining[i] == '0' && _remaining[i + 1] == '\r' && _remaining[i + 2] == '\n') {
+					if (buffer[i] == '0' && buffer[i + 1] == '\r' && buffer[i + 2] == '\n') {
 						_end_of_request = true;
 						return ;
 					}
@@ -288,6 +295,7 @@ void	Request::split_request(char *buffer, ssize_t bytesread) {
 	}
 	// If the request is not a POST.
 	else {
+		std::cout << "debug: not a post" << std::endl;
 		_end_of_request = true;
 		return ;
 	}
