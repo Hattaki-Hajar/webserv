@@ -72,35 +72,27 @@ std::string	Request::get_file_path() const {
 	return (_file_path);
 }
 /*	additional functions	*/
-bool	Request::is_req_well_formed(void) {
+void	Request::is_req_well_formed(void) {
 	// Check if Transfer-Encoding header exist and is different to “chunked”.
-	if (_headers.find("Transfer-Encoding") != _headers.end() && _headers["Transfer-Encoding"] != "chunked") {
+	if (_headers.find("Transfer-Encoding") != _headers.end() && _headers["Transfer-Encoding"] != "chunked")
 		_status_code = 501;
-		return (false);
-	}
 	// Check if Transfer-Encoding not exist, Content-Length not exist and the method is Post
-	if (_headers.find("Transfer-Encoding") != _headers.end() && _headers.find("Content-Length") != _headers.end() && _request_line.method == "POST") {
+	if (_headers.find("Transfer-Encoding") != _headers.end() && _headers.find("Content-Length") != _headers.end() && _request_line.method == "POST")
 		_status_code = 400;
-		return (false);
-	}
 	// Check the request uri contain a character not allowed.
-	if (_request_line.uri.find_first_not_of("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~:/?#[]@!$&'()*+,;=%") != std::string::npos) {
+	if (_request_line.uri.find_first_not_of("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~:/?#[]@!$&'()*+,;=%") != std::string::npos)
 		_status_code = 400;
-		return (false);
-	}
 	// Check if the request uri contain more the 2048 chars.
-	if (_request_line.uri.length() > 2048) {
+	if (_request_line.uri.length() > 2048)
 		_status_code = 414;
-		return (false);
-	}
 	// Check if the content type is not supported.
 	if (_headers.find("Content-Type") != _headers.end()) {
-		if (_headers["Content-Type"].find("multipart") != std::string::npos) {
-			_status_code = 400;
-			return (false);
-		}
+		if (_headers["Content-Type"].find("multipart") != std::string::npos)
+			_status_code = 501;
 	}
-	return (true);
+	// Check if the request method is not supported.
+	if (_request_line.method != "GET" && _request_line.method != "DELETE" && _request_line.method != "POST")
+		_status_code = 501;
 }
 
 std::string	Request::generate_extension() {
@@ -151,28 +143,26 @@ void	Request::split_request(char *buffer, ssize_t bytesread) {
 						_headers_read = true;
 						this->parse_request();
 						// parse for error codes
-						if (!is_req_well_formed()) {
-							// std::cout << "debug: request not well formed" << std::endl;
-							_end_of_request = true;
-							return ;
-						}
+						is_req_well_formed();
 						i += 4;
 						break ;
 					}
 		_request_headers += buffer[i];
 		i++;
 	}
-	if (_request_line.method == "POST") {
-		if (!_is_file_open) {
-			std::string	extension = generate_extension();
-			_file_path = "/nfs/homes/";
-			_file_path += USER;
-			_file_path += "/.cache/" + generate_request_file() + extension;
-			_file.open(_file_path.c_str(), std::ios::out | std::ios::app);
-			if (!_file.good()) {
-				return ;
+	if (_request_line.method == "POST" || _request_line.method == "DELETE" || _request_line.method == "GET") {
+		if (_request_line.method == "POST" && _status_code == 200) {
+			if (!_is_file_open) {
+				std::string	extension = generate_extension();
+				_file_path = "/nfs/homes/";
+				_file_path += USER;
+				_file_path += "/.cache/" + generate_request_file() + extension;
+				_file.open(_file_path.c_str(), std::ios::out | std::ios::app);
+				if (!_file.good()) {
+					return ;
+				}
+				_is_file_open = true;
 			}
-			_is_file_open = true;
 		}
 		// Check if the request is chunked.
 		if (get_headers().find("Transfer-Encoding") != get_headers().end() && get_headers()["Transfer-Encoding"] == "chunked") {
@@ -211,9 +201,14 @@ void	Request::split_request(char *buffer, ssize_t bytesread) {
 						i += 2;
 					}
 					// Check for the end of the request.
-					if (_remaining[i] == '0' && _remaining[i + 1] == '\r' && _remaining[i + 2] == '\n') {
-						_end_of_request = true;
-						return ;
+					if (bytesread >= 5) {
+						if (buffer[i] == '0' && buffer[i + 1] == '\r' && buffer[i + 2] == '\n') {
+							delete [] tmp;
+							delete [] _remaining;
+							_remaining = NULL;
+							_end_of_request = true;
+							return ;
+						}
 					}
 					// Delete the allocated buffers.
 					delete [] tmp;
@@ -249,8 +244,10 @@ void	Request::split_request(char *buffer, ssize_t bytesread) {
 			}
 			// Put the chunk into the file.
 			while (_chunk_read < _chunks_size && i < bytesread) {
-					_file.put(buffer[i]);
-					_file.flush();
+					if (_request_line.method == "POST" && _status_code == 200) {
+						_file.put(buffer[i]);
+						_file.flush();
+					}
 					_chunk_read++;
 					_size_read++;
 					i++;
@@ -282,8 +279,10 @@ void	Request::split_request(char *buffer, ssize_t bytesread) {
 		// If the request is not chunked.
 		else {
 			if (bytesread - i)	{
-				_file.write(buffer + i, bytesread - i);
-				_file.flush();
+				if ( _request_line.method == "POST" && _status_code == 200) {
+					_file.write(buffer + i, bytesread - i);
+					_file.flush();
+				}
 				_size_read += bytesread - i;
 			}
 			// Check if the request is complete.
@@ -292,12 +291,6 @@ void	Request::split_request(char *buffer, ssize_t bytesread) {
 				return ;
 			}
 		}
-	}
-	// If the request is not a POST.
-	else {
-		std::cout << "debug: not a post" << std::endl;
-		_end_of_request = true;
-		return ;
 	}
 }
 

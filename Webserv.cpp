@@ -121,7 +121,7 @@ void	Webserv::start()
 				continue ;
 			}
 			client_nb = find_client(_Clients, fd);
-			if (events[j].events & EPOLLIN)
+			if (events[j].events & EPOLLIN && !_Clients[client_nb]->get_done_reading())
 			{
 				bzero(_Clients[client_nb]->get_buffer(), BUFFER_SIZE + 1);
 				bytesread = read(fd, _Clients[client_nb]->get_buffer(), BUFFER_SIZE);
@@ -147,7 +147,7 @@ void	Webserv::start()
 					_Clients.erase(_Clients.begin() + client_nb);
 				}
 			}
-			this->check_cgi();
+			// this->check_cgi();
 		}
 	}
 }
@@ -177,7 +177,7 @@ void	Webserv::bind_Servers()
 		_Servers[i - 1]->bind_Server();
 	}
 }
-	/*  setters  */
+/*  setters  */
 void	Webserv::set_new_Server(size_t s)
 {
 	if (_Servers.size() < s + 1)

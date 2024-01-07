@@ -49,6 +49,6 @@ public:
 	/*	additional function	*/
 	void		split_request(char *, ssize_t);
 	void		parse_request(void);
-	bool		is_req_well_formed(void);
+	void		is_req_well_formed(void);
 	std::string	generate_extension();
 };
