@@ -1,6 +1,6 @@
 server {
     listen 127.0.0.1:1234;
-
+    server_name test.com;
     root /nfs/homes/aharrass/webserv;
     client_max_body_size 5000000000000000000000000000;
     #error_page 404 /nfs/homes/aharrass/webserv/index.html;
@@ -10,8 +10,9 @@ server {
         allow GET;
         allow POST;
         allow DELETE;
-        #upload /nfs/homes/aharrass/webserv/www/uploads;
+        upload /nfs/homes/aharrass/webserv/;
         cgi php /usr/bin/php-cgi;
+        cgi py /usr/bin/python3;
         cgi py /usr/bin/python3;
         autoindex on;
     }
@@ -24,16 +25,19 @@ server {
         cgi py /usr/bin/python3;
         autoindex on;
         root /nfs/homes/aharrass/webserv/;
+        cgi php /usr/bin/php-cgi;
+        cgi py /usr/bin/python3;
+        autoindex on;
         index index.html;
     }
 
     location  /webserv  {
-        root /nfs/homes/aharrass;
+        root /nfs/homes/aharrass/;
         #index index.html;
         autoindex on;
         allow POST;
         allow GET;
-        upload /nfs/homes/aharrass/webserv/;
+        upload /nfs/homes/hhattaki/Desktop/webserv/;
         cgi py /usr/bin/python3;
         cgi php /usr/bin/php-cgi;
     }
@@ -46,7 +50,8 @@ server {
     }
 }
 server {
-    listen 127.0.0.1:1243;
+    listen 127.0.1.1:1234;
+    server_name test1.com;
 
     root /nfs/homes/hhattaki;
     index index.html;

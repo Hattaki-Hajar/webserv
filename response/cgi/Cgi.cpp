@@ -1,6 +1,6 @@
 #include "Cgi.hpp"
 
-std::string generateUUID() {
+std::string generate_file_name() {
     // Seed for the random number generator
     std::srand(static_cast<unsigned>(time(0)));
 
@@ -111,7 +111,7 @@ void	Cgi::php_setup(const std::string &file_path)
 		this->_response->set_status_code(500);
 		return ;
 	}
-	std::string	file_name = generateUUID();
+	std::string	file_name = generate_file_name();
     std::string tmp = "/nfs/homes/";
     tmp += USER;
     tmp += "/.cache/cgi"; 
@@ -162,7 +162,7 @@ void	Cgi::py_setup(const std::string &file_path)
 		this->_response->set_status_code(500);
 		return ;
 	}
-	std::string	file_name = generateUUID();
+	std::string	file_name = generate_file_name();
     std::string tmp = "/nfs/homes/";
     tmp += USER;
     tmp += "/.cache/cgi"; 

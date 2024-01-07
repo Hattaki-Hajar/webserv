@@ -6,7 +6,7 @@
 /*   By: aharrass <aharrass@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/14 15:29:02 by aharrass          #+#    #+#             */
-/*   Updated: 2024/01/06 10:27:54 by aharrass         ###   ########.fr       */
+/*   Updated: 2024/01/07 15:22:54 by aharrass         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,7 @@ class   Response    {
         std::string _old_uri;
         std::string _query;
         std::string _content_type;
+        std::string _content_length;
         std::string _response;
         std::string _error_page;
         std::string _file_path;

@@ -143,6 +143,7 @@ void	Webserv::start()
 				{
 					epoll_ctl(epfd, EPOLL_CTL_DEL, fd, NULL);
 					close(fd);
+					std::cout << "write done" << std::endl;
 					delete _Clients[client_nb];
 					_Clients.erase(_Clients.begin() + client_nb);
 				}
@@ -168,15 +169,13 @@ void	Webserv::bind_Servers()
 		while (j < i)
 		{
 			if (_Servers[j]->get_port() == port && _Servers[j]->get_ip() == host)
-			{
-				throw std::runtime_error("Error: multiple servers with same port and ip!");
-			}
+				throw std::runtime_error("Error: port and host are the same!");
 			j++;
 		}
-		std::cout << "debug: should be here with " << std::endl;
-		std::cout << "i: " << i << " host: " << _Servers[i]->get_ip() << " port: " << _Servers[i]->get_port() << std::endl;
-		_Servers[i]->bind_Server();
 		i++;
+		if (found)
+			continue ;
+		_Servers[i - 1]->bind_Server();
 	}
 }
 	/*  setters  */

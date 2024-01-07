@@ -6,7 +6,7 @@
 /*   By: aharrass <aharrass@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/14 15:34:16 by aharrass          #+#    #+#             */
-/*   Updated: 2024/01/06 16:24:53 by aharrass         ###   ########.fr       */
+/*   Updated: 2024/01/07 15:34:34 by aharrass         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,11 @@ Response::Response(unsigned int status_code, Client &client)
     _request_line = _client->get_request()->get_request_line();
     fill_extentions();
     fill_error_line();
+    std::map<std::string, std::string> head = _client->get_request()->get_headers();
+    for (std::map<std::string, std::string>::iterator it = head.begin(); it != head.end(); ++it) {
+        std::cout << it->first << " : " << it->second << std::endl; 
+    }
+    
     _cgi = NULL;
     _error_page = "<!DOCTYPE html>\n<html>\n<head>\n<meta http-equiv=\"content-type\" content=\"text/html; charset=UTF-8\"\n>";
     _error_page += "<title>Error</title>\n<style>\n@import url('https://fonts.googleapis.com/css?family=Press Start 2P');\n";
@@ -425,6 +430,7 @@ void   Response::set_headers()    {
 		_response += "\r\n";
     bzero(_response_buffer, BUFFER_SIZE);
     strcpy(_response_buffer, _response.c_str());
+    std::cout << "[" << _response << "]" << std::endl;
     // is_header = true;
     _response_length = _response.length();
 }
@@ -492,6 +498,6 @@ void Response::find_files() {
     }
     _file.write(file.c_str(), file.length());
     _file.close();
-    _file.open("/nfs/homes/aharrass/.cache/autoindex.html", std::ios::in);
+    _file.open(tmp.c_str(), std::ios::in);
 }
 
