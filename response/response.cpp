@@ -6,7 +6,7 @@
 /*   By: aharrass <aharrass@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/14 15:34:16 by aharrass          #+#    #+#             */
-/*   Updated: 2024/01/07 17:21:16 by aharrass         ###   ########.fr       */
+/*   Updated: 2024/01/08 00:05:18 by aharrass         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -406,7 +406,6 @@ void   Response::set_headers()    {
     if (_status_code == 200)    {
         _status_line = "HTTP/1.1 200 OK\r\n";
 		if (!_cgi->is_complete)	{
-            std::cout << "-------------------------huh" << std::endl;
         	_response_header = "Content-Type: " + _content_type + "\r\n";
 		}
         is_header = true;
