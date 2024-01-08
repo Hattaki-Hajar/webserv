@@ -68,15 +68,11 @@ bool	Request::get_end_of_request() const {
 unsigned int	Request::get_status_code() const {
 	return (_status_code);
 }
-std::string	Request::get_file_path() const {
-	return (_file_path);
-}
 /*	additional functions	*/
 void	Request::is_req_well_formed(void) {
 	// Check if Transfer-Encoding header exist and is different to “chunked”.
-	if (_headers.find("Transfer-Encoding") == _headers.end() && _headers.find("Content-Length") == _headers.end() && _request_line.method == "POST") {
+	if (_headers.find("Transfer-Encoding") == _headers.end() && _headers.find("Content-Length") == _headers.end() && _request_line.method == "POST")
 		_status_code = 400;
-	}
 	if (_headers.find("Content-Type") == _headers.end() && _request_line.method == "POST")
 		_status_code = 400;
 	if (_headers.find("Transfer-Encoding") != _headers.end() && _headers["Transfer-Encoding"] != "chunked")
@@ -170,7 +166,7 @@ void	Request::split_request(char *buffer, ssize_t bytesread) {
 			}
 		}
 		// Check if the request is chunked.
-		if (get_headers().find("Transfer-Encoding") != get_headers().end() && get_headers()["Transfer-Encoding"] == "chunked") {
+		if (_headers.find("Transfer-Encoding") != _headers.end() && _headers.find("Transfer-Encoding")->second == "chunked") {
 			if (!_chunks_size) {
 				// Check if there is a remaining from the previous buffer.
 				if (_remaining)	{
@@ -206,14 +202,9 @@ void	Request::split_request(char *buffer, ssize_t bytesread) {
 						i += 2;
 					}
 					// Check for the end of the request.
-					if (bytesread >= 5) {
-						if (buffer[i] == '0' && buffer[i + 1] == '\r' && buffer[i + 2] == '\n') {
-							delete [] tmp;
-							delete [] _remaining;
-							_remaining = NULL;
-							_end_of_request = true;
-							return ;
-						}
+					if (buffer[i] == '0' && buffer[i + 1] == '\r' && buffer[i + 2] == '\n') {
+						_end_of_request = true;
+						return ;
 					}
 					// Delete the allocated buffers.
 					delete [] tmp;
@@ -279,6 +270,8 @@ void	Request::split_request(char *buffer, ssize_t bytesread) {
 				// Check if the remaining is the end of the request.
 				if (_remaining_size >= 5) {
 					if (_remaining[0] == '\r' && _remaining[1] == '\n' && _remaining[2] == '0' && _remaining[3] == '\r' && _remaining[4] == '\n') {
+						delete [] _remaining;
+						_remaining = NULL;
 						_end_of_request = true;
 						return ;
 					}
@@ -286,7 +279,7 @@ void	Request::split_request(char *buffer, ssize_t bytesread) {
 			}
 		}
 		// If the request is not chunked.
-		else {
+		else if (_headers.find("Content-Length") != _headers.end() && _headers.find("Content-Length")->second != "0") {
 			if (bytesread - i)	{
 				if ( _request_line.method == "POST" && _status_code == 200) {
 					_file.write(buffer + i, bytesread - i);
@@ -295,10 +288,14 @@ void	Request::split_request(char *buffer, ssize_t bytesread) {
 				_size_read += bytesread - i;
 			}
 			// Check if the request is complete.
-			if (get_size_read() == atol(get_headers()["Content-Length"].c_str())) {
+			if (get_size_read() == atol(_headers.find("Content-Length")->second.c_str())) {
 				_end_of_request = true;
 				return ;
 			}
+		}
+		else if (_request_line.method == "GET" || _request_line.method == "DELETE" || _request_line.method == "POST") {
+			_end_of_request = true;
+			return ;
 		}
 	}
 }

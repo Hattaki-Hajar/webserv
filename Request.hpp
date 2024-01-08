@@ -30,6 +30,7 @@ class Request
 	bool								_headers_read;
 	bool								_end_of_request;
 	unsigned int						_status_code;
+
 public:
 	/*	constructor destructor	*/
 	Request();
@@ -45,6 +46,7 @@ public:
 	std::string							get_file_path() const;
 	bool								get_end_of_request() const;
 	unsigned int						get_status_code() const;
+	
 	
 	/*	additional function	*/
 	void		split_request(char *, ssize_t);

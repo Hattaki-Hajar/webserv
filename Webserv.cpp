@@ -138,6 +138,7 @@ void	Webserv::start()
 			}
 			if (events[j].events & EPOLLOUT && _Clients[client_nb]->get_done_reading() && !_Clients[client_nb]->_cgi->is_running)
 			{
+				std::cout << "sending response" << std::endl;
 				write(fd, _Clients[client_nb]->_response->send(), _Clients[client_nb]->_response->getResponse_length());
 				if (_Clients[client_nb]->_response->getIs_complete())
 				{
@@ -147,7 +148,7 @@ void	Webserv::start()
 					_Clients.erase(_Clients.begin() + client_nb);
 				}
 			}
-			// this->check_cgi();
+			this->check_cgi();
 		}
 	}
 }

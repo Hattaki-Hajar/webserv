@@ -13,6 +13,7 @@ Client::Client(Server &s):_server(s) {
 	_request = new Request();
 	_cgi = 0;
 	this->_response = 0;
+	_startTime = clock();
 }
 
 void Client::generateResponse() {
@@ -59,13 +60,16 @@ const Request	*Client::get_request() const {
 bool	Client::get_done_reading() const {
 	return (_done_reading);
 }
+std::string	Request::get_file_path() const {
+	return (_file_path);
+}
+
 	/*  Additional funcs  */
 void	Client::clear_buffer() {
 	bzero(_buffer, BUFFER_SIZE + 1);
 }
 void	Client::parse_request() {
 	_request->split_request(_buffer, _bytesread);
-
 
 	if (_request->get_end_of_request()) {
 		_done_reading = true;

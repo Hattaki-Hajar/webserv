@@ -5,7 +5,7 @@ int main(int ac, char *av[])
 {
 	(void)av;
 	std::string file;
-	// signal(SIGPIPE, SIG_IGN);
+	signal(SIGPIPE, SIG_IGN);
 	if (ac > 2)
 	{
 		std::cerr << "Error: wrong number of arguments!" << std::endl;

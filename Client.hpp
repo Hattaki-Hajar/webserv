@@ -18,6 +18,8 @@ class Client
 	bool				_done_reading;
 	Request 			*_request;
 	unsigned int		_status_code;
+	clock_t								_startTime;
+	clock_t								_currentTime;
 	Client();
 public:
 	Cgi					*_cgi;
@@ -41,6 +43,7 @@ public:
 	bool				get_reading_status(void) const;
 	const Request		*get_request() const;
 	bool				get_done_reading() const;
+
 	/*  additional funcs  */
 	void	clear_buffer();
 	void	parse_request();

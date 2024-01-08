@@ -32,10 +32,10 @@ Response::Response(unsigned int status_code, Client &client)
     _server_index_path = _client->get_server().get_index();
     _server_error_pages = _client->get_server().get_error_pages();
     match_uri();
-    // std::cout << "---------------------------------------" << std::endl;
-    // std::cout << "old uri = " << _old_uri << std::endl;
-    // std::cout << "new uri = " << _uri << std::endl;
-    // std::cout << "---------------------------------------" << std::endl;
+    std::cout << "---------------------------------------" << std::endl;
+    std::cout << "old uri = " << _old_uri << std::endl;
+    std::cout << "new uri = " << _uri << std::endl;
+    std::cout << "---------------------------------------" << std::endl;
     _request_line = _client->get_request()->get_request_line();
     fill_extentions();
     fill_error_line();
@@ -381,6 +381,9 @@ void    Response::set_error() {
         }
         else if (_status_code == 504) {
             _error_page.insert(pos, "<p>Error 504!<br>Gateway Timeout</p>");
+        }
+        else if (_status_code == 408) {
+            _error_page.insert(pos, "<p>Error 408!<br>Request Timeout</p>");
         }
         if (_request_line.method != "HEAD"){
             _content_type = "text/html";
