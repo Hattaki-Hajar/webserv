@@ -246,6 +246,10 @@ void	Request::split_request(char *buffer, ssize_t bytesread) {
 				std::stringstream hex;
 				hex << std::hex << line;
 				hex >> _chunks_size;
+				if (_chunks_size == 0) {
+					_end_of_request = true;
+					return ;
+				}
 			}
 			// Put the chunk into the file.
 			while (_chunk_read < _chunks_size && i < bytesread) {
