@@ -293,10 +293,10 @@ void	Request::split_request(char *buffer, ssize_t bytesread) {
 				return ;
 			}
 		}
-		else if (_request_line.method == "GET" || _request_line.method == "DELETE" || _request_line.method == "POST") {
-			_end_of_request = true;
-			return ;
-		}
+		// else if (_request_line.method == "GET" || _request_line.method == "DELETE" || _request_line.method == "POST") {
+		// 	_end_of_request = true;
+		// 	return ;
+		// }
 	}
 }
 
