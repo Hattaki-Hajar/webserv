@@ -38,7 +38,7 @@ server {
         allow POST;
         allow GET;
         allow DELETE;
-        upload /nfs/homes/aharrass/webserv/;
+        upload /nfs/homes/aharrass/webserv;
         cgi py /usr/bin/python3;
         cgi php /usr/bin/php-cgi;
     }

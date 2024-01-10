@@ -34,7 +34,8 @@ Cgi::Cgi(std::map<std::string, std::string> headers, Response *response)
 }
 
 Cgi::~Cgi() {
-	delete[] _env;
+	// std::cout << "cgi destructor" << std::endl;
+	delete [] _env;
 }
 
 int Cgi::get_outfile() const {
@@ -77,7 +78,7 @@ void	Cgi::setup_env(std::map<std::string, std::string> headers)
 	for (it = this->_headers.begin(); it != this->_headers.end(); it++, i++)
 	{
 		temp = (it->first) + "=" + (it->second);
-		_env[i] = const_cast<char*>(temp.c_str());
+		_env[i] = const_cast<char*>((new std::string(temp))->c_str());
 	}
     _env[i] = 0;
 }
@@ -103,7 +104,7 @@ void	Cgi::run(const std::string &bin)
 
 void	Cgi::php_setup(const std::string &file_path)
 {
-	std::cout << "php setup" << std::endl;
+	// std::cout << "php setup" << std::endl;
 	std::map<std::string, std::string>::iterator    it = this->_extension_map.find("php");
 	int check = access((it->second).c_str(), F_OK && X_OK);
 	if (check)
@@ -117,7 +118,7 @@ void	Cgi::php_setup(const std::string &file_path)
     tmp += "/.cache/cgi"; 
 	file_name = tmp + file_name;
 	this->_response->set_file_name(file_name);
-	std::cout << file_name << std::endl;
+	// std::cout << file_name << std::endl;
 	// umask(0);
 	this->_outfile = open(file_name.c_str(), O_CREAT | O_RDWR, 0666);
 	if (_outfile == -1) {
@@ -139,7 +140,7 @@ void	Cgi::php_setup(const std::string &file_path)
 	this->_start = clock();
 	this->_pid = fork();
 	if (!this->_pid)
-		run("/usr/bin/php-cgi");
+		run(it->second);
 	else    {
 		int status;
 		close(this->_outfile);
@@ -155,7 +156,7 @@ void	Cgi::php_setup(const std::string &file_path)
 
 void	Cgi::py_setup(const std::string &file_path)
 {
-	std::cout << "py setup" << std::endl;
+	// std::cout << "py setup" << std::endl;
 	std::map<std::string, std::string>::iterator    it = this->_extension_map.find("py");
 	int check = access((it->second).c_str(), F_OK && X_OK);
 	if (check)
@@ -168,7 +169,7 @@ void	Cgi::py_setup(const std::string &file_path)
     tmp += USER;
     tmp += "/.cache/cgi"; 
 	file_name = tmp + file_name;
-	std::cout << file_name << std::endl;
+	// std::cout << file_name << std::endl;
 	_response->set_file_name(file_name);
 	// umask(0);
 	this->_outfile = open(file_name.c_str(), O_CREAT | O_RDWR, 0666);

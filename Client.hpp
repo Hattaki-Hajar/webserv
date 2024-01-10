@@ -24,6 +24,10 @@ public:
 	Response			*_response;
 	sockaddr_in			_addr;
 	unsigned int		_addr_size;
+	clock_t				start;
+	clock_t				end;
+	bool				timeout;
+
 	/*  constructer/destructer  */
 	Client(Server &);
 	~Client();

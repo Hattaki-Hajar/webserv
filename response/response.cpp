@@ -6,7 +6,7 @@
 /*   By: aharrass <aharrass@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/14 15:34:16 by aharrass          #+#    #+#             */
-/*   Updated: 2024/01/08 00:05:18 by aharrass         ###   ########.fr       */
+/*   Updated: 2024/01/10 17:19:40 by aharrass         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@ Response::Response()    {
 Response::Response(unsigned int status_code, Client &client)
 : _status_code(status_code)   {
     _client = &client;
+    _total_response_body_length = 0;
     _error_file_good = 0;
     is_complete = false;
     is_header = false;
@@ -37,12 +38,9 @@ Response::Response(unsigned int status_code, Client &client)
     // std::cout << "new uri = " << _uri << std::endl;
     // std::cout << "---------------------------------------" << std::endl;
     _request_line = _client->get_request()->get_request_line();
+    
     fill_extentions();
     fill_error_line();
-    std::map<std::string, std::string> head = _client->get_request()->get_headers();
-    for (std::map<std::string, std::string>::iterator it = head.begin(); it != head.end(); ++it) {
-        std::cout << it->first << " : " << it->second << std::endl; 
-    }
     
     _cgi = NULL;
     _error_page = "<!DOCTYPE html>\n<html>\n<head>\n<meta http-equiv=\"content-type\" content=\"text/html; charset=UTF-8\"\n>";
@@ -55,7 +53,7 @@ Response::Response(unsigned int status_code, Client &client)
 }
 
 Response::~Response()   {
-	delete _cgi;
+	// delete _cgi;
 }
 
 // void    Response::set_cgi() {
@@ -300,8 +298,6 @@ void    Response::set_body()    {
                 for (int i = 0; i < _response_length; i++) {
                     _response_buffer[i] = _error_page[i];
                 }
-                std::cout << "Write Length: " << _response_length << std::endl;
-                std::cout << "header content Length: " << _content_length << std::endl;
                 is_complete = true;
                 _file.close();
                 is_header = true;
@@ -319,9 +315,6 @@ void    Response::set_body()    {
         }
         else
             _response_length = 0;
-        // is_complete = true;
-        // // close(_file);
-        // _file.close();
     }
     else {
         if (_response_length > 0)    {
@@ -329,10 +322,14 @@ void    Response::set_body()    {
             _file.read(_response_buffer, BUFFER_SIZE);
             // std::cout << _response_buffer << std::endl;
             _response_length = _file.gcount();
+            _total_response_body_length += _response_length;
             if (_response_length == 0 && !this->_cgi->is_running)  {
                 is_complete = true;
-                // std::remove(_file_name.c_str());
-                // _file.close();
+                std::stringstream ss;
+                ss << _total_response_body_length;
+                ss >> _content_length;
+                std::remove(_file_name.c_str());
+                _file.close();
                 // close(_file);
             }
         }
@@ -426,12 +423,14 @@ void   Response::set_headers()    {
     else    {
         set_error();
     }
+    // if (_status_code == 200)
+    //     _response_header += "Content-Length: " + _content_length + "\r\n";
     _response = _status_line + _response_header;
 	if (!_cgi->is_complete)
 		_response += "\r\n";
     bzero(_response_buffer, BUFFER_SIZE);
     strcpy(_response_buffer, _response.c_str());
-    std::cout << "[" << _response << "]" << std::endl;
+    // std::cout << "[" << _response << "]" << std::endl;
     // is_header = true;
     _response_length = _response.length();
 }
@@ -498,6 +497,9 @@ void Response::find_files() {
         return;
     }
     _file.write(file.c_str(), file.length());
+    std::stringstream sg;
+    sg << file.length();
+    sg >> _content_length;
     _file.close();
     _file.open(tmp.c_str(), std::ios::in);
 }

@@ -54,8 +54,12 @@ void	Response::delete_method()
 	_status_code = 204;
 	int type = get_resource_type();
 	std::cout << "type = " << type << std::endl;
-	if (type == NOT_FOUND)
-		_status_code = 404;
+	if (type == NOT_FOUND) {
+		if (access(_uri.c_str(), F_OK) == 0)
+			_status_code = 403;
+		else
+			_status_code = 404;
+	}
 	else if (type == FILE) {
 		if (std::remove(_uri.c_str()))
 		{

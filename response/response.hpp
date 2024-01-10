@@ -6,7 +6,7 @@
 /*   By: aharrass <aharrass@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/14 15:29:02 by aharrass          #+#    #+#             */
-/*   Updated: 2024/01/07 15:22:54 by aharrass         ###   ########.fr       */
+/*   Updated: 2024/01/08 20:10:31 by aharrass         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,6 +56,7 @@ class   Response    {
         bool    is_complete;
         bool    is_header;
         int _response_length;
+        int _total_response_body_length;
         Cgi *_cgi;
 
         Response();

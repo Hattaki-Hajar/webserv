@@ -5,6 +5,7 @@
 #include <stdexcept>
 #include <sys/types.h>
 #include <dirent.h>
+#include <unistd.h>
 
 #define DIREC 0
 #define FILE 1

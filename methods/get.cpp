@@ -6,7 +6,7 @@
 /*   By: aharrass <aharrass@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/31 21:59:20 by aharrass          #+#    #+#             */
-/*   Updated: 2024/01/07 17:20:29 by aharrass         ###   ########.fr       */
+/*   Updated: 2024/01/10 17:22:18 by aharrass         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,8 +15,10 @@
 void Response::get()  {
     int type = get_resource_type();
     if (type == NOT_FOUND)   {
-        _status_code = 404;
-        // std::cout << "huh" << std::endl;
+        if (access(_uri.c_str(), F_OK) == 0)
+            _status_code = 403;
+        else
+            _status_code = 404;
     }
     else if (type == DIREC) {
         if (_uri[_uri.length() - 1] != '/') {
@@ -53,7 +55,7 @@ void Response::get()  {
             }
             else  {
                 if (_location.autoindex)   {
-                    std::cout << "here" << std::endl;
+                    // std::cout << "here" << std::endl;
                     find_files();
                     _content_type = "text/html";
                     return ;
@@ -66,7 +68,7 @@ void Response::get()  {
         }
     }
     else if (type == FILE)  {
-		std::cout << "debug: in get file" << std::endl;
+		// std::cout << "debug: in get file" << std::endl;
         std::string extension = get_ext();
 		std::map<std::string, std::string>::iterator it = _location.cgi.find(extension);
         if ((extension == "php" && it != _location.cgi.end()) || (extension == "py" && it != _location.cgi.end())){
@@ -87,6 +89,7 @@ void Response::get()  {
                 std::cerr << e.what() << std::endl;
             }
             if (_status_code == 200)    {
+                // usleep(1000);
                 _file.open(_file_name.c_str(), std::ios::in);
                 if (!_file.good())  {
                     std::cout << "fail" << std::endl;

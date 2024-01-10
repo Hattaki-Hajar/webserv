@@ -12,10 +12,14 @@ Client::Client(Server &s):_server(s) {
 	_status_code = 200;
 	_request = new Request();
 	_cgi = 0;
+	this->timeout = false;
+	this->start = clock();
 	this->_response = 0;
 }
 
 void Client::generateResponse() {
+	if (this->timeout)
+		this->_status_code = 408;
 	this->_response = new Response(this->_status_code, *this);
 	this->_cgi = new Cgi(_request->get_headers(), this->_response);
 	this->_response->set_cgi(this->_cgi);
@@ -66,7 +70,7 @@ void	Client::clear_buffer() {
 void	Client::parse_request() {
 	_request->split_request(_buffer, _bytesread);
 
-
+	// std::cout << "end of request: " << _request->get_end_of_request() << std::endl;
 	if (_request->get_end_of_request()) {
 		_done_reading = true;
 		_status_code = _request->get_status_code();
@@ -85,7 +89,7 @@ Client::~Client() {
 	delete _event;
 	delete _request;
 	// if (_cgi)
-	// 	delete _cgi;
+		delete _cgi;
 	delete _response;
 }
 

@@ -41,6 +41,7 @@ public:
 	void	bind_Servers();
 	void	new_connection(Server &);
 	void	check_cgi();
+	void	client_timeout();
 
 	// void	listen_directive(std::string &, int, int);
 };
