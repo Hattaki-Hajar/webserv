@@ -19,7 +19,7 @@ Client::Client(Server &s):_server(s) {
 
 void Client::generateResponse() {
 	if (this->timeout)
-		this->_status_code = 408;
+		this->_status_code = 504;
 	this->_response = new Response(this->_status_code, *this);
 	this->_cgi = new Cgi(_request->get_headers(), this->_response);
 	this->_response->set_cgi(this->_cgi);

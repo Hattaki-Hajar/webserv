@@ -104,8 +104,11 @@ void	Webserv::client_timeout() {
 		time = (double)(clock() - _Clients[i]->start) / CLOCKS_PER_SEC;
 		std::cout << "time: " << time << std::endl;
 		if (time > 5) {
+			std::cout << "timeout" << std::endl;
 			this->_Clients[i]->set_reading_status(true);
 			this->_Clients[i]->timeout = true;
+			if (!this->_Clients[i]->_response)
+				this->_Clients[i]->generateResponse();
 		}
 			
 	}
@@ -148,16 +151,18 @@ void	Webserv::start()
 					_Clients[client_nb]->parse_request();
 				std::cout << "done reading: " << _Clients[client_nb]->get_done_reading() << std::endl;
 				if (_Clients[client_nb]->get_done_reading() && !_Clients[client_nb]->_response) {
+					// std::cout 
 					_Clients[client_nb]->generateResponse();
 				}
 				_Clients[client_nb]->clear_buffer();
 			}
 			if (events[j].events & EPOLLOUT && _Clients[client_nb]->get_done_reading() && !_Clients[client_nb]->_cgi->is_running)
 			{
+				std::cout << "*" << _Clients[client_nb]->_response->send() << std::endl;
 				write(fd, _Clients[client_nb]->_response->send(), _Clients[client_nb]->_response->getResponse_length());
 				if (_Clients[client_nb]->_response->getIs_complete())
 				{
-					// std::cout << "write done" << std::endl;
+					std::cout << "write done" << std::endl;
 					epoll_ctl(epfd, EPOLL_CTL_DEL, fd, NULL);
 					close(fd);
 					delete _Clients[client_nb];
