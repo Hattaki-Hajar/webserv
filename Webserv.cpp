@@ -102,10 +102,12 @@ void	Webserv::client_timeout() {
 
 	for(size_t i = 0; i < _Clients.size(); i++) {
 		time = (double)(clock() - _Clients[i]->start) / CLOCKS_PER_SEC;
-		std::cout << "time: " << time << std::endl;
-		if (time > 5) {
+		// std::cout << "time: " << time << std::endl;
+		if (time > 30) {
 			this->_Clients[i]->set_reading_status(true);
 			this->_Clients[i]->timeout = true;
+			if (!this->_Clients[i]->_response)
+				this->_Clients[i]->generateResponse();
 		}
 			
 	}

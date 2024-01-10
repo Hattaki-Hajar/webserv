@@ -6,7 +6,7 @@
 /*   By: aharrass <aharrass@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/14 15:34:16 by aharrass          #+#    #+#             */
-/*   Updated: 2024/01/10 17:19:40 by aharrass         ###   ########.fr       */
+/*   Updated: 2024/01/10 18:52:50 by aharrass         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -143,10 +143,10 @@ std::string Response::get_ext() const   {
 }
 
 void    Response::fill_error_line() {
-    const int code[] = {400, 501, 414, 413, 404, 405, 403, 409, 500, 504};
+    const int code[] = {400, 501, 414, 413, 404, 405, 403, 408, 409, 500, 504};
     const char* line[] = {"Bad Request", "Not Implemented", "Request-URI Too Long",
         "Request Entity Too Large", "Not Found", "Method Not Allowed", "Forbidden",
-        "Conflict", "Internal Server Error", "Gateway Timeout"};
+        "Request Time-out", "Conflict", "Internal Server Error", "Gateway Timeout"};
     size_t size = sizeof(line) / sizeof(line[0]);
     std::string tmp;
     for(size_t i = 0; i < size; i++)    {
@@ -376,6 +376,9 @@ void    Response::set_error() {
         }
         else if (_status_code == 403) {
             _error_page.insert(pos, "<p>Error 403!<br>Forbidden</p>");
+        }
+        else if (_status_code == 408) {
+            _error_page.insert(pos, "<p>Error 408!<br>Request Time-out</p>");
         }
         else if (_status_code == 409) {
             _error_page.insert(pos, "<p>Error 409!<br>Conflict</p>");
