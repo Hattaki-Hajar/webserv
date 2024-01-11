@@ -16,6 +16,7 @@ class Webserv
 	std::vector<Server *>	_Servers;
 	std::vector<Client *>		_Clients;
 public:
+	size_t size;
 	/* constructors / destructors */
 	Webserv();
 	~Webserv();

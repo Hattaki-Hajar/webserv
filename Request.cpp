@@ -49,6 +49,9 @@ Request::~Request() {
 }
 
 /*  setters  */
+void	Request::set_time_start(clock_t *time) {
+	this->time_start = time;
+}
 /*	getters	*/
 std::map<std::string, std::string>	Request::get_headers() const {
 	return (_headers);
@@ -150,9 +153,11 @@ void	Request::split_request(char *buffer, ssize_t bytesread) {
 		_request_headers += buffer[i];
 		i++;
 	}
+	std::cout << "status code: " << _status_code << std::endl;
 	if (_request_line.method == "POST" || _request_line.method == "DELETE" || _request_line.method == "GET") {
 		if (_request_line.method == "POST" && _status_code == 200) {
 			if (!_is_file_open) {
+				std::cout << "test" << std::endl;
 				std::string	extension = generate_extension();
 				_file_path = "/nfs/homes/";
 				_file_path += USER;
@@ -167,6 +172,7 @@ void	Request::split_request(char *buffer, ssize_t bytesread) {
 		// Check if the request is chunked.
 		if (get_headers().find("Transfer-Encoding") != get_headers().end() && get_headers()["Transfer-Encoding"] == "chunked") {
 			if (!_chunks_size) {
+				std::cout << "chunked" << std::endl;
 				// Check if there is a remaining from the previous buffer.
 				if (_remaining)	{
 					// Create a temporaty tmp to store the buffer.
@@ -246,6 +252,7 @@ void	Request::split_request(char *buffer, ssize_t bytesread) {
 			// Put the chunk into the file.
 			while (_chunk_read < _chunks_size && i < bytesread) {
 					if (_request_line.method == "POST" && _status_code == 200) {
+						*(this->time_start) = clock();
 						_file.put(buffer[i]);
 						_file.flush();
 					}
@@ -281,6 +288,7 @@ void	Request::split_request(char *buffer, ssize_t bytesread) {
 		else {
 			if (bytesread - i)	{
 				if ( _request_line.method == "POST" && _status_code == 200) {
+					*(this->time_start) = clock();
 					_file.write(buffer + i, bytesread - i);
 					_file.flush();
 				}

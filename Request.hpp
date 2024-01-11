@@ -31,12 +31,14 @@ class Request
 	bool								_end_of_request;
 	unsigned int						_status_code;
 public:
+	clock_t*	time_start;
 	/*	constructor destructor	*/
 	Request();
 	// Request(Request const &);
 	~Request();
 	// Request &operator=(Request const &);
 	/*	setters	*/
+	void	set_time_start(clock_t*);
 	/*	getters	*/
 	std::map<std::string, std::string>	get_headers() const;
 	const request_line					&get_request_line() const;

@@ -43,6 +43,15 @@ server {
         cgi php /usr/bin/php-cgi;
     }
 
+    location /aharrass {
+        root /nfs/sgoinfre/goinfre/Perso;
+        autoindex on;
+        allow GET;
+        allow POST;
+        allow DELETE;
+    }
+
+
     location   /test/barr  {
         root /var/www;
         allow GET;

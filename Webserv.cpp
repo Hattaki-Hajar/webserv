@@ -6,6 +6,7 @@
 Webserv::Webserv()
 {
 	_event = new epoll_event;
+	this->size = 0;
 }
 
 void	Webserv::new_connection(Server &s)
@@ -102,7 +103,7 @@ void	Webserv::client_timeout() {
 
 	for(size_t i = 0; i < _Clients.size(); i++) {
 		time = (double)(clock() - _Clients[i]->start) / CLOCKS_PER_SEC;
-		// std::cout << "time: " << time << std::endl;
+		std::cout << "time: " << time << std::endl;
 		if (time > 30) {
 			this->_Clients[i]->set_reading_status(true);
 			this->_Clients[i]->timeout = true;
@@ -142,13 +143,14 @@ void	Webserv::start()
 			{
 				bzero(_Clients[client_nb]->get_buffer(), BUFFER_SIZE + 1);
 				bytesread = read(fd, _Clients[client_nb]->get_buffer(), BUFFER_SIZE);
+				size += bytesread;
+				std::cout << "size = " << size << std::endl;
 				_Clients[client_nb]->set_bytesread(bytesread);
 				if (bytesread <= 0) {
 					continue ;
 				}
 				if (!_Clients[client_nb]->get_done_reading())
 					_Clients[client_nb]->parse_request();
-				std::cout << "done reading: " << _Clients[client_nb]->get_done_reading() << std::endl;
 				if (_Clients[client_nb]->get_done_reading() && !_Clients[client_nb]->_response) {
 					_Clients[client_nb]->generateResponse();
 				}
@@ -156,6 +158,7 @@ void	Webserv::start()
 			}
 			if (events[j].events & EPOLLOUT && _Clients[client_nb]->get_done_reading() && !_Clients[client_nb]->_cgi->is_running)
 			{
+				std::cout << "write" << std::endl;
 				write(fd, _Clients[client_nb]->_response->send(), _Clients[client_nb]->_response->getResponse_length());
 				if (_Clients[client_nb]->_response->getIs_complete())
 				{

@@ -11,6 +11,7 @@ Client::Client(Server &s):_server(s) {
 	_done_reading = false;
 	_status_code = 200;
 	_request = new Request();
+	_request->set_time_start(&start);
 	_cgi = 0;
 	this->timeout = false;
 	this->start = clock();
