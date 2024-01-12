@@ -89,10 +89,10 @@ void	Request::is_req_well_formed(void) {
 	if (_request_line.uri.length() > 2048)
 		_status_code = 414;
 	// Check if the content type is not supported.
-	if (_headers.find("Content-Type") != _headers.end()) {
-		if (_headers["Content-Type"].find("multipart") != std::string::npos)
-			_status_code = 501;
-	}
+	// if (_headers.find("Content-Type") != _headers.end()) {
+	// 	if (_headers["Content-Type"].find("multipart") != std::string::npos)
+	// 		_status_code = 501;
+	// }
 	// Check if the request method is not supported.
 	if (_request_line.method != "GET" && _request_line.method != "DELETE" && _request_line.method != "POST")
 		_status_code = 501;
@@ -171,6 +171,7 @@ void	Request::split_request(char *buffer, ssize_t bytesread) {
 		}
 		// Check if the request is chunked.
 		if (get_headers().find("Transfer-Encoding") != get_headers().end() && get_headers()["Transfer-Encoding"] == "chunked") {
+			std::cout << "debug: chunked" << std::endl;
 			if (!_chunks_size) {
 				std::cout << "chunked" << std::endl;
 				// Check if there is a remaining from the previous buffer.
@@ -286,9 +287,11 @@ void	Request::split_request(char *buffer, ssize_t bytesread) {
 		}
 		// If the request is not chunked.
 		else {
+			std::cout << "debug: not chunked" << std::endl;
 			if (bytesread - i)	{
 				if ( _request_line.method == "POST" && _status_code == 200) {
 					*(this->time_start) = clock();
+					std::cout << "writing to file" << std::endl;
 					_file.write(buffer + i, bytesread - i);
 					_file.flush();
 				}

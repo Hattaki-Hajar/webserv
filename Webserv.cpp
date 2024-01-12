@@ -103,7 +103,7 @@ void	Webserv::client_timeout() {
 
 	for(size_t i = 0; i < _Clients.size(); i++) {
 		time = (double)(clock() - _Clients[i]->start) / CLOCKS_PER_SEC;
-		std::cout << "time: " << time << std::endl;
+		// std::cout << "time: " << time << std::endl;
 		if (time > 30) {
 			this->_Clients[i]->set_reading_status(true);
 			this->_Clients[i]->timeout = true;
@@ -144,7 +144,7 @@ void	Webserv::start()
 				bzero(_Clients[client_nb]->get_buffer(), BUFFER_SIZE + 1);
 				bytesread = read(fd, _Clients[client_nb]->get_buffer(), BUFFER_SIZE);
 				size += bytesread;
-				std::cout << "size = " << size << std::endl;
+				// std::cout << "size = " << size << std::endl;
 				_Clients[client_nb]->set_bytesread(bytesread);
 				if (bytesread <= 0) {
 					continue ;
@@ -162,13 +162,29 @@ void	Webserv::start()
 				write(fd, _Clients[client_nb]->_response->send(), _Clients[client_nb]->_response->getResponse_length());
 				if (_Clients[client_nb]->_response->getIs_complete())
 				{
-					// std::cout << "write done" << std::endl;
+					std::cout << "write done" << std::endl;
 					epoll_ctl(epfd, EPOLL_CTL_DEL, fd, NULL);
+					if (events[j].events & EPOLLHUP) {
+						std::cout << "hup" << std::endl;
+						if (waitpid(_Clients[client_nb]->_cgi->_pid, NULL, 0) > 0) {
+							_Clients[client_nb]->_cgi->is_complete = true;
+							_Clients[client_nb]->_cgi->is_running = false;
+						}
+						else {
+							std::cout << "killing: " << _Clients[client_nb]->_cgi->_pid << std::endl;
+							
+							if (!kill(_Clients[client_nb]->_cgi->_pid, SIGKILL))
+								std::cout << "killed" << std::endl;
+							else
+								std::cout << "not killed" << std::endl;
+						}
+					}
 					close(fd);
 					delete _Clients[client_nb];
 					_Clients.erase(_Clients.begin() + client_nb);
 				}
 			}
+			
 			this->client_timeout();
 			this->check_cgi();
 		}
