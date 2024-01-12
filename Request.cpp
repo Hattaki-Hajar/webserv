@@ -73,8 +73,8 @@ void	Request::is_req_well_formed(void) {
 	// Check if Transfer-Encoding header exist and is different to “chunked”.
 	if (_headers.find("Transfer-Encoding") == _headers.end() && _headers.find("Content-Length") == _headers.end() && _request_line.method == "POST")
 		_status_code = 400;
-	if (_headers.find("Content-Type") == _headers.end() && _request_line.method == "POST")
-		_status_code = 400;
+	// if (_headers.find("Content-Type") == _headers.end() && _request_line.method == "POST")
+	// 	_status_code = 400;
 	if (_headers.find("Transfer-Encoding") != _headers.end() && _headers["Transfer-Encoding"] != "chunked")
 		_status_code = 501;
 	// Check if Transfer-Encoding not exist, Content-Length not exist and the method is Post
@@ -101,22 +101,38 @@ std::string	Request::generate_extension() {
 	if (_headers.find("Content-Type") != _headers.end()) {
 		if (_headers["Content-Type"] == "text/plain")
 			extension = ".txt";
+		else if (_headers["Content-Type"] == "text/csv")
+			extension = ".csv";
 		else if (_headers["Content-Type"] == "text/html")
 			extension = ".html";
 		else if (_headers["Content-Type"] == "text/css")
 			extension = ".css";
 		else if (_headers["Content-Type"] == "text/javascript")
 			extension = ".js";
+		else if (_headers["Content-Type"] == "audio/mpeg")
+			extension = ".mp3";
+		else if (_headers["Content-Type"] == "audio/wav")
+			extension = ".wav";
+		else if (_headers["Content-Type"] == "audio/webm")
+			extension = ".weba";
+		else if (_headers["Content-Type"] == "image/avif")
+			extension = ".avif";
+		else if (_headers["Content-Type"] == "image/webp")
+			extension = ".webp";
 		else if (_headers["Content-Type"] == "image/png")
 			extension = ".png";
 		else if (_headers["Content-Type"] == "image/jpeg")
 			extension = ".jpeg";
 		else if (_headers["Content-Type"] == "image/gif")
 			extension = ".gif";
+		else if (_headers["Content-Type"] == "video/webm")
+			extension = ".webm";
 		else if (_headers["Content-Type"] == "video/mp4")
 			extension = ".mp4";
-		else if (_headers["Content-Type"] == "audio/mpeg")
-			extension = ".mp3";
+		else if (_headers["Content-Type"] == "application/vnd.openxmlformats-officedocument.wordprocessingml.document")
+			extension = ".docx";
+		else if (_headers["Content-Type"] == "application/octet-stream")
+			extension = "";
 		else if (_headers["Content-Type"] == "application/pdf")
 			extension = ".pdf";
 		else if (_headers["Content-Type"] == "application/json")
@@ -201,11 +217,6 @@ void	Request::split_request(char *buffer, ssize_t bytesread) {
 					if (buffer[i] == '\r' && buffer[i + 1] == '\n') {
 						i += 2;
 					}
-					// Check for the end of the request.
-					if (buffer[i] == '0' && buffer[i + 1] == '\r' && buffer[i + 2] == '\n') {
-						_end_of_request = true;
-						return ;
-					}
 					// Delete the allocated buffers.
 					delete [] tmp;
 					delete [] _remaining;
@@ -237,7 +248,9 @@ void	Request::split_request(char *buffer, ssize_t bytesread) {
 				std::stringstream hex;
 				hex << std::hex << line;
 				hex >> _chunks_size;
+				std::cout << "chunk size: " << _chunks_size << std::endl;
 				if (_chunks_size == 0) {
+					std::cout << "end of request in calculating chunk" << std::endl;
 					_end_of_request = true;
 					return ;
 				}
@@ -273,6 +286,7 @@ void	Request::split_request(char *buffer, ssize_t bytesread) {
 						delete [] _remaining;
 						_remaining = NULL;
 						_end_of_request = true;
+						std::cout << "end of request in remaining" << std::endl;
 						return ;
 					}
 				}
