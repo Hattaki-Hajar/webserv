@@ -9,9 +9,9 @@ server {
         allow GET;
         allow POST;
         allow DELETE;
-        upload /nfs/homes/aharrass/webserv/;
+        index index.php;
+        #upload /nfs/homes/aharrass/webserv/;
         cgi php /usr/bin/php-cgi;
-        cgi py /usr/bin/python3;
         cgi py /usr/bin/python3;
         autoindex on;
     }

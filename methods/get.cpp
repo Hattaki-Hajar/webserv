@@ -6,7 +6,7 @@
 /*   By: aharrass <aharrass@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/31 21:59:20 by aharrass          #+#    #+#             */
-/*   Updated: 2024/01/10 17:22:18 by aharrass         ###   ########.fr       */
+/*   Updated: 2024/01/14 15:44:30 by aharrass         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,8 +32,20 @@ void Response::get()  {
                     _uri += _location.index;
                 else if (!_server_index_path.empty())
                     _uri += _server_index_path;
+                for (int l = 0; _cgi->_env[l]; l++) {
+                    std::string tmp = _cgi->_env[l];
+                    if (tmp.find("SCRIPT_FILENAME") != std::string::npos) {
+                        tmp = tmp.substr(0, tmp.find("=") + 1);
+                        tmp += _uri;
+                        delete _cgi->_env[l];
+                        _cgi->_env[l] = const_cast<char*>((new std::string(tmp))->c_str());
+                        break ;
+                    }
+                }
                 std::string extension = get_ext();
-                if (extension == "php" || extension == "py"){
+                std::map<std::string, std::string>::iterator it = _location.cgi.find(extension);
+                std::cout << "get uti: " << _uri << std::endl;
+                if ((extension == "php" && it != _location.cgi.end()) || (extension == "py" && it != _location.cgi.end())){
                     try { 
                         if (extension == "php")
                             _cgi->php_setup("");
@@ -43,15 +55,24 @@ void Response::get()  {
                     catch (std::exception &e)   {
                         std::cout << e.what() << std::endl;
                     }
+                    if (_status_code == 200) {
+                        _file.open(_file_name.c_str(), std::ios::in);
+                        if (!_file.good())  {
+                            std::cout << "fail" << std::endl;
+                            _status_code = 403;
+                            return;
+                        } 
+                        return;
+                    }
                 }
-                //needs cgi
-                _file.open(_uri.c_str(), std::ios::in);
-                if (!_file.good())  {
-                    _status_code = 404;
-                    return;
+                else {
+                    _file.open(_uri.c_str(), std::ios::in);
+                    if (!_file.good())  {
+                        _status_code = 403;
+                        return;
+                    }
+                    _content_type = _extensions[get_ext()];   
                 }
-                _content_type = _extensions[get_ext()];
-                return ;
             }
             else  {
                 if (_location.autoindex)   {
@@ -72,11 +93,6 @@ void Response::get()  {
         std::string extension = get_ext();
 		std::map<std::string, std::string>::iterator it = _location.cgi.find(extension);
         if ((extension == "php" && it != _location.cgi.end()) || (extension == "py" && it != _location.cgi.end())){
-            int f = open(_uri.c_str(), O_RDONLY);
-            if (f == -1)    {
-                _status_code = 403;
-                return;
-            }
             try
             {
                 if (extension == "php")
@@ -89,7 +105,6 @@ void Response::get()  {
                 std::cerr << e.what() << std::endl;
             }
             if (_status_code == 200)    {
-                // usleep(1000);
                 _file.open(_file_name.c_str(), std::ios::in);
                 if (!_file.good())  {
                     std::cout << "fail" << std::endl;

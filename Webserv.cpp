@@ -158,11 +158,11 @@ void	Webserv::start()
 			}
 			if (events[j].events & EPOLLOUT && _Clients[client_nb]->get_done_reading() && !_Clients[client_nb]->_cgi->is_running)
 			{
-				std::cout << "write" << std::endl;
 				write(fd, _Clients[client_nb]->_response->send(), _Clients[client_nb]->_response->getResponse_length());
 				if (_Clients[client_nb]->_response->getIs_complete())
 				{
 					std::cout << "write done" << std::endl;
+					std::cout << "---------------------" << std::endl;
 					epoll_ctl(epfd, EPOLL_CTL_DEL, fd, NULL);
 					if (events[j].events & EPOLLHUP) {
 						std::cout << "hup" << std::endl;

@@ -53,7 +53,8 @@ void	Cgi::setup_env(std::map<std::string, std::string> headers)
     this->_headers["QUERY_STRING"] = this->_response->get_query();
     this->_headers["REMOTE_HOST"] = headers["Host"];
     this->_headers["REMOTE_USER"] = "";
-    // this->_headers["HTTP_COOKIE"] = _client.req.header_map["Cookie"];;
+	this->_headers["SCRIPT_FILENAME"] = this->_response->get_uri();
+    this->_headers["HTTP_COOKIE"] = headers["Cookie"];
     this->_headers["REQUEST_METHOD"] = this->_response->get_method();
     this->_headers["GATEWAY_INTERFACE"] = "CGI/1.1";
     // this->_headers["SCRIPT_NAME"] = th.req.current_location.cgi_path;
@@ -85,10 +86,10 @@ void	Cgi::run(const std::string &bin)
 {
 	const char 	*av[3];
 
-	std::string tmp = this->_response->get_uri();
-	int i = tmp.rfind('/');
-	tmp = tmp.substr(0, i);
-	chdir(tmp.c_str());
+	// std::string tmp = this->_response->get_uri();
+	// int i = tmp.rfind('/');
+	// tmp = tmp.substr(0, i);
+	// chdir(tmp.c_str());
 	if (_fd != -1)
 	{
 		dup2(_fd, 0);
@@ -99,6 +100,12 @@ void	Cgi::run(const std::string &bin)
     av[0] = bin.c_str();
     av[1] = this->_response->get_uri().c_str();
     av[2] = 0;
+	if (access(av[1], F_OK) == -1)
+	{
+		std::cerr << "file not found" << std::endl;
+		exit(-1);
+	}
+	std::cerr << "execve " << av[0] << " " << av[1] << std::endl;
     execve(bin.c_str(), (char *const *)av, this->_env);
     std::cerr << "not executed" << std::endl;
     exit(-1);
@@ -106,7 +113,7 @@ void	Cgi::run(const std::string &bin)
 
 void	Cgi::php_setup(const std::string &file_path)
 {
-	// std::cout << "php setup" << std::endl;
+	std::cout << "php setup" << std::endl;
 	std::map<std::string, std::string>::iterator    it = this->_extension_map.find("php");
 	int check = access((it->second).c_str(), F_OK && X_OK);
 	if (check)
@@ -130,6 +137,7 @@ void	Cgi::php_setup(const std::string &file_path)
 	}
 	if (!file_path.empty())
 	{
+		std::cout << "file path = " << file_path << std::endl;
 		_fd = open(file_path.c_str(), O_RDONLY, 0666);
 		if (_fd == -1) {
 			_response->set_status_code(500);

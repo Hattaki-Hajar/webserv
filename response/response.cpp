@@ -6,7 +6,7 @@
 /*   By: aharrass <aharrass@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/14 15:34:16 by aharrass          #+#    #+#             */
-/*   Updated: 2024/01/13 01:31:58 by aharrass         ###   ########.fr       */
+/*   Updated: 2024/01/14 15:46:26 by aharrass         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -409,6 +409,8 @@ void   Response::set_headers()    {
 		if (!_cgi->is_complete)	{
         	_response_header = "Content-Type: " + _content_type + "\r\n";
 		}
+        if (_headers.find("Cookie") != _headers.end())
+            _response_header += "Cookie: " + _headers["Cookie"] + "\r\n";
         is_header = true;
     }
     else if (_status_code == 201)   {
@@ -434,7 +436,7 @@ void   Response::set_headers()    {
 		_response += "\r\n";
     bzero(_response_buffer, BUFFER_SIZE);
     strcpy(_response_buffer, _response.c_str());
-    // std::cout << "[" << _response << "]" << std::endl;
+    std::cout << "[" << _response << "]" << std::endl;
     // is_header = true;
     _response_length = _response.length();
 }

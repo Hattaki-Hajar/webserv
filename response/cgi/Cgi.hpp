@@ -13,14 +13,14 @@ class Cgi
 {
 	private:
 		std::map<std::string, std::string>  _extension_map;
-		std::map<std::string, std::string>  _headers;
 		// std::string                         _resource;
+		std::map<std::string, std::string>  _headers;
 		int									_outfile;
-		char								**_env;
 		Response							*_response;
 		int									_fd;
 		Cgi();
 	public:
+		char								**_env;
 		clock_t								_start;
 		pid_t                               _pid;
 		bool                                is_complete;
