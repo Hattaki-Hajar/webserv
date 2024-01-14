@@ -83,7 +83,7 @@ void	Request::is_req_well_formed(void) {
 	if (_headers.find("Transfer-Encoding") != _headers.end() && _headers.find("Content-Length") != _headers.end() && _request_line.method == "POST")
 		_status_code = 400;
 	// Check the request uri contain a character not allowed.
-	if (_request_line.uri.find_first_not_of("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~:/?#[]@!$&'()*+,;=%") == std::string::npos)
+	if (_request_line.uri.find_first_not_of("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~:/?#[]@!$&'()*+,;=") != std::string::npos)
 		_status_code = 400;
 	// Check if the request uri contain more the 2048 chars.
 	if (_request_line.uri.length() > 2048)
