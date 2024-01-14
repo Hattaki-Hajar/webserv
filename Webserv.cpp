@@ -172,7 +172,6 @@ void	Webserv::start()
 						}
 						else {
 							std::cout << "killing: " << _Clients[client_nb]->_cgi->_pid << std::endl;
-							
 							if (!kill(_Clients[client_nb]->_cgi->_pid, SIGKILL))
 								std::cout << "killed" << std::endl;
 							else
@@ -184,7 +183,6 @@ void	Webserv::start()
 					_Clients.erase(_Clients.begin() + client_nb);
 				}
 			}
-			
 			this->client_timeout();
 			this->check_cgi();
 		}

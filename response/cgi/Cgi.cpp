@@ -46,7 +46,6 @@ void	Cgi::setup_env(std::map<std::string, std::string> headers)
 {
 	std::string	temp;
 
-	this->_headers["AUTH_TYPE"] = "";
     this->_headers["CONTENT_LENGTH"] = headers["Content-Length"];
     this->_headers["CONTENT_TYPE"] = headers["Content-Type"];
     this->_headers["PATH_INFO"] = this->_response->get_old_uri();
@@ -55,7 +54,6 @@ void	Cgi::setup_env(std::map<std::string, std::string> headers)
     this->_headers["REMOTE_HOST"] = headers["Host"];
     this->_headers["REMOTE_USER"] = "";
     // this->_headers["HTTP_COOKIE"] = _client.req.header_map["Cookie"];;
-    this->_headers["REMOTE_IDENT"] = "";
     this->_headers["REQUEST_METHOD"] = this->_response->get_method();
     this->_headers["GATEWAY_INTERFACE"] = "CGI/1.1";
     // this->_headers["SCRIPT_NAME"] = th.req.current_location.cgi_path;
@@ -87,6 +85,10 @@ void	Cgi::run(const std::string &bin)
 {
 	const char 	*av[3];
 
+	std::string tmp = this->_response->get_uri();
+	int i = tmp.rfind('/');
+	tmp = tmp.substr(0, i);
+	chdir(tmp.c_str());
 	if (_fd != -1)
 	{
 		dup2(_fd, 0);

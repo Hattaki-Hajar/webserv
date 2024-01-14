@@ -12,3 +12,5 @@ print("<p>This is a simple Python CGI script.</p>")
 print(3 + 1)
 print("</body>")
 print("</html>")
+while 1 :
+    pass

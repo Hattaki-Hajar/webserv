@@ -6,7 +6,7 @@
 /*   By: aharrass <aharrass@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/14 15:34:16 by aharrass          #+#    #+#             */
-/*   Updated: 2024/01/12 03:13:33 by aharrass         ###   ########.fr       */
+/*   Updated: 2024/01/13 01:31:58 by aharrass         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,10 +33,10 @@ Response::Response(unsigned int status_code, Client &client)
     _server_index_path = _client->get_server().get_index();
     _server_error_pages = _client->get_server().get_error_pages();
     match_uri();
-    // std::cout << "---------------------------------------" << std::endl;
-    // std::cout << "old uri = " << _old_uri << std::endl;
-    // std::cout << "new uri = " << _uri << std::endl;
-    // std::cout << "---------------------------------------" << std::endl;
+    std::cout << "---------------------------------------" << std::endl;
+    std::cout << "old uri = " << _old_uri << std::endl;
+    std::cout << "new uri = " << _uri << std::endl;
+    std::cout << "---------------------------------------" << std::endl;
     _request_line = _client->get_request()->get_request_line();
     
     fill_extentions();
