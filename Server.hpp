@@ -60,9 +60,7 @@ public:
 	~Server();
 	/* additional functions */
 	void	bind_Server();
-	void	start_listen();
 	void	start();
-	void	acceptconnection(int );
 	void	ip_to_in_addr_t();
 	/* setters */
 	void	set_socket(int);

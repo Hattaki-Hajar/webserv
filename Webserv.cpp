@@ -191,14 +191,13 @@ void	Webserv::start()
 
 void	Webserv::bind_Servers()
 {
-	size_t i = 0, j, found;
+	size_t i = 0, j;
 	int port;
 	std::string host, server_name;
 
 	while (i < _Servers.size())
 	{
 		j = 0;
-		found = 0;
 		port = _Servers[i]->get_port();
 		host = _Servers[i]->get_ip();
 		server_name = _Servers[i]->get_name();
@@ -209,8 +208,6 @@ void	Webserv::bind_Servers()
 			j++;
 		}
 		i++;
-		if (found)
-			continue ;
 		_Servers[i - 1]->bind_Server();
 	}
 }
