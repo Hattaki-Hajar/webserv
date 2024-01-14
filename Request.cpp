@@ -83,7 +83,7 @@ void	Request::is_req_well_formed(void) {
 	if (_headers.find("Transfer-Encoding") != _headers.end() && _headers.find("Content-Length") != _headers.end() && _request_line.method == "POST")
 		_status_code = 400;
 	// Check the request uri contain a character not allowed.
-	if (_request_line.uri.find_first_not_of("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~:/?#[]@!$&'()*+,;=%") != std::string::npos)
+	if (_request_line.uri.find_first_not_of("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~:/?#[]@!$&'()*+,;=%") == std::string::npos)
 		_status_code = 400;
 	// Check if the request uri contain more the 2048 chars.
 	if (_request_line.uri.length() > 2048)
@@ -208,16 +208,6 @@ void	Request::split_request(char *buffer, ssize_t bytesread) {
 					if (buffer[i] == '\r' && buffer[i + 1] == '\n') {
 						i += 2;
 					}
-					// Check for the end of the request.
-					if (bytesread >= 5) {
-						if (buffer[i] == '0' && buffer[i + 1] == '\r' && buffer[i + 2] == '\n') {
-							delete [] tmp;
-							delete [] _remaining;
-							_remaining = NULL;
-							_end_of_request = true;
-							return ;
-						}
-					}
 					// Delete the allocated buffers.
 					delete [] tmp;
 					delete [] _remaining;
@@ -249,6 +239,10 @@ void	Request::split_request(char *buffer, ssize_t bytesread) {
 				std::stringstream hex;
 				hex << std::hex << line;
 				hex >> _chunks_size;
+				if (_chunks_size == 0) {
+					_end_of_request = true;
+					return ;
+				}
 			}
 			// Put the chunk into the file.
 			while (_chunk_read < _chunks_size && i < bytesread) {
