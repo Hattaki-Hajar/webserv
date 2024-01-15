@@ -22,7 +22,7 @@ std::string generate_file_name() {
     return uuid;
 }
 
-Cgi::Cgi(): _outfile(-1){}
+Cgi::Cgi(): _outfile(-1), _pid(-1){}
 
 Cgi::Cgi(std::map<std::string, std::string> headers, Response *response)
 :_response(response)   {
@@ -30,6 +30,7 @@ Cgi::Cgi(std::map<std::string, std::string> headers, Response *response)
 	this->is_complete = false;
 	this->is_timeout = false;
 	this->is_running = false;
+	this->_pid = -1;
 	setup_env(headers);
 }
 
@@ -105,15 +106,13 @@ void	Cgi::run(const std::string &bin)
 		std::cerr << "file not found" << std::endl;
 		exit(-1);
 	}
-	std::cerr << "execve " << av[0] << " " << av[1] << std::endl;
     execve(bin.c_str(), (char *const *)av, this->_env);
-    std::cerr << "not executed" << std::endl;
     exit(-1);
 }
 
 void	Cgi::php_setup(const std::string &file_path)
 {
-	std::cout << "php setup" << std::endl;
+	// std::cout << "php setup" << std::endl;
 	std::map<std::string, std::string>::iterator    it = this->_extension_map.find("php");
 	int check = access((it->second).c_str(), F_OK && X_OK);
 	if (check)
@@ -137,7 +136,7 @@ void	Cgi::php_setup(const std::string &file_path)
 	}
 	if (!file_path.empty())
 	{
-		std::cout << "file path = " << file_path << std::endl;
+		// std::cout << "file path = " << file_path << std::endl;
 		_fd = open(file_path.c_str(), O_RDONLY, 0666);
 		if (_fd == -1) {
 			_response->set_status_code(500);
@@ -157,7 +156,7 @@ void	Cgi::php_setup(const std::string &file_path)
 		waitpid(this->_pid, &status, WNOHANG);
 		if (WIFEXITED(status))   {
 			if (WEXITSTATUS(status) != 0) {
-				std::cout << WEXITSTATUS(status) << std::endl;
+				// std::cout << WEXITSTATUS(status) << std::endl;
 				this->_response->set_status_code(500);
 			}
 		}
@@ -208,7 +207,7 @@ void	Cgi::py_setup(const std::string &file_path)
 		waitpid(this->_pid, &status, WNOHANG);
 		if (WIFEXITED(status))   {
 			if (WEXITSTATUS(status) != 0) {
-				std::cout << WEXITSTATUS(status) << std::endl;
+				// std::cout << WEXITSTATUS(status) << std::endl;
 				_response->set_status_code(500);
 			}
 		}

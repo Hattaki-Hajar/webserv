@@ -6,7 +6,7 @@
 /*   By: aharrass <aharrass@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/14 15:34:16 by aharrass          #+#    #+#             */
-/*   Updated: 2024/01/14 15:46:26 by aharrass         ###   ########.fr       */
+/*   Updated: 2024/01/15 09:45:27 by aharrass         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,10 +33,10 @@ Response::Response(unsigned int status_code, Client &client)
     _server_index_path = _client->get_server().get_index();
     _server_error_pages = _client->get_server().get_error_pages();
     match_uri();
-    std::cout << "---------------------------------------" << std::endl;
-    std::cout << "old uri = " << _old_uri << std::endl;
-    std::cout << "new uri = " << _uri << std::endl;
-    std::cout << "---------------------------------------" << std::endl;
+    // std::cout << "---------------------------------------" << std::endl;
+    // std::cout << "old uri = " << _old_uri << std::endl;
+    // std::cout << "new uri = " << _uri << std::endl;
+    // std::cout << "---------------------------------------" << std::endl;
     _request_line = _client->get_request()->get_request_line();
     
     fill_extentions();
@@ -208,7 +208,7 @@ void    Response::responde()    {
                 _status_code = 301;
             }   
             else    {
-                std::cout << "method = " << _request_line.method << std::endl;
+                // std::cout << "method = " << _request_line.method << std::endl;
                 if (_request_line.method == "GET")
                     get();
                 else if (_request_line.method == "DELETE")
@@ -436,7 +436,7 @@ void   Response::set_headers()    {
 		_response += "\r\n";
     bzero(_response_buffer, BUFFER_SIZE);
     strcpy(_response_buffer, _response.c_str());
-    std::cout << "[" << _response << "]" << std::endl;
+    // std::cout << "[" << _response << "]" << std::endl;
     // is_header = true;
     _response_length = _response.length();
 }

@@ -9,7 +9,7 @@ void    Response::post() {
     if (!_location.upload_path.empty()) {
         std::string path = _location.upload_path + "/" + _file_path.substr(_file_path.find(".cache/") + 7);
         // std::cout << path << std::endl;
-        std::cout << "file" << std::endl;
+        // std::cout << "file" << std::endl;
         std::fstream file(path.c_str(), std::ios::out | std::ios::trunc);
         if (file.fail()) {
             std::remove(_file_path.c_str());

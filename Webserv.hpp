@@ -12,7 +12,7 @@ class Webserv
 {
 	int						_socket;
 	int						_epfd;
-	epoll_event				*_event;
+	// epoll_event				*_event;
 	std::vector<Server *>	_Servers;
 	std::vector<Client *>		_Clients;
 public:

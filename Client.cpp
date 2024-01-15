@@ -13,6 +13,7 @@ Client::Client(Server &s):_server(s) {
 	_request = new Request();
 	_request->set_time_start(&start);
 	_cgi = 0;
+
 	this->timeout = false;
 	this->start = clock();
 	this->_response = 0;

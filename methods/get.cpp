@@ -6,7 +6,7 @@
 /*   By: aharrass <aharrass@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/31 21:59:20 by aharrass          #+#    #+#             */
-/*   Updated: 2024/01/14 15:44:30 by aharrass         ###   ########.fr       */
+/*   Updated: 2024/01/15 09:44:54 by aharrass         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,7 @@ void Response::get()  {
                 }
                 std::string extension = get_ext();
                 std::map<std::string, std::string>::iterator it = _location.cgi.find(extension);
-                std::cout << "get uti: " << _uri << std::endl;
+                // std::cout << "get uti: " << _uri << std::endl;
                 if ((extension == "php" && it != _location.cgi.end()) || (extension == "py" && it != _location.cgi.end())){
                     try { 
                         if (extension == "php")

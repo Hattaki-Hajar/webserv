@@ -5,7 +5,7 @@
 
 Webserv::Webserv()
 {
-	_event = new epoll_event;
+	// _event = new epoll_event;
 	this->size = 0;
 }
 
@@ -126,65 +126,68 @@ void	Webserv::start()
 	set_up_webserv(_Servers, epfd);
 	while (1)
 	{
-		event_nb = epoll_wait(epfd, events, MAX_EVENTS, 0);
-		if (event_nb < 0)
-			throw std::runtime_error("epoll_wait failed!");
-		for (int j = 0; j < event_nb; j++)
-		{
-			fd = events[j].data.fd;
-			i = is_server_socket(_Servers, fd);
-			if (i >= 0)
+		try {
+			event_nb = epoll_wait(epfd, events, MAX_EVENTS, 0);
+			if (event_nb < 0)
+				throw std::runtime_error("epoll_wait failed!");
+			for (int j = 0; j < event_nb; j++)
 			{
-				new_connection(*_Servers[i]);
-				continue ;
-			}
-			client_nb = find_client(_Clients, fd);
-			if (events[j].events & EPOLLIN && !_Clients[client_nb]->get_done_reading())
-			{
-				bzero(_Clients[client_nb]->get_buffer(), BUFFER_SIZE + 1);
-				bytesread = read(fd, _Clients[client_nb]->get_buffer(), BUFFER_SIZE);
-				size += bytesread;
-				// std::cout << "size = " << size << std::endl;
-				_Clients[client_nb]->set_bytesread(bytesread);
-				if (bytesread <= 0) {
+				fd = events[j].data.fd;
+				i = is_server_socket(_Servers, fd);
+				if (i >= 0)
+				{
+					new_connection(*_Servers[i]);
 					continue ;
 				}
-				if (!_Clients[client_nb]->get_done_reading())
-					_Clients[client_nb]->parse_request();
-				if (_Clients[client_nb]->get_done_reading() && !_Clients[client_nb]->_response) {
-					_Clients[client_nb]->generateResponse();
-				}
-				_Clients[client_nb]->clear_buffer();
-			}
-			if (events[j].events & EPOLLOUT && _Clients[client_nb]->get_done_reading() && !_Clients[client_nb]->_cgi->is_running)
-			{
-				write(fd, _Clients[client_nb]->_response->send(), _Clients[client_nb]->_response->getResponse_length());
-				if (_Clients[client_nb]->_response->getIs_complete())
+				client_nb = find_client(_Clients, fd);
+				if (events[j].events & EPOLLIN && !_Clients[client_nb]->get_done_reading())
 				{
-					std::cout << "write done" << std::endl;
-					std::cout << "---------------------" << std::endl;
-					epoll_ctl(epfd, EPOLL_CTL_DEL, fd, NULL);
-					if (events[j].events & EPOLLHUP) {
-						std::cout << "hup" << std::endl;
-						if (waitpid(_Clients[client_nb]->_cgi->_pid, NULL, 0) > 0) {
-							_Clients[client_nb]->_cgi->is_complete = true;
-							_Clients[client_nb]->_cgi->is_running = false;
-						}
-						else {
-							std::cout << "killing: " << _Clients[client_nb]->_cgi->_pid << std::endl;
-							if (!kill(_Clients[client_nb]->_cgi->_pid, SIGKILL))
-								std::cout << "killed" << std::endl;
-							else
-								std::cout << "not killed" << std::endl;
-						}
+					bzero(_Clients[client_nb]->get_buffer(), BUFFER_SIZE + 1);
+					bytesread = read(fd, _Clients[client_nb]->get_buffer(), BUFFER_SIZE);
+					size += bytesread;
+					// std::cout << "size = " << size << std::endl;
+					_Clients[client_nb]->set_bytesread(bytesread);
+					if (bytesread <= 0) {
+						continue ;
 					}
-					close(fd);
-					delete _Clients[client_nb];
-					_Clients.erase(_Clients.begin() + client_nb);
+					if (!_Clients[client_nb]->get_done_reading())
+						_Clients[client_nb]->parse_request();
+					if (_Clients[client_nb]->get_done_reading() && !_Clients[client_nb]->_response) {
+						_Clients[client_nb]->generateResponse();
+					}
+					_Clients[client_nb]->clear_buffer();
 				}
+				if (events[j].events & EPOLLOUT && _Clients[client_nb]->get_done_reading() && !_Clients[client_nb]->_cgi->is_running)
+				{
+					write(fd, _Clients[client_nb]->_response->send(), _Clients[client_nb]->_response->getResponse_length());
+					if (_Clients[client_nb]->_response->getIs_complete())
+					{
+						// std::cout << "write done" << std::endl;
+						// std::cout << "---------------------" << std::endl;
+						epoll_ctl(epfd, EPOLL_CTL_DEL, fd, NULL);
+						if (events[j].events & EPOLLHUP && _Clients[client_nb]->_cgi->_pid != -1) {
+							// std::cout << "hup" << std::endl;
+							if (waitpid(_Clients[client_nb]->_cgi->_pid, NULL, 0) > 0) {
+								_Clients[client_nb]->_cgi->is_complete = true;
+								_Clients[client_nb]->_cgi->is_running = false;
+							}
+							else {
+								// std::cout << "killing: " << _Clients[client_nb]->_cgi->_pid << std::endl;
+								kill(_Clients[client_nb]->_cgi->_pid, SIGKILL);
+							}
+						}
+						close(fd);
+						delete _Clients[client_nb];
+						_Clients.erase(_Clients.begin() + client_nb);
+						_Clients.shrink_to_fit();
+					}
+				}
+				this->client_timeout();
+				this->check_cgi();
 			}
-			this->client_timeout();
-			this->check_cgi();
+		}
+		catch (std::exception &e) {
+			(void)e;
 		}
 	}
 }
@@ -334,6 +337,6 @@ Webserv::~Webserv()
 		delete _Servers[i];
 	for (size_t i = 0; i < _Clients.size(); i++)
 		delete _Clients[i];
-	delete _event;
+	// delete _event;
 	close(_epfd);
 }
