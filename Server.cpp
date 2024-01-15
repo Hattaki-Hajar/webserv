@@ -91,18 +91,6 @@ void	set_up_Server(Server &s, int epfd)
 	if (listen(s.get_socket(), SOMAXCONN) == -1)
 		throw std::runtime_error("listen failed!");
 }
-void	Server::start_listen()
-{
-	if (listen(_socket, SOMAXCONN) < 0)
-		throw std::runtime_error("listen failed!");
-}
-void	Server::acceptconnection(int new_socket)
-{
-	new_socket = accept(_socket, (sockaddr *)&_addr, 
-                        &_socketaddr_len);
-    if (new_socket < 0)
-        throw std::runtime_error("failed to connect2!");
-}
 void	Server::ip_to_in_addr_t()
 {
 	std::stringstream ss(this->_ip);
