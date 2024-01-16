@@ -23,7 +23,8 @@ server {
         allow POST;
         allow GET;
         allow DELETE;
-        upload /nfs/homes/ohalim/Desktop/webserv;
+        cgi php /usr/bin/php-cgi;
+        #upload /nfs/homes/ohalim/De/sktop/webserv;
         #return 301 https://www.youtube.com;
     }
 

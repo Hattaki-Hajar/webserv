@@ -100,11 +100,6 @@ bool	Request::is_req_well_formed(void) {
 				_status_code = 400;
 		}
 
-		else if (_headers.find("Content-Length") != _headers.end()) {
-			if (_headers.find("Content-Type") == _headers.end())
-				_status_code = 400;
-		}
-
 		else if (_headers.find("Transfer-Encoding") == _headers.end() && _headers.find("Content-Length") == _headers.end())
 			_status_code = 411;
 	}
@@ -321,6 +316,11 @@ void	Request::split_request(char *buffer, ssize_t bytesread) {
 		else if (get_headers().find("Content-Length") != get_headers().end()) {
 			// std::cout << "debug: not chunked" << std::endl;
 			if (bytesread) {
+				if (_headers.find("Content-Type") == _headers.end()) {
+					_end_of_request = true;
+					_status_code = 400;
+					return ;
+				}
 				if (_status_code == 200) {
 					*(this->time_start) = clock();
 					// std::cout << "writing to file" << std::endl;
