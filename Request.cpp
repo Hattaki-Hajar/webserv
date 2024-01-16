@@ -88,7 +88,24 @@ bool	Request::is_req_well_formed(void) {
 		_status_code = 505;
 
 	// URI
+	else if (_request_line.uri.length() > 2048)
+		_status_code = 414;
 
+
+	else if (_headers.find("Transfer-Encoding") != _headers.end()) {
+		if (_headers["Transfer-Encoding"] != "chunked")
+			_status_code = 501;
+		else if (_headers.find("Content-Length") != _headers.end() || _headers.find("Content-Type") == _headers.end())
+			_status_code = 400;
+	}
+
+	else if (_headers.find("Content-Length") != _headers.end()) {
+		if (_headers.find("Content-Type") == _headers.end())
+			_status_code = 400;
+	}
+
+	else if (_headers.find("Transfer-Encoding") == _headers.end() && _headers.find("Content-Length") == _headers.end())
+		_status_code = 411;
 
 	if (_status_code != 200)
 		return false;
@@ -312,7 +329,7 @@ void	Request::split_request(char *buffer, ssize_t bytesread) {
 			}
 			// Check if the request is complete.
 			if (get_size_read() == atol(get_headers()["Content-Length"].c_str())) {
-				std::cout << "end of request" << std::endl;
+				// std::cout << "end of request" << std::endl;
 				_end_of_request = true;
 				return ;
 			}

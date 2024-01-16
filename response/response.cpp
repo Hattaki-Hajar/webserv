@@ -144,10 +144,10 @@ std::string Response::get_ext() const   {
 }
 
 void    Response::fill_error_line() {
-    const int code[] = {400, 501, 414, 413, 404, 405, 403, 408, 409, 500, 504, 502, 505};
+    const int code[] = {400, 501, 414, 413, 404, 405, 403, 408, 409, 500, 504, 502, 505, 411};
     const char* line[] = {"Bad Request", "Not Implemented", "Request-URI Too Long",
         "Request Entity Too Large", "Not Found", "Method Not Allowed", "Forbidden",
-        "Request Time-out", "Conflict", "Internal Server Error", "Gateway Timeout", "Bad Gateway", "HTTP Version not supported"};
+        "Request Time-out", "Conflict", "Internal Server Error", "Gateway Timeout", "Bad Gateway", "HTTP Version not supported", "Length Required"};
     size_t size = sizeof(line) / sizeof(line[0]);
     std::string tmp;
     for(size_t i = 0; i < size; i++)    {
@@ -399,6 +399,9 @@ void    Response::set_error() {
         }
         else if (_status_code == 505) {
             _error_page.insert(pos, "<p>Error 505!<br>HTTP Version not supported</p>");
+        }
+        else if (_status_code == 411) {
+            _error_page.insert(pos, "<p>Error 411!<br>Length Required</p>");
         }
         if (_request_line.method != "HEAD"){
             _content_type = "text/html";

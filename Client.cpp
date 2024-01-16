@@ -73,7 +73,7 @@ void	Client::parse_request() {
 	_request->split_request(_buffer, _bytesread);
 
 	if (_request->get_end_of_request()) {
-		std::cout << "end of request" << std::endl;
+		// std::cout << "end of request" << std::endl;
 		_done_reading = true;
 	}
 
