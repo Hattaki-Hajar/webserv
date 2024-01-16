@@ -7,8 +7,10 @@ void    Response::post() {
         return ;
     }
     if (!_location.upload_path.empty()) {
+    std::cout << "In post" << std::endl;
+        std::cout << "file_path: " << _file_path << std::endl;
         std::string path = _location.upload_path + "/" + _file_path.substr(_file_path.find(".cache/") + 7);
-        // std::cout << path << std::endl;
+        std::cout << "path: " << path << std::endl;
         // std::cout << "file" << std::endl;
         std::fstream file(path.c_str(), std::ios::out | std::ios::trunc);
         if (file.fail()) {
@@ -18,6 +20,7 @@ void    Response::post() {
         }
         std::rename(_file_path.c_str(), path.c_str());
         _status_code = 201;
+        std::cout << "Created" << std::endl;
         return;
     }
     int type = get_resource_type();

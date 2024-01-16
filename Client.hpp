@@ -16,10 +16,10 @@ class Client
 	Server				&_server;
 	struct epoll_event	*_event;
 	bool				_done_reading;
-	Request 			*_request;
-	unsigned int		_status_code;
 	Client();
 public:
+	bool				_EPPOL;
+	Request 			*_request;
 	Cgi					*_cgi;
 	Response			*_response;
 	sockaddr_in			_addr;

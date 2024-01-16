@@ -1,8 +1,8 @@
 server {
     listen 127.0.0.1:1234;
-    root /nfs/homes/aharrass/webserv;
+    root /nfs/homes/ohalim/Desktop/webserv;
     client_max_body_size 500000000;
-    #error_page 404 /nfs/homes/aharrass/webserv/index.php;
+    #error_page 404 /nfs/homes/ohalim/Desktop/webserv/index.php;
     #index index.html;
 
     location / {
@@ -10,37 +10,21 @@ server {
         allow POST;
         allow DELETE;
         #index index.php;
-        #upload /nfs/homes/aharrass/webserv/;
+        #upload /nfs/homes/ohalim/Desktop/webserv/;
         cgi php /usr/bin/php-cgi;
         cgi py /usr/bin/python3;
         autoindex on;
-    }
-
-    location /42 {
-        allow GET;
-        allow POST;
-        allow DELETE;
-        cgi php /usr/bin/php-cgi;
-        cgi py /usr/bin/python3;
-        autoindex on;
-        root /nfs/homes/aharrass/webserv/;
-        cgi php /usr/bin/php-cgi;
-        cgi py /usr/bin/python3;
-        autoindex on;
-        index index.html;
     }
 
     location  /webserv  {
-        root /nfs/homes/aharrass;
+        root /nfs/homes/ohalim/Desktop;
         #index index.html;
         autoindex on;
         allow POST;
         allow GET;
         allow DELETE;
-        upload /nfs/homes/aharrass/webserv;
+        upload /nfs/homes/ohalim/Desktop/webserv;
         #return 301 https://www.youtube.com;
-        cgi py /usr/bin/python3;
-        cgi php /usr/bin/php-cgi;
     }
 
     location /aharrass {

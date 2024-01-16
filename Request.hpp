@@ -27,10 +27,10 @@ class Request
 	std::fstream						_file;
 	std::string							_file_path;
 	bool								_is_file_open;
-	bool								_headers_read;
 	bool								_end_of_request;
-	unsigned int						_status_code;
 public:
+	bool								_headers_read;
+	unsigned int						_status_code;
 	clock_t*	time_start;
 	/*	constructor destructor	*/
 	Request();
@@ -51,6 +51,6 @@ public:
 	/*	additional function	*/
 	void		split_request(char *, ssize_t);
 	void		parse_request(void);
-	void		is_req_well_formed(void);
+	bool		is_req_well_formed(void);
 	std::string	generate_extension();
 };

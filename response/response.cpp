@@ -18,6 +18,7 @@ Response::Response()    {
 Response::Response(unsigned int status_code, Client &client)
 : _status_code(status_code)   {
     _client = &client;
+    std::cout << "status:" << _status_code << std::endl;
     _total_response_body_length = 0;
     _error_file_good = 0;
     is_complete = false;
@@ -143,10 +144,10 @@ std::string Response::get_ext() const   {
 }
 
 void    Response::fill_error_line() {
-    const int code[] = {400, 501, 414, 413, 404, 405, 403, 408, 409, 500, 504};
+    const int code[] = {400, 501, 414, 413, 404, 405, 403, 408, 409, 500, 504, 502, 505};
     const char* line[] = {"Bad Request", "Not Implemented", "Request-URI Too Long",
         "Request Entity Too Large", "Not Found", "Method Not Allowed", "Forbidden",
-        "Request Time-out", "Conflict", "Internal Server Error", "Gateway Timeout"};
+        "Request Time-out", "Conflict", "Internal Server Error", "Gateway Timeout", "Bad Gateway", "HTTP Version not supported"};
     size_t size = sizeof(line) / sizeof(line[0]);
     std::string tmp;
     for(size_t i = 0; i < size; i++)    {
@@ -172,6 +173,9 @@ void    Response::fill_extentions() {
     }
 }
 void   Response::pars_uri()   {
+    if (_status_code != 200) {
+        return;
+    }
     std::string prefix = "http://";
     if (_uri.compare(0, prefix.length(), prefix) == 0)   {
         _uri.erase(0, prefix.length());
@@ -390,6 +394,12 @@ void    Response::set_error() {
         else if (_status_code == 504) {
             _error_page.insert(pos, "<p>Error 504!<br>Gateway Timeout</p>");
         }
+        else if (_status_code == 502) {
+            _error_page.insert(pos, "<p>Error 502!<br>Bad Gateway</p>");
+        }
+        else if (_status_code == 505) {
+            _error_page.insert(pos, "<p>Error 505!<br>HTTP Version not supported</p>");
+        }
         if (_request_line.method != "HEAD"){
             _content_type = "text/html";
             _response_header = "Content-Type: " + _content_type + "\r\n";
@@ -436,7 +446,7 @@ void   Response::set_headers()    {
 		_response += "\r\n";
     bzero(_response_buffer, BUFFER_SIZE);
     strcpy(_response_buffer, _response.c_str());
-    // std::cout << "[" << _response << "]" << std::endl;
+    std::cout << "[" << _response << "]" << std::endl;
     // is_header = true;
     _response_length = _response.length();
 }
