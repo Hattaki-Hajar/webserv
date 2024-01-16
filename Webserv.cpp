@@ -163,7 +163,8 @@ void	Webserv::start()
 					if (_Clients[client_nb]->get_done_reading()) {
 						if (!_Clients[client_nb]->_response)
 							_Clients[client_nb]->generateResponse();
-						write(fd, _Clients[client_nb]->_response->send(), _Clients[client_nb]->_response->getResponse_length());
+						if (!_Clients[client_nb]->_cgi->is_running) 
+							write(fd, _Clients[client_nb]->_response->send(), _Clients[client_nb]->_response->getResponse_length());
 						if (_Clients[client_nb]->_response->getIs_complete())
 						{
 							epoll_ctl(epfd, EPOLL_CTL_DEL, fd, NULL);
