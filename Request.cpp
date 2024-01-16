@@ -91,21 +91,23 @@ bool	Request::is_req_well_formed(void) {
 	else if (_request_line.uri.length() > 2048)
 		_status_code = 414;
 
+	if (_request_line.method == "POST") {
 
-	else if (_headers.find("Transfer-Encoding") != _headers.end()) {
-		if (_headers["Transfer-Encoding"] != "chunked")
-			_status_code = 501;
-		else if (_headers.find("Content-Length") != _headers.end() || _headers.find("Content-Type") == _headers.end())
-			_status_code = 400;
+		if (_headers.find("Transfer-Encoding") != _headers.end()) {
+			if (_headers["Transfer-Encoding"] != "chunked")
+				_status_code = 501;
+			else if (_headers.find("Content-Length") != _headers.end() || _headers.find("Content-Type") == _headers.end())
+				_status_code = 400;
+		}
+
+		else if (_headers.find("Content-Length") != _headers.end()) {
+			if (_headers.find("Content-Type") == _headers.end())
+				_status_code = 400;
+		}
+
+		else if (_headers.find("Transfer-Encoding") == _headers.end() && _headers.find("Content-Length") == _headers.end())
+			_status_code = 411;
 	}
-
-	else if (_headers.find("Content-Length") != _headers.end()) {
-		if (_headers.find("Content-Type") == _headers.end())
-			_status_code = 400;
-	}
-
-	else if (_headers.find("Transfer-Encoding") == _headers.end() && _headers.find("Content-Length") == _headers.end())
-		_status_code = 411;
 
 	if (_status_code != 200)
 		return false;
