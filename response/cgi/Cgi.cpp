@@ -47,7 +47,8 @@ void	Cgi::setup_env(std::map<std::string, std::string> headers)
 {
 	std::string	temp;
 
-    this->_headers["CONTENT_LENGTH"] = headers["Content-Length"];
+	if (this->_response->get_method() == "POST")
+		this->_headers["CONTENT_LENGTH"] = headers["Content-Length"];
     this->_headers["CONTENT_TYPE"] = headers["Content-Type"];
     this->_headers["PATH_INFO"] = this->_response->get_old_uri();
     this->_headers["PATH_TRANSLATED"] = this->_response->get_uri();
@@ -112,6 +113,7 @@ void	Cgi::run(const std::string &bin)
 
 void	Cgi::php_setup(const std::string &file_path)
 {
+	std::cout << "file_path:[" << file_path << "]" << std::endl;
 	std::cout << "php setup" << std::endl;
 	std::map<std::string, std::string>::iterator    it = this->_extension_map.find("php");
 	int check = access((it->second).c_str(), F_OK && X_OK);

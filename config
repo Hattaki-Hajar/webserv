@@ -10,9 +10,9 @@ server {
         allow POST;
         allow DELETE;
         #index index.php;
-        #upload /nfs/homes/ohalim/Desktop/webserv/;
-        cgi php /usr/bin/php-cgi;
-        cgi py /usr/bin/python3;
+        upload /nfs/homes/ohalim/Desktop/webserv/;
+        #cgi php /usr/bin/php-cgi;
+        #cgi py /usr/bin/python3;
         autoindex on;
     }
 

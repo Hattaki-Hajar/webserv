@@ -103,7 +103,6 @@ void	Webserv::client_timeout() {
 
 	for(size_t i = 0; i < _Clients.size(); i++) {
 		time = (double)(clock() - _Clients[i]->start) / CLOCKS_PER_SEC;
-		// std::cout << "time: " << time << std::endl;
 		if (time > 30) {
 			this->_Clients[i]->set_reading_status(true);
 			this->_Clients[i]->timeout = true;
@@ -142,7 +141,7 @@ void	Webserv::start()
 				client_nb = find_client(_Clients, fd);
 				if (events[j].events & EPOLLIN)
 				{
-					_Clients[client_nb]->_EPPOL = true;
+					_Clients[client_nb]->_EPOLL = true;
 					bzero(_Clients[client_nb]->get_buffer(), BUFFER_SIZE + 1);
 					bytesread = read(fd, _Clients[client_nb]->get_buffer(), BUFFER_SIZE);
 					size += bytesread;
@@ -156,10 +155,11 @@ void	Webserv::start()
 				}
 				if (events[j].events & EPOLLOUT)
 				{
-					if (!_Clients[client_nb]->_EPPOL)
-						continue ;
-					if (!_Clients[client_nb]->get_request()->_headers_read)
-						_Clients[client_nb]->_request->_status_code = 400;
+					if (!_Clients[client_nb]->_EPOLL && !_Clients[client_nb]->timeout)
+						break ;
+					if (!_Clients[client_nb]->get_request()->_headers_read && !_Clients[client_nb]->timeout)
+						continue;
+						// _Clients[client_nb]->_request->_status_code = 400;
 					if (_Clients[client_nb]->get_done_reading()) {
 						if (!_Clients[client_nb]->_response)
 							_Clients[client_nb]->generateResponse();
@@ -183,9 +183,9 @@ void	Webserv::start()
 						}
 					}
 				}
-				this->client_timeout();
-				this->check_cgi();
 			}
+			this->client_timeout();
+			this->check_cgi();
 		}
 		catch (std::exception &e) {
 			(void)e;

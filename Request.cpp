@@ -91,7 +91,7 @@ bool	Request::is_req_well_formed(void) {
 	else if (_request_line.uri.length() > 2048)
 		_status_code = 414;
 
-	if (_request_line.method == "POST") {
+	else if (_request_line.method == "POST") {
 
 		if (_headers.find("Transfer-Encoding") != _headers.end()) {
 			if (_headers["Transfer-Encoding"] != "chunked")
@@ -314,13 +314,12 @@ void	Request::split_request(char *buffer, ssize_t bytesread) {
 		}
 		// If the request is not chunked.
 		else if (get_headers().find("Content-Length") != get_headers().end()) {
-			// std::cout << "debug: not chunked" << std::endl;
-			if (bytesread) {
-				if (_headers.find("Content-Type") == _headers.end()) {
+			if (_headers.find("Content-Type") == _headers.end()) {
 					_end_of_request = true;
 					_status_code = 400;
 					return ;
-				}
+			}
+			if (bytesread) {
 				if (_status_code == 200) {
 					*(this->time_start) = clock();
 					// std::cout << "writing to file" << std::endl;
@@ -342,6 +341,7 @@ void	Request::split_request(char *buffer, ssize_t bytesread) {
 		}
 	}
 	else {
+		// std::cout << "GET" << std::endl;
 		_end_of_request = true;
 		return ;
 	}
@@ -373,7 +373,7 @@ void	Request::parse_request() {
 	// print _request_line
 	std::cout << "method: " << _request_line.method << std::endl;
 	std::cout << "uri: " << _request_line.uri << std::endl;
-	std::cout << "version: " << _request_line.version << std::endl;
+	std::cout << "version:[" << _request_line.version << "]" << std::endl;
 	// print _headers
 	std::map<std::string, std::string>::iterator it = _headers.begin();
 	while (it != _headers.end()) {

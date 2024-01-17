@@ -18,7 +18,7 @@ class Client
 	bool				_done_reading;
 	Client();
 public:
-	bool				_EPPOL;
+	bool				_EPOLL;
 	Request 			*_request;
 	Cgi					*_cgi;
 	Response			*_response;

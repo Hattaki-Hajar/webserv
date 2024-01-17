@@ -12,6 +12,7 @@ Client::Client(Server &s):_server(s) {
 	_request = new Request();
 	_request->set_time_start(&start);
 	_cgi = 0;
+	_EPOLL = false;
 
 	this->timeout = false;
 	this->start = clock();
@@ -70,6 +71,7 @@ void	Client::clear_buffer() {
 	bzero(_buffer, BUFFER_SIZE + 1);
 }
 void	Client::parse_request() {
+	*(this->_request->time_start) = clock();
 	_request->split_request(_buffer, _bytesread);
 
 	if (_request->get_end_of_request()) {
