@@ -331,8 +331,12 @@ void	Request::split_request(char *buffer, ssize_t bytesread) {
 			}
 			// Check if the request is complete.
 			if (get_size_read() == atol(get_headers()["Content-Length"].c_str())) {
-				// std::cout << "end of request" << std::endl;
 				_end_of_request = true;
+				return ;
+			}
+			if (get_size_read() > atol(get_headers()["Content-Length"].c_str())) {
+				_end_of_request = true;
+				_status_code = 400;
 				return ;
 			}
 		}
