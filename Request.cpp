@@ -77,6 +77,8 @@ std::string	Request::get_file_path() const {
 /*	additional functions	*/
 bool	Request::is_req_well_formed(void) {
 	// The server does not recognize the request method.
+	std::cout << "__request_line._uri: " << _request_line.uri << std::endl;
+
 	if (_request_line.method.empty() || _request_line.uri.empty() || _request_line.version.empty())
 		_status_code = 400;
 	
@@ -354,12 +356,21 @@ void	Request::parse_request() {
 	std::string line;
 	getline(ss, line);
 	line = line.substr(0, line.length() - 1);
-
-	_request_line.method = line.substr(0, line.find(' '));
-	line.erase(0, line.find(' ') + 1);
-	_request_line.uri = line.substr(0, line.find(' '));
-	line.erase(0, line.find(' ') + 1);
-	_request_line.version = line.substr(0, line.find(' '));
+	if (line.find(' ') == std::string::npos) {
+		_request_line.method = "";
+	}
+	else {
+		_request_line.method = line.substr(0, line.find(' '));
+		line.erase(0, line.find(' ') + 1);
+	}
+	if (line.find(' ') == std::string::npos) {
+		_request_line.uri = "";
+	}
+	else {
+		_request_line.uri = line.substr(0, line.find(' '));
+		line.erase(0, line.find(' ') + 1);
+	}
+	_request_line.version = line.substr(0, std::string::npos);
 	while (getline(ss, line))
 	{
 		if (line.find("\r") == std::string::npos) {
@@ -369,6 +380,8 @@ void	Request::parse_request() {
 		}
 		if (line.find(':') != std::string::npos)
 			_headers[line.substr(0, line.find(':'))] = line.substr(line.find(':') + 2);
+		else if (line.length() > 0)
+			_request_line.method = "";
 	}
 	// print _request_line
 	std::cout << "method: " << _request_line.method << std::endl;

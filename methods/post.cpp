@@ -6,6 +6,12 @@ void    Response::post() {
         _status_code = 404;
         return ;
     }
+    int type = get_resource_type();
+    if (type == NOT_FOUND) {
+        std::remove(_file_path.c_str());
+        _status_code = 404;
+        return;
+    }
     if (!_location.upload_path.empty()) {
     std::cout << "In post" << std::endl;
         std::cout << "file_path: " << _file_path << std::endl;
@@ -15,18 +21,12 @@ void    Response::post() {
         std::fstream file(path.c_str(), std::ios::out | std::ios::trunc);
         if (file.fail()) {
             std::remove(_file_path.c_str());
-            _status_code = 409;
+            _status_code = 500;
             return ;
         }
         std::rename(_file_path.c_str(), path.c_str());
         _status_code = 201;
         std::cout << "Created" << std::endl;
-        return;
-    }
-    int type = get_resource_type();
-    if (type == NOT_FOUND) {
-        std::remove(_file_path.c_str());
-        _status_code = 404;
         return;
     }
     if (type == FILE) {
