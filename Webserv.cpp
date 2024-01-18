@@ -68,9 +68,22 @@ void	Webserv::check_cgi()
 	double	time;
 	clock_t	end;
 	int		status;
+	// double client_time;
 	
 	for (size_t i = 0; i < _Clients.size(); i++)
 	{
+		// if (_Clients[i]->_cgi && !_Clients[i]->_cgi->is_running) {
+		// 	client_time = (double)(clock() - _Clients[i]->start) / CLOCKS_PER_SEC;
+		// 	// std::cout << "client time: " << client_time << std::endl;
+		// 	if (client_time >= 30)
+		// 	{
+		// 		// std::cout << "client timeout" << std::endl;
+		// 		this->_Clients[i]->set_reading_status(true);
+		// 		this->_Clients[i]->timeout = true;
+		// 		if (!_Clients[i]->_response)
+		// 			_Clients[i]->generateResponse();
+		// 	}
+		// }
 		if (_Clients[i]->_cgi && _Clients[i]->_cgi->is_running)
 		{
 			end = clock();
@@ -86,15 +99,19 @@ void	Webserv::check_cgi()
 			else
 			{
 				time = (double)(end - _Clients[i]->_cgi->_start) / CLOCKS_PER_SEC;
+				// std::cout << "time: " << time << std::endl;
 				if (time >= 30)
 				{
+					// std::cout << "killing cgi" << std::endl;
 					kill(_Clients[i]->_cgi->_pid, SIGKILL);
+					waitpid(_Clients[i]->_cgi->_pid, &status, 0);
 					_Clients[i]->_response->set_status_code(504);
 					_Clients[i]->_cgi->is_running = false;
 					_Clients[i]->_cgi->is_complete = true;
 				}
 			}
 		}
+
 	}
 }
 
@@ -103,7 +120,8 @@ void	Webserv::client_timeout() {
 
 	for(size_t i = 0; i < _Clients.size(); i++) {
 		time = (double)(clock() - _Clients[i]->start) / CLOCKS_PER_SEC;
-		if (time > 30) {
+		std::cout << "time: " << time << std::endl;
+		if (time >= 30) {
 			this->_Clients[i]->set_reading_status(true);
 			this->_Clients[i]->timeout = true;
 			if (!this->_Clients[i]->_response)
@@ -131,6 +149,7 @@ void	Webserv::start()
 				throw std::runtime_error("epoll_wait failed!");
 			for (int j = 0; j < event_nb; j++)
 			{
+				// std::cout << "event_nb: " << event_nb << std::endl;
 				fd = events[j].data.fd;
 				i = is_server_socket(_Servers, fd);
 				if (i >= 0)
@@ -139,27 +158,49 @@ void	Webserv::start()
 					continue ;
 				}
 				client_nb = find_client(_Clients, fd);
+				// if (events[j].events & EPOLLERR || events[j].events & EPOLLHUP)
+				// {
+				// 	std::cout << "EPOLLERR" << std::endl;
+				// 	// epoll_ctl(epfd, EPOLL_CTL_DEL, fd, NULL);
+				// 	// close(fd);
+				// 	// delete _Clients[client_nb];
+				// 	// _Clients.erase(_Clients.begin() + client_nb);
+				// 	// continue ;
+				// }
+				if (events[j].events & EPOLLERR )
+					std::cout << "EPOLLERR" << std::endl;
+				if (events[j].events & EPOLLHUP)
+					std::cout << "EPOLLHUP" << std::endl;
 				if (events[j].events & EPOLLIN)
 				{
+					std::cout << "EPOLLIN" << std::endl;
 					_Clients[client_nb]->_EPOLL = true;
 					bzero(_Clients[client_nb]->get_buffer(), BUFFER_SIZE + 1);
 					bytesread = read(fd, _Clients[client_nb]->get_buffer(), BUFFER_SIZE);
 					size += bytesread;
 					
 					_Clients[client_nb]->set_bytesread(bytesread);
-					if (bytesread <= 0) {
-						continue ;
-					}
+					// if (_Clients[client_nb]->timeout)
+					// {
+					// 	std::cout << "client hung up" << std::endl;
+					// }
+					// if (bytesread <= 0) {
+					// 	continue ;
+					// }
+					std::cout << "bytesread: " << bytesread << std::endl;
 					_Clients[client_nb]->parse_request();
 					_Clients[client_nb]->clear_buffer();
 				}
 				if (events[j].events & EPOLLOUT)
 				{
-					if (!_Clients[client_nb]->_EPOLL && !_Clients[client_nb]->timeout)
+					if (!_Clients[client_nb]->_EPOLL && !_Clients[client_nb]->timeout) {
+						// std::cout << " break " << std::endl;
 						break ;
-					if (!_Clients[client_nb]->get_request()->_headers_read && !_Clients[client_nb]->timeout)
+					}
+					if (!_Clients[client_nb]->get_request()->_headers_read && !_Clients[client_nb]->timeout) {
+						// std::cout << " continue " << std::endl;
 						continue;
-						// _Clients[client_nb]->_request->_status_code = 400;
+					}
 					if (_Clients[client_nb]->get_done_reading()) {
 						if (!_Clients[client_nb]->_response)
 							_Clients[client_nb]->generateResponse();
@@ -177,6 +218,7 @@ void	Webserv::start()
 									kill(_Clients[client_nb]->_cgi->_pid, SIGKILL);
 								}
 							}
+							// std::cout << "closing fd: " << fd << std::endl;
 							close(fd);
 							delete _Clients[client_nb];
 							_Clients.erase(_Clients.begin() + client_nb);
@@ -184,8 +226,10 @@ void	Webserv::start()
 					}
 				}
 			}
+			// if ()
 			this->client_timeout();
 			this->check_cgi();
+			std::cout << "client size: " << _Clients.size() << std::endl;
 		}
 		catch (std::exception &e) {
 			(void)e;

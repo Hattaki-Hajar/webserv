@@ -371,15 +371,15 @@ void	Request::parse_request() {
 			_headers[line.substr(0, line.find(':'))] = line.substr(line.find(':') + 2);
 	}
 	// print _request_line
-	std::cout << "method: " << _request_line.method << std::endl;
-	std::cout << "uri: " << _request_line.uri << std::endl;
-	std::cout << "version:[" << _request_line.version << "]" << std::endl;
-	// print _headers
-	std::map<std::string, std::string>::iterator it = _headers.begin();
-	while (it != _headers.end()) {
-		std::cout << it->first << ": " << it->second << std::endl;
-		it++;
-	}
+	// std::cout << "method: " << _request_line.method << std::endl;
+	// std::cout << "uri: " << _request_line.uri << std::endl;
+	// std::cout << "version:[" << _request_line.version << "]" << std::endl;
+	// // print _headers
+	// std::map<std::string, std::string>::iterator it = _headers.begin();
+	// while (it != _headers.end()) {
+	// 	std::cout << it->first << ": " << it->second << std::endl;
+	// 	it++;
+	// }
 
 	_request_headers.clear();
 }

@@ -5,7 +5,7 @@ Client::Client(Server &s):_server(s) {
 	_addr.sin_family = AF_INET;
 	_addr_size = sizeof(_addr);
 	_event = new epoll_event();
-	_event->events = EPOLLIN | EPOLLOUT;
+	_event->events = EPOLLIN | EPOLLOUT | EPOLLERR | EPOLLHUP;
 	_bytesread = -2;
 	bzero(_buffer, BUFFER_SIZE + 1);
 	_done_reading = false;
@@ -22,7 +22,7 @@ Client::Client(Server &s):_server(s) {
 void Client::generateResponse() {
 	if (this->timeout)
 		_request->_status_code = 408;
-	std::cout << "client status code = " << _request->_status_code << std::endl;
+	// std::cout << "client status code = " << _request->_status_code << std::endl;
 	this->_response = new Response(_request->_status_code, *this);
 	this->_cgi = new Cgi(_request->get_headers(), this->_response);
 	this->_response->set_cgi(this->_cgi);
@@ -71,6 +71,8 @@ void	Client::clear_buffer() {
 	bzero(_buffer, BUFFER_SIZE + 1);
 }
 void	Client::parse_request() {
+	if (_bytesread <= 0)
+		return ;
 	*(this->_request->time_start) = clock();
 	_request->split_request(_buffer, _bytesread);
 
