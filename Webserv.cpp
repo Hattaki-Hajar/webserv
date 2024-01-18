@@ -141,11 +141,13 @@ void	Webserv::start()
 				client_nb = find_client(_Clients, fd);
 				if (events[j].events & EPOLLIN)
 				{
+					std::cout << "EPOLLIN" << std::endl;
 					_Clients[client_nb]->_EPOLL = true;
 					bzero(_Clients[client_nb]->get_buffer(), BUFFER_SIZE + 1);
 					bytesread = read(fd, _Clients[client_nb]->get_buffer(), BUFFER_SIZE);
 					size += bytesread;
-					
+					// std::cout << "bytesread: " << bytesread << std::endl;
+
 					_Clients[client_nb]->set_bytesread(bytesread);
 					if (bytesread <= 0) {
 						continue ;
@@ -159,7 +161,7 @@ void	Webserv::start()
 						break ;
 					if (!_Clients[client_nb]->get_request()->_headers_read && !_Clients[client_nb]->timeout)
 						continue;
-					if (_Clients[client_nb]->get_done_reading()) {
+					if (_Clients[client_nb]->get_done_reading() || !(events[j].events & EPOLLIN)) {
 						if (!_Clients[client_nb]->_response)
 							_Clients[client_nb]->generateResponse();
 						if (_Clients[client_nb]->_cgi && !_Clients[client_nb]->_cgi->is_running)
@@ -185,6 +187,7 @@ void	Webserv::start()
 			}
 			this->client_timeout();
 			this->check_cgi();
+			std::cout << "clients: " << _Clients.size() << std::endl;
 		}
 		catch (std::exception &e) {
 			(void)e;

@@ -174,9 +174,9 @@ std::string	Request::generate_extension() {
 			extension = ".xml";
 		else if (_headers["Content-Type"] == "application/zip")
 			extension = ".zip";
+		else
+			_status_code = 501;
 	}
-	else
-		extension = ".txt";
 	
 	return (extension);
 }
@@ -208,6 +208,11 @@ void	Request::split_request(char *buffer, ssize_t bytesread) {
 	if (_request_line.method == "POST") {
 		if (!_is_file_open) {
 			std::string	extension = generate_extension();
+			if (_status_code != 200) {
+				std::cout << "status codeasdfsdfdf" << std::endl;
+				_end_of_request = true;
+				return ;
+			}
 			_file_path = "/nfs/homes/";
 			_file_path += USER;
 			_file_path += "/.cache/" + generate_request_file() + extension;

@@ -18,7 +18,7 @@ Response::Response()    {
 Response::Response(unsigned int status_code, Client &client)
 : _status_code(status_code)   {
     _client = &client;
-    // std::cout << "status:" << _status_code << std::endl;
+    std::cout << "status:" << _status_code << std::endl;
     _total_response_body_length = 0;
     _error_file_good = 0;
     is_complete = false;
