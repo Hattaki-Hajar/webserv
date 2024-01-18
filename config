@@ -25,7 +25,7 @@ server {
         allow GET;
         allow DELETE;
         cgi php /usr/bin/php-cgi;
-        #upload /nfs/homes/ohalim/De/sktop/webserv;
+        #upload /nfs/homes/aharrass/webserv;
         return 301 indasdaksjhdashdex.php;
     }
 
@@ -37,7 +37,7 @@ server {
         allow GET;
         allow DELETE;
         cgi php /usr/bin/php-cgi;
-        #upload /nfs/homes/ohalim/De/sktop/webserv;
+        #upload /nfs/homes/aharrass/webserv;
         #return 301 https://www.youtube.com;
     }
 

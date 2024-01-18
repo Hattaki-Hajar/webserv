@@ -6,7 +6,7 @@
 /*   By: aharrass <aharrass@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/14 15:34:16 by aharrass          #+#    #+#             */
-/*   Updated: 2024/01/17 21:13:56 by aharrass         ###   ########.fr       */
+/*   Updated: 2024/01/18 21:38:45 by aharrass         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -421,7 +421,6 @@ void   Response::set_headers()    {
         std::string line;
         
         getline(_file, line);
-        std::cout << line << std::endl;
         if (line.find("Status: ") != std::string::npos) {
             line.erase(0, 8);
             _status_code = atoi(line.c_str());

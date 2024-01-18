@@ -11,5 +11,5 @@
 #define FILE 1
 #define NOT_FOUND -1
 
-bool check_location(const std::string &path);
+bool check_location(std::string &path);
 int get_resource_type(std::string &path);

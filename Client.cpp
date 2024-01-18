@@ -11,12 +11,12 @@ Client::Client(Server &s):_server(s) {
 	_done_reading = false;
 	_request = new Request();
 	_request->_max_body_size = s.get_max_body_size();
+	this->start = clock();
 	_request->set_time_start(&start);
 	_cgi = 0;
 	_EPOLL = false;
 
 	this->timeout = false;
-	this->start = clock();
 	this->_response = 0;
 }
 
