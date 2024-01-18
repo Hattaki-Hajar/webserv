@@ -14,7 +14,7 @@ void    Response::post() {
     }
     if (!_location.upload_path.empty()) {
     std::cout << "In post" << std::endl;
-        std::cout << "file_path: " << _file_path << std::endl;
+        // std::cout << "file_path: " << _file_path << std::endl;
         std::string path = _location.upload_path + "/" + _file_path.substr(_file_path.find(".cache/") + 7);
         std::cout << "path: " << path << std::endl;
         // std::cout << "file" << std::endl;

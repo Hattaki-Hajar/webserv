@@ -10,6 +10,7 @@ Client::Client(Server &s):_server(s) {
 	bzero(_buffer, BUFFER_SIZE + 1);
 	_done_reading = false;
 	_request = new Request();
+	_request->_max_body_size = s.get_max_body_size();
 	this->start = clock();
 	_request->set_time_start(&start);
 	_cgi = 0;
@@ -22,7 +23,7 @@ Client::Client(Server &s):_server(s) {
 void Client::generateResponse() {
 	if (this->timeout)
 		_request->_status_code = 408;
-	std::cout << "client status code = " << _request->_status_code << std::endl;
+	// std::cout << "client status code = " << _request->_status_code << std::endl;
 	this->_response = new Response(_request->_status_code, *this);
 	this->_cgi = new Cgi(_request->get_headers(), this->_response);
 	this->_response->set_cgi(this->_cgi);
@@ -72,18 +73,11 @@ void	Client::clear_buffer() {
 }
 void	Client::parse_request() {
 	*(this->_request->time_start) = clock();
+
 	_request->split_request(_buffer, _bytesread);
 
-	if (_request->get_end_of_request()) {
-		// std::cout << "end of request" << std::endl;
+	if (_request->get_end_of_request())
 		_done_reading = true;
-	}
-
-	// check if the request body is larger than the max body size.
-	if (_request->get_size_read() > get_server().get_max_body_size() && get_server().get_max_body_size() != -1) {
-		_done_reading = true;
-		_request->_status_code = 413;
-	}
 }
 	/*  Destructor  */
 Client::~Client() {

@@ -18,7 +18,7 @@ Response::Response()    {
 Response::Response(unsigned int status_code, Client &client)
 : _status_code(status_code)   {
     _client = &client;
-    std::cout << "status:" << _status_code << std::endl;
+    // std::cout << "status:" << _status_code << std::endl;
     _total_response_body_length = 0;
     _error_file_good = 0;
     is_complete = false;
@@ -449,7 +449,7 @@ void   Response::set_headers()    {
 		_response += "\r\n";
     bzero(_response_buffer, BUFFER_SIZE);
     strcpy(_response_buffer, _response.c_str());
-    std::cout << "[" << _response << "]" << std::endl;
+    // std::cout << "[" << _response << "]" << std::endl;
     // is_header = true;
     _response_length = _response.length();
 }

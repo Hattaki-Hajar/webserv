@@ -81,8 +81,13 @@ bool	Request::is_req_well_formed(void) {
 	if (_request_line.method.empty() || _request_line.uri.empty() || _request_line.version.empty())
 		_status_code = 400;
 	
-	else if (_request_line.method != "POST" && _request_line.method != "GET" && _request_line.method != "DELETE")
-		_status_code = 501;
+	else if (_request_line.method != "GET" && _request_line.method != "POST" && _request_line.method != "DELETE") {
+		if (_request_line.method == "OPTIONS" || _request_line.method == "HEAD" || _request_line.method == "PUT"
+				|| _request_line.method == "TRACE" || _request_line.method == "CONNECT")
+					_status_code = 501;
+		else
+			_status_code = 400;
+	}
 
 	// The server does not support the HTTP protocol version.
 	else if (_request_line.version != "HTTP/1.1" && _request_line.version != "http1.1")
@@ -91,6 +96,10 @@ bool	Request::is_req_well_formed(void) {
 	// Check the URI Length.
 	else if (_request_line.uri.length() > 2048)
 		_status_code = 414;
+
+	// Check max_body_size.
+	else if (_content_length > _max_body_size)
+		_status_code = 413;
 
 	// Check the request headers in POST method.
 	else if (_request_line.method == "POST") {
@@ -202,7 +211,7 @@ void	Request::split_request(char *buffer, ssize_t bytesread) {
 			_file_path = "/nfs/homes/";
 			_file_path += USER;
 			_file_path += "/.cache/" + generate_request_file() + extension;
-			std::cout << "file_request: " << _file_path << std::endl;
+			// std::cout << "file_request: " << _file_path << std::endl;
 			_file.open(_file_path.c_str(), std::ios::out | std::ios::app);
 			if (!_file.good()) {
 				_status_code = 500;
@@ -323,15 +332,10 @@ void	Request::split_request(char *buffer, ssize_t bytesread) {
 		}
 		// If the request is not chunked.
 		else if (get_headers().find("Content-Length") != get_headers().end()) {
-			std::cout << "bytesread: " << bytesread << std::endl;
-			std::cout << "content_length: " << _content_length << std::endl;
-			std::cout << "size_read: " << _size_read << std::endl;
 			if (_status_code == 200) {
 				*(this->time_start) = clock();
 				if (bytesread < _content_length - _size_read) {
 					_file.write(buffer + i, bytesread);
-					if (!_file.fail())
-						std::cout << "fail" << std::endl;
 					_file.flush();
 					_size_read += bytesread;
 				}
@@ -392,16 +396,6 @@ void	Request::parse_request() {
 		_content_length = atol(_headers["Content-Length"].c_str());
 	else
 		_content_length = 0;
-	// print _request_line
-	std::cout << "method: " << _request_line.method << std::endl;
-	std::cout << "uri: " << _request_line.uri << std::endl;
-	std::cout << "version:[" << _request_line.version << "]" << std::endl;
-	// print _headers
-	std::map<std::string, std::string>::iterator it = _headers.begin();
-	while (it != _headers.end()) {
-		std::cout << it->first << ": " << it->second << std::endl;
-		it++;
-	}
 
 	_request_headers.clear();
 }

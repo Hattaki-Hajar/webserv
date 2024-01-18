@@ -21,7 +21,6 @@ class Request
 	long								_size_read;
 	ssize_t								_chunk_read;
 	ssize_t								_chunks_size;
-	ssize_t								_content_length;
 	std::string							_request_headers;
 	char*								_remaining;
 	ssize_t								_remaining_size;
@@ -30,6 +29,8 @@ class Request
 	bool								_is_file_open;
 	bool								_end_of_request;
 public:
+	ssize_t								_content_length;
+	long								_max_body_size;
 	bool								_headers_read;
 	unsigned int						_status_code;
 	clock_t*	time_start;

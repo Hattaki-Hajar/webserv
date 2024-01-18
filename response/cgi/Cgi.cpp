@@ -113,7 +113,7 @@ void	Cgi::run(const std::string &bin)
 
 void	Cgi::php_setup(const std::string &file_path)
 {
-	std::cout << "file_path:[" << file_path << "]" << std::endl;
+	// std::cout << "file_path:[" << file_path << "]" << std::endl;
 	std::cout << "php setup" << std::endl;
 	std::map<std::string, std::string>::iterator    it = this->_extension_map.find("php");
 	int check = access((it->second).c_str(), F_OK && X_OK);

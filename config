@@ -1,7 +1,7 @@
 server {
     listen 127.0.0.1:1234;
     root /nfs/homes/ohalim/Desktop/webserv;
-    client_max_body_size 500000000;
+    client_max_body_size 5;
     #error_page 404 /nfs/homes/ohalim/Desktop/webserv/index.php;
     #index index.html;
 
