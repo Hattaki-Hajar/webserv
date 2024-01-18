@@ -11,12 +11,12 @@ Client::Client(Server &s):_server(s) {
 	_done_reading = false;
 	_request = new Request();
 	_request->_max_body_size = s.get_max_body_size();
-	this->start = clock();
 	_request->set_time_start(&start);
 	_cgi = 0;
 	_EPOLL = false;
 
 	this->timeout = false;
+	this->start = clock();
 	this->_response = 0;
 }
 
@@ -72,6 +72,8 @@ void	Client::clear_buffer() {
 	bzero(_buffer, BUFFER_SIZE + 1);
 }
 void	Client::parse_request() {
+	if (_bytesread <= 0)
+		return ;
 	*(this->_request->time_start) = clock();
 
 	_request->split_request(_buffer, _bytesread);

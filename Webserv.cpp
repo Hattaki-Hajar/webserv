@@ -89,6 +89,7 @@ void	Webserv::check_cgi()
 				if (time >= 30)
 				{
 					kill(_Clients[i]->_cgi->_pid, SIGKILL);
+					waitpid(_Clients[i]->_cgi->_pid, &status, 0);
 					_Clients[i]->_response->set_status_code(504);
 					_Clients[i]->_cgi->is_running = false;
 					_Clients[i]->_cgi->is_complete = true;
@@ -149,18 +150,14 @@ void	Webserv::start()
 					// std::cout << "bytesread: " << bytesread << std::endl;
 
 					_Clients[client_nb]->set_bytesread(bytesread);
-					if (bytesread <= 0) {
-						continue ;
-					}
 					_Clients[client_nb]->parse_request();
 					_Clients[client_nb]->clear_buffer();
 				}
 				if (events[j].events & EPOLLOUT)
 				{
-					if (!_Clients[client_nb]->_EPOLL && !_Clients[client_nb]->timeout)
-						break ;
-					if (!_Clients[client_nb]->get_request()->_headers_read && !_Clients[client_nb]->timeout)
+					if (!_Clients[client_nb]->get_request()->_headers_read && !_Clients[client_nb]->timeout) {
 						continue;
+					}
 					if (_Clients[client_nb]->get_done_reading() || !(events[j].events & EPOLLIN)) {
 						if (!_Clients[client_nb]->_response)
 							_Clients[client_nb]->generateResponse();
