@@ -10,12 +10,12 @@ Client::Client(Server &s):_server(s) {
 	bzero(_buffer, BUFFER_SIZE + 1);
 	_done_reading = false;
 	_request = new Request();
+	this->start = clock();
 	_request->set_time_start(&start);
 	_cgi = 0;
 	_EPOLL = false;
 
 	this->timeout = false;
-	this->start = clock();
 	this->_response = 0;
 }
 

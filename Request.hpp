@@ -21,6 +21,7 @@ class Request
 	long								_size_read;
 	ssize_t								_chunk_read;
 	ssize_t								_chunks_size;
+	ssize_t								_content_length;
 	std::string							_request_headers;
 	char*								_remaining;
 	ssize_t								_remaining_size;

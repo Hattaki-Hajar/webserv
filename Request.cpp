@@ -323,24 +323,27 @@ void	Request::split_request(char *buffer, ssize_t bytesread) {
 		}
 		// If the request is not chunked.
 		else if (get_headers().find("Content-Length") != get_headers().end()) {
-			if (bytesread) {
-				if (_status_code == 200) {
-					*(this->time_start) = clock();
-					// std::cout << "writing to file" << std::endl;
-					_file.write(buffer + i, bytesread - i);
+			std::cout << "bytesread: " << bytesread << std::endl;
+			std::cout << "content_length: " << _content_length << std::endl;
+			std::cout << "size_read: " << _size_read << std::endl;
+			if (_status_code == 200) {
+				*(this->time_start) = clock();
+				if (bytesread < _content_length - _size_read) {
+					_file.write(buffer + i, bytesread);
+					if (!_file.fail())
+						std::cout << "fail" << std::endl;
 					_file.flush();
+					_size_read += bytesread;
 				}
-				_size_read += bytesread;
-			}
-			// Check if the request is complete.
-			if (get_size_read() == atol(get_headers()["Content-Length"].c_str())) {
-				_end_of_request = true;
-				return ;
-			}
-			if (get_size_read() > atol(get_headers()["Content-Length"].c_str())) {
-				_end_of_request = true;
-				_status_code = 400;
-				return ;
+				else {
+					_file.write(buffer + i, _content_length - _size_read);
+					_file.flush();
+					_size_read += _content_length - _size_read;
+				}
+				if (_size_read == _content_length) {
+					_end_of_request = true;
+					return ;
+				}
 			}
 		}
 	}
@@ -385,6 +388,10 @@ void	Request::parse_request() {
 		else if (line.length() > 0)
 			_request_line.method = "";
 	}
+	if (_headers.find("Content-Length") != _headers.end())
+		_content_length = atol(_headers["Content-Length"].c_str());
+	else
+		_content_length = 0;
 	// print _request_line
 	std::cout << "method: " << _request_line.method << std::endl;
 	std::cout << "uri: " << _request_line.uri << std::endl;
