@@ -77,31 +77,49 @@ std::string	Request::get_file_path() const {
 /*	additional functions	*/
 bool	Request::is_req_well_formed(void) {
 	// The server does not recognize the request method.
+
 	if (_request_line.method.empty() || _request_line.uri.empty() || _request_line.version.empty())
 		_status_code = 400;
 	
-	else if (_request_line.method != "POST" && _request_line.method != "GET" && _request_line.method != "DELETE")
-		_status_code = 501;
+	else if (_request_line.method != "GET" && _request_line.method != "POST" && _request_line.method != "DELETE") {
+		if (_request_line.method == "OPTIONS" || _request_line.method == "HEAD" || _request_line.method == "PUT"
+				|| _request_line.method == "TRACE" || _request_line.method == "CONNECT")
+					_status_code = 501;
+		else
+			_status_code = 400;
+	}
 
 	// The server does not support the HTTP protocol version.
 	else if (_request_line.version != "HTTP/1.1" && _request_line.version != "http1.1")
 		_status_code = 505;
 
-	// URI
+	// Check the URI Length.
 	else if (_request_line.uri.length() > 2048)
 		_status_code = 414;
 
+	// Check max_body_size.
+	else if (_content_length > _max_body_size)
+		_status_code = 413;
+
+	// Check the request headers in POST method.
 	else if (_request_line.method == "POST") {
 
-		if (_headers.find("Transfer-Encoding") != _headers.end()) {
+		if (_headers.find("Transfer-Encoding") == _headers.end() && _headers.find("Content-Length") == _headers.end())
+			_status_code = 411;
+
+		else if (_headers.find("Transfer-Encoding") != _headers.end() && _headers.find("Content-Length") != _headers.end())
+			_status_code = 400;
+
+		else if (_headers.find("Transfer-Encoding") != _headers.end()) {
 			if (_headers["Transfer-Encoding"] != "chunked")
 				_status_code = 501;
-			else if (_headers.find("Content-Length") != _headers.end() || _headers.find("Content-Type") == _headers.end())
+			else if (_headers.find("Content-Type") == _headers.end())
 				_status_code = 400;
 		}
-
-		else if (_headers.find("Transfer-Encoding") == _headers.end() && _headers.find("Content-Length") == _headers.end())
-			_status_code = 411;
+		else if (_headers.find("Content-Length") != _headers.end()) {
+			if (_headers.find("Content-Type") == _headers.end())
+				_status_code = 400;
+		}
 	}
 
 	if (_status_code != 200)
@@ -156,9 +174,9 @@ std::string	Request::generate_extension() {
 			extension = ".xml";
 		else if (_headers["Content-Type"] == "application/zip")
 			extension = ".zip";
+		else
+			_status_code = 501;
 	}
-	else
-		extension = ".txt";
 	
 	return (extension);
 }
@@ -190,10 +208,15 @@ void	Request::split_request(char *buffer, ssize_t bytesread) {
 	if (_request_line.method == "POST") {
 		if (!_is_file_open) {
 			std::string	extension = generate_extension();
+			if (_status_code != 200) {
+				std::cout << "status codeasdfsdfdf" << std::endl;
+				_end_of_request = true;
+				return ;
+			}
 			_file_path = "/nfs/homes/";
 			_file_path += USER;
 			_file_path += "/.cache/" + generate_request_file() + extension;
-			std::cout << "file_request: " << _file_path << std::endl;
+			// std::cout << "file_request: " << _file_path << std::endl;
 			_file.open(_file_path.c_str(), std::ios::out | std::ios::app);
 			if (!_file.good()) {
 				_status_code = 500;
@@ -314,34 +337,27 @@ void	Request::split_request(char *buffer, ssize_t bytesread) {
 		}
 		// If the request is not chunked.
 		else if (get_headers().find("Content-Length") != get_headers().end()) {
-			if (_headers.find("Content-Type") == _headers.end()) {
-					_end_of_request = true;
-					_status_code = 400;
-					return ;
-			}
-			if (bytesread) {
-				if (_status_code == 200) {
-					*(this->time_start) = clock();
-					// std::cout << "writing to file" << std::endl;
-					_file.write(buffer + i, bytesread - i);
+			if (_status_code == 200) {
+				*(this->time_start) = clock();
+				if (bytesread < _content_length - _size_read) {
+					_file.write(buffer + i, bytesread);
 					_file.flush();
+					_size_read += bytesread;
 				}
-				_size_read += bytesread;
-			}
-			// Check if the request is complete.
-			if (get_size_read() == atol(get_headers()["Content-Length"].c_str())) {
-				_end_of_request = true;
-				return ;
-			}
-			if (get_size_read() > atol(get_headers()["Content-Length"].c_str())) {
-				_end_of_request = true;
-				_status_code = 400;
-				return ;
+				else {
+					_file.write(buffer + i, _content_length - _size_read);
+					_file.flush();
+					_size_read += _content_length - _size_read;
+				}
+				if (_size_read == _content_length) {
+					_end_of_request = true;
+					return ;
+				}
 			}
 		}
 	}
+	// If the request is GET or DELETE.
 	else {
-		// std::cout << "GET" << std::endl;
 		_end_of_request = true;
 		return ;
 	}
@@ -354,12 +370,21 @@ void	Request::parse_request() {
 	std::string line;
 	getline(ss, line);
 	line = line.substr(0, line.length() - 1);
-
-	_request_line.method = line.substr(0, line.find(' '));
-	line.erase(0, line.find(' ') + 1);
-	_request_line.uri = line.substr(0, line.find(' '));
-	line.erase(0, line.find(' ') + 1);
-	_request_line.version = line.substr(0, line.find(' '));
+	if (line.find(' ') == std::string::npos) {
+		_request_line.method = "";
+	}
+	else {
+		_request_line.method = line.substr(0, line.find(' '));
+		line.erase(0, line.find(' ') + 1);
+	}
+	if (line.find(' ') == std::string::npos) {
+		_request_line.uri = "";
+	}
+	else {
+		_request_line.uri = line.substr(0, line.find(' '));
+		line.erase(0, line.find(' ') + 1);
+	}
+	_request_line.version = line.substr(0, std::string::npos);
 	while (getline(ss, line))
 	{
 		if (line.find("\r") == std::string::npos) {
@@ -369,17 +394,13 @@ void	Request::parse_request() {
 		}
 		if (line.find(':') != std::string::npos)
 			_headers[line.substr(0, line.find(':'))] = line.substr(line.find(':') + 2);
+		else if (line.length() > 0)
+			_request_line.method = "";
 	}
-	// print _request_line
-	// std::cout << "method: " << _request_line.method << std::endl;
-	// std::cout << "uri: " << _request_line.uri << std::endl;
-	// std::cout << "version:[" << _request_line.version << "]" << std::endl;
-	// // print _headers
-	// std::map<std::string, std::string>::iterator it = _headers.begin();
-	// while (it != _headers.end()) {
-	// 	std::cout << it->first << ": " << it->second << std::endl;
-	// 	it++;
-	// }
+	if (_headers.find("Content-Length") != _headers.end())
+		_content_length = atol(_headers["Content-Length"].c_str());
+	else
+		_content_length = 0;
 
 	_request_headers.clear();
 }

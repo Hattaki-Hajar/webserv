@@ -10,6 +10,7 @@ Client::Client(Server &s):_server(s) {
 	bzero(_buffer, BUFFER_SIZE + 1);
 	_done_reading = false;
 	_request = new Request();
+	_request->_max_body_size = s.get_max_body_size();
 	_request->set_time_start(&start);
 	_cgi = 0;
 	_EPOLL = false;
@@ -74,18 +75,11 @@ void	Client::parse_request() {
 	if (_bytesread <= 0)
 		return ;
 	*(this->_request->time_start) = clock();
+
 	_request->split_request(_buffer, _bytesread);
 
-	if (_request->get_end_of_request()) {
-		// std::cout << "end of request" << std::endl;
+	if (_request->get_end_of_request())
 		_done_reading = true;
-	}
-
-	// check if the request body is larger than the max body size.
-	if (_request->get_size_read() > get_server().get_max_body_size() && get_server().get_max_body_size() != -1) {
-		_done_reading = true;
-		_request->_status_code = 413;
-	}
 }
 	/*  Destructor  */
 Client::~Client() {

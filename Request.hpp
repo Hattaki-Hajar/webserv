@@ -29,6 +29,8 @@ class Request
 	bool								_is_file_open;
 	bool								_end_of_request;
 public:
+	ssize_t								_content_length;
+	long								_max_body_size;
 	bool								_headers_read;
 	unsigned int						_status_code;
 	clock_t*	time_start;

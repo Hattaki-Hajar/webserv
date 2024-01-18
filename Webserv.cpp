@@ -105,6 +105,7 @@ void	Webserv::check_cgi()
 					// std::cout << "killing cgi" << std::endl;
 					kill(_Clients[i]->_cgi->_pid, SIGKILL);
 					waitpid(_Clients[i]->_cgi->_pid, &status, 0);
+					waitpid(_Clients[i]->_cgi->_pid, &status, 0);
 					_Clients[i]->_response->set_status_code(504);
 					_Clients[i]->_cgi->is_running = false;
 					_Clients[i]->_cgi->is_complete = true;
@@ -174,31 +175,20 @@ void	Webserv::start()
 				if (events[j].events & EPOLLIN)
 				{
 					std::cout << "EPOLLIN" << std::endl;
+					std::cout << "EPOLLIN" << std::endl;
 					_Clients[client_nb]->_EPOLL = true;
 					bzero(_Clients[client_nb]->get_buffer(), BUFFER_SIZE + 1);
 					bytesread = read(fd, _Clients[client_nb]->get_buffer(), BUFFER_SIZE);
 					size += bytesread;
-					
+					// std::cout << "bytesread: " << bytesread << std::endl;
+
 					_Clients[client_nb]->set_bytesread(bytesread);
-					// if (_Clients[client_nb]->timeout)
-					// {
-					// 	std::cout << "client hung up" << std::endl;
-					// }
-					// if (bytesread <= 0) {
-					// 	continue ;
-					// }
-					std::cout << "bytesread: " << bytesread << std::endl;
 					_Clients[client_nb]->parse_request();
 					_Clients[client_nb]->clear_buffer();
 				}
 				if (events[j].events & EPOLLOUT)
 				{
-					if (!_Clients[client_nb]->_EPOLL && !_Clients[client_nb]->timeout) {
-						// std::cout << " break " << std::endl;
-						break ;
-					}
 					if (!_Clients[client_nb]->get_request()->_headers_read && !_Clients[client_nb]->timeout) {
-						// std::cout << " continue " << std::endl;
 						continue;
 					}
 					if (_Clients[client_nb]->get_done_reading()) {

@@ -28,7 +28,7 @@ typedef struct location
 	std::string root;
 	bool		autoindex;
 	std::string	index;
-	size_t			max_body_size;
+	ssize_t			max_body_size;
 	int			return_code;
 	std::map<std::string, std::string> cgi;
 	std::string	return_path;

@@ -463,7 +463,7 @@ void   Response::set_headers()    {
 		_response += "\r\n";
     bzero(_response_buffer, BUFFER_SIZE);
     strcpy(_response_buffer, _response.c_str());
-    std::cout << "[" << _response << "]" << std::endl;
+    // std::cout << "[" << _response << "]" << std::endl;
     // is_header = true;
     _response_length = _response.length();
 }
