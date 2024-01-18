@@ -77,7 +77,6 @@ std::string	Request::get_file_path() const {
 /*	additional functions	*/
 bool	Request::is_req_well_formed(void) {
 	// The server does not recognize the request method.
-	std::cout << "__request_line._uri: " << _request_line.uri << std::endl;
 
 	if (_request_line.method.empty() || _request_line.uri.empty() || _request_line.version.empty())
 		_status_code = 400;
@@ -89,21 +88,29 @@ bool	Request::is_req_well_formed(void) {
 	else if (_request_line.version != "HTTP/1.1" && _request_line.version != "http1.1")
 		_status_code = 505;
 
-	// URI
+	// Check the URI Length.
 	else if (_request_line.uri.length() > 2048)
 		_status_code = 414;
 
+	// Check the request headers in POST method.
 	else if (_request_line.method == "POST") {
 
-		if (_headers.find("Transfer-Encoding") != _headers.end()) {
+		if (_headers.find("Transfer-Encoding") == _headers.end() && _headers.find("Content-Length") == _headers.end())
+			_status_code = 411;
+
+		else if (_headers.find("Transfer-Encoding") != _headers.end() && _headers.find("Content-Length") != _headers.end())
+			_status_code = 400;
+
+		else if (_headers.find("Transfer-Encoding") != _headers.end()) {
 			if (_headers["Transfer-Encoding"] != "chunked")
 				_status_code = 501;
-			else if (_headers.find("Content-Length") != _headers.end() || _headers.find("Content-Type") == _headers.end())
+			else if (_headers.find("Content-Type") == _headers.end())
 				_status_code = 400;
 		}
-
-		else if (_headers.find("Transfer-Encoding") == _headers.end() && _headers.find("Content-Length") == _headers.end())
-			_status_code = 411;
+		else if (_headers.find("Content-Length") != _headers.end()) {
+			if (_headers.find("Content-Type") == _headers.end())
+				_status_code = 400;
+		}
 	}
 
 	if (_status_code != 200)
@@ -316,11 +323,6 @@ void	Request::split_request(char *buffer, ssize_t bytesread) {
 		}
 		// If the request is not chunked.
 		else if (get_headers().find("Content-Length") != get_headers().end()) {
-			if (_headers.find("Content-Type") == _headers.end()) {
-					_end_of_request = true;
-					_status_code = 400;
-					return ;
-			}
 			if (bytesread) {
 				if (_status_code == 200) {
 					*(this->time_start) = clock();
@@ -342,8 +344,8 @@ void	Request::split_request(char *buffer, ssize_t bytesread) {
 			}
 		}
 	}
+	// If the request is GET or DELETE.
 	else {
-		// std::cout << "GET" << std::endl;
 		_end_of_request = true;
 		return ;
 	}

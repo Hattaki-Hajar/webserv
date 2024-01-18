@@ -159,7 +159,6 @@ void	Webserv::start()
 						break ;
 					if (!_Clients[client_nb]->get_request()->_headers_read && !_Clients[client_nb]->timeout)
 						continue;
-						// _Clients[client_nb]->_request->_status_code = 400;
 					if (_Clients[client_nb]->get_done_reading()) {
 						if (!_Clients[client_nb]->_response)
 							_Clients[client_nb]->generateResponse();
