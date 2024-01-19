@@ -6,7 +6,7 @@
 /*   By: aharrass <aharrass@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/14 15:34:16 by aharrass          #+#    #+#             */
-/*   Updated: 2024/01/15 09:45:27 by aharrass         ###   ########.fr       */
+/*   Updated: 2024/01/18 21:38:45 by aharrass         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,10 +34,10 @@ Response::Response(unsigned int status_code, Client &client)
     _server_index_path = _client->get_server().get_index();
     _server_error_pages = _client->get_server().get_error_pages();
     match_uri();
-    // std::cout << "---------------------------------------" << std::endl;
-    // std::cout << "old uri = " << _old_uri << std::endl;
-    // std::cout << "new uri = " << _uri << std::endl;
-    // std::cout << "---------------------------------------" << std::endl;
+    std::cout << "---------------------------------------" << std::endl;
+    std::cout << "old uri = " << _old_uri << std::endl;
+    std::cout << "new uri = [" << _uri << "]" << std::endl;
+    std::cout << "---------------------------------------" << std::endl;
     _request_line = _client->get_request()->get_request_line();
     
     fill_extentions();
@@ -297,7 +297,6 @@ void    Response::set_body()    {
         bzero(_response_buffer, BUFFER_SIZE);
         if (_request_line.method != "HEAD") {
             if (_error_file_good == -1) {
-                
                 // strcpy(_response_buffer, _error_page.c_str());
                 _response_length = _error_page.length();
                 for (int i = 0; i < _response_length; i++) {
@@ -417,6 +416,20 @@ void    Response::set_error() {
 }
 
 void   Response::set_headers()    {
+    if (this->_cgi->is_complete) {
+        std::cout << "******cgi is complete*******" << std::endl;
+        std::string line;
+        
+        getline(_file, line);
+        if (line.find("Status: ") != std::string::npos) {
+            line.erase(0, 8);
+            _status_code = atoi(line.c_str());
+        }
+        else {
+            _file.close();
+            _file.open(_file_name.c_str(), std::ios::in);
+        }
+    }
     if (_status_code == 200)    {
         _status_line = "HTTP/1.1 200 OK\r\n";
 		if (!_cgi->is_complete)	{
@@ -445,7 +458,7 @@ void   Response::set_headers()    {
     // if (_status_code == 200)
     //     _response_header += "Content-Length: " + _content_length + "\r\n";
     _response = _status_line + _response_header;
-	if (!_cgi->is_complete)
+	if (!_cgi->is_complete || _status_code != 200)
 		_response += "\r\n";
     bzero(_response_buffer, BUFFER_SIZE);
     strcpy(_response_buffer, _response.c_str());

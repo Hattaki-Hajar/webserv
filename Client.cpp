@@ -5,18 +5,18 @@ Client::Client(Server &s):_server(s) {
 	_addr.sin_family = AF_INET;
 	_addr_size = sizeof(_addr);
 	_event = new epoll_event();
-	_event->events = EPOLLIN | EPOLLOUT;
+	_event->events = EPOLLIN | EPOLLOUT | EPOLLERR | EPOLLHUP;
 	_bytesread = -2;
 	bzero(_buffer, BUFFER_SIZE + 1);
 	_done_reading = false;
 	_request = new Request();
 	_request->_max_body_size = s.get_max_body_size();
+	this->start = clock();
 	_request->set_time_start(&start);
 	_cgi = 0;
 	_EPOLL = false;
 
 	this->timeout = false;
-	this->start = clock();
 	this->_response = 0;
 }
 

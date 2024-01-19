@@ -68,26 +68,44 @@ void	Webserv::check_cgi()
 	double	time;
 	clock_t	end;
 	int		status;
+	double client_time;
 	
 	for (size_t i = 0; i < _Clients.size(); i++)
 	{
+		if ((_Clients[i]->_cgi && !_Clients[i]->_cgi->is_running) || !_Clients[i]->_cgi) {
+			client_time = (double)(clock() - _Clients[i]->start) / CLOCKS_PER_SEC;
+			// std::cout << "client time: " << client_time << std::endl;
+			if (client_time >= 30)
+			{
+				// std::cout << "client timeout" << std::endl;
+				this->_Clients[i]->set_reading_status(true);
+				this->_Clients[i]->timeout = true;
+				if (!_Clients[i]->_response)
+					_Clients[i]->generateResponse();
+			}
+		}
 		if (_Clients[i]->_cgi && _Clients[i]->_cgi->is_running)
 		{
 			end = clock();
 			if (waitpid(_Clients[i]->_cgi->_pid, &status, WNOHANG) > 0)
 			{
-				if (WIFEXITED(status))
+				if (WIFEXITED(status)) {
 					_Clients[i]->_response->set_status_code(200);
-				else
+				}
+				else {
+					std::cout << "cgi exited abnormally" << std::endl;
 					_Clients[i]->_response->set_status_code(500);
+				}
 				_Clients[i]->_cgi->is_running = false;
 				_Clients[i]->_cgi->is_complete = true;
 			}
 			else
 			{
 				time = (double)(end - _Clients[i]->_cgi->_start) / CLOCKS_PER_SEC;
+				// std::cout << "time: " << time << std::endl;
 				if (time >= 30)
 				{
+					// std::cout << "killing cgi" << std::endl;
 					kill(_Clients[i]->_cgi->_pid, SIGKILL);
 					waitpid(_Clients[i]->_cgi->_pid, &status, 0);
 					_Clients[i]->_response->set_status_code(504);
@@ -96,6 +114,7 @@ void	Webserv::check_cgi()
 				}
 			}
 		}
+
 	}
 }
 
@@ -103,14 +122,16 @@ void	Webserv::client_timeout() {
 	double time;
 
 	for(size_t i = 0; i < _Clients.size(); i++) {
-		time = (double)(clock() - _Clients[i]->start) / CLOCKS_PER_SEC;
-		if (time > 30) {
-			this->_Clients[i]->set_reading_status(true);
-			this->_Clients[i]->timeout = true;
-			if (!this->_Clients[i]->_response)
-				this->_Clients[i]->generateResponse();
+		if ((_Clients[i]->_cgi && !_Clients[i]->_cgi->is_running) || !_Clients[i]->_cgi) {
+			time = (double)(clock() - _Clients[i]->start) / CLOCKS_PER_SEC;
+			std::cout << "time: " << time << std::endl;
+			if (time >= 30) {
+				this->_Clients[i]->set_reading_status(true);
+				this->_Clients[i]->timeout = true;
+				if (!this->_Clients[i]->_response)
+					this->_Clients[i]->generateResponse();
+			}
 		}
-			
 	}
 }
 
@@ -121,7 +142,7 @@ void	Webserv::start()
 	// double time;
 	char buffer[BUFFER_SIZE + 1];
 	bzero(buffer, BUFFER_SIZE + 1);
-	int epfd = epoll_create1(0), event_nb = 0, fd;
+	int epfd = epoll_create(MAX_EVENTS), event_nb = 0, fd;
 	epoll_event	events[MAX_EVENTS];
 	set_up_webserv(_Servers, epfd);
 	while (1)
@@ -147,8 +168,6 @@ void	Webserv::start()
 					bzero(_Clients[client_nb]->get_buffer(), BUFFER_SIZE + 1);
 					bytesread = read(fd, _Clients[client_nb]->get_buffer(), BUFFER_SIZE);
 					size += bytesread;
-					// std::cout << "bytesread: " << bytesread << std::endl;
-
 					_Clients[client_nb]->set_bytesread(bytesread);
 					_Clients[client_nb]->parse_request();
 					_Clients[client_nb]->clear_buffer();
@@ -158,7 +177,7 @@ void	Webserv::start()
 					if (!_Clients[client_nb]->get_request()->_headers_read && !_Clients[client_nb]->timeout) {
 						continue;
 					}
-					if (_Clients[client_nb]->get_done_reading() || !(events[j].events & EPOLLIN)) {
+					if (_Clients[client_nb]->get_done_reading()) {
 						if (!_Clients[client_nb]->_response)
 							_Clients[client_nb]->generateResponse();
 						if (_Clients[client_nb]->_cgi && !_Clients[client_nb]->_cgi->is_running)
@@ -182,7 +201,7 @@ void	Webserv::start()
 					}
 				}
 			}
-			this->client_timeout();
+			// this->client_timeout();
 			this->check_cgi();
 			std::cout << "clients: " << _Clients.size() << std::endl;
 		}

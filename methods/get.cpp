@@ -6,7 +6,7 @@
 /*   By: aharrass <aharrass@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/31 21:59:20 by aharrass          #+#    #+#             */
-/*   Updated: 2024/01/15 09:44:54 by aharrass         ###   ########.fr       */
+/*   Updated: 2024/01/18 21:37:16 by aharrass         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,12 +89,12 @@ void Response::get()  {
         }
     }
     else if (type == FILE)  {
-		// std::cout << "debug: in get file" << std::endl;
         std::string extension = get_ext();
 		std::map<std::string, std::string>::iterator it = _location.cgi.find(extension);
         if ((extension == "php" && it != _location.cgi.end()) || (extension == "py" && it != _location.cgi.end())){
             try
             {
+                std::cout << "---------------------------here" << std::endl;
                 if (extension == "php")
                     _cgi->php_setup("");
                 else
@@ -121,7 +121,11 @@ void Response::get()  {
                 _status_code = 403;
                 return;
             }
-            _content_type = _extensions[get_ext()];
+            if (_extensions[get_ext()].empty())
+                _content_type = "text/plain";
+            else
+                _content_type = _extensions[get_ext()];
+            // _content_type = _extensions[get_ext()];
             
         }
         return ;

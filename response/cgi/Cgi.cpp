@@ -152,17 +152,6 @@ void	Cgi::php_setup(const std::string &file_path)
 	this->_pid = fork();
 	if (!this->_pid)
 		run(it->second);
-	else    {
-		int status;
-		close(this->_outfile);
-		waitpid(this->_pid, &status, WNOHANG);
-		if (WIFEXITED(status))   {
-			if (WEXITSTATUS(status) != 0) {
-				// std::cout << WEXITSTATUS(status) << std::endl;
-				this->_response->set_status_code(500);
-			}
-		}
-	}
 }
 
 void	Cgi::py_setup(const std::string &file_path)
@@ -204,14 +193,4 @@ void	Cgi::py_setup(const std::string &file_path)
 	this->_pid = fork();
 	if (!this->_pid)
 		run("/usr/bin/python3");
-	else    {
-		int status;
-		waitpid(this->_pid, &status, WNOHANG);
-		if (WIFEXITED(status))   {
-			if (WEXITSTATUS(status) != 0) {
-				// std::cout << WEXITSTATUS(status) << std::endl;
-				_response->set_status_code(500);
-			}
-		}
-	}
 }
